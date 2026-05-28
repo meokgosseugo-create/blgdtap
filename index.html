@@ -1,0 +1,1198 @@
+import React, { useState, useMemo } from 'react';
+import { 
+  Home, Building2, Users, Settings, Plus, Search, MapPin, Banknote, Maximize, 
+  Car, List, ArrowLeft, Save, Image as ImageIcon, CheckCircle2, FileText, 
+  Trash2, TrendingUp, UserCircle, Briefcase, Calendar as CalendarIcon, 
+  ChevronLeft, ChevronRight, Phone, User, ArrowUpCircle, Upload, XCircle, Lock
+} from 'lucide-react';
+
+const getYield = (sale, deposit, rent) => {
+  const s = Number(sale) || 0;
+  const d = Number(deposit) || 0;
+  const r = Number(rent) || 0;
+  if (s === 0 || s <= d || r === 0) return '0.0';
+  return (((r * 12) / (s - d)) * 100).toFixed(1);
+};
+
+const formatKoreanCurrency = (val) => {
+  const num = Number(val);
+  if (!num || isNaN(num) || num === 0) return '0원';
+  const eok = Math.floor(num / 10000);
+  const man = num % 10000;
+  let result = '';
+  if (eok > 0) result += `${eok}억 `;
+  if (man > 0) result += `${man.toLocaleString()}만`;
+  return result.trim() + '원';
+};
+
+const initialProperties = [
+  {
+    id: 'P-001',
+    name: '엠파이어 빌딩',
+    ownerName: '홍길동',
+    ownerPhone: '010-1234-5678',
+    type: '빌딩',
+    transactionType: '매매',
+    address: '경기도 성남시 분당구 정자동 124',
+    landArea: 330,
+    totalFloorArea: 1500,
+    floorUnderground: 1,
+    floorGround: 5,
+    elevators: 2,
+    price: { sale: 59000, deposit: 35000, rent: 800, maintenance: 5 },
+    floorDetails: [
+      { id: 1, floor: '1층', deposit: 10000, rent: 500, maintenance: 20, note: '스타벅스 입점' },
+      { id: 2, floor: '2층', deposit: 5000, rent: 300, maintenance: 10, note: '피부과' }
+    ],
+    direction: '남향',
+    description: '본 물건은 성남시 분당구 정자동 124번지에 위치한 역세권 메인 상권 빌딩입니다. 안정적인 임대 수익이 발생 중이며 가시성이 뛰어납니다.',
+    date: '2026-05-27',
+    registrant: '손태호',
+    images: []
+  },
+  {
+    id: 'P-002',
+    name: '창민빌라 301호',
+    ownerName: '김철수',
+    ownerPhone: '010-9876-5432',
+    type: '빌라',
+    transactionType: '전세',
+    address: '경기도 성남시 분당구 정자동 124-1',
+    landArea: 50,
+    totalFloorArea: 85,
+    floorUnderground: 0,
+    floorGround: 4,
+    elevators: 0,
+    price: { sale: 0, deposit: 29000, rent: 0, maintenance: 5 },
+    floorDetails: [
+      { id: 1, floor: '3층', deposit: 29000, rent: 0, maintenance: 5, note: '주거용' }
+    ],
+    direction: '동향',
+    description: '깔끔하게 관리된 창민빌라입니다. 즉시 입주 가능하며 채광이 좋습니다.',
+    date: '2026-05-26',
+    registrant: '손태호',
+    images: []
+  }
+];
+
+const initialEmployees = [
+  { id: 'E-001', name: '손태호', phone: '010-1234-5678', department: '중개법인 대표', date: '2026-05-27' },
+  { id: 'E-002', name: '김과장', phone: '010-1111-2222', department: '영업1팀', date: '2026-05-27' }
+];
+
+const initialCustomers = [
+  { id: 'C-001', name: '이투자', phone: '010-9999-8888', budget: 50000, region: '성남시 분당구', reason: '사옥 이전 목적', date: '2026-05-27' }
+];
+
+export default function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
+
+  const [properties, setProperties] = useState(initialProperties);
+  const [currentView, setCurrentView] = useState('list'); 
+  const [selectedProperty, setSelectedProperty] = useState(null);
+  const [activeTab, setActiveTab] = useState('properties');
+
+  const [employees, setEmployees] = useState(initialEmployees);
+  const [currentEmployeeView, setCurrentEmployeeView] = useState('list');
+
+  const [customers, setCustomers] = useState(initialCustomers);
+  const [currentCustomerView, setCurrentCustomerView] = useState('list');
+
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const handleLogin = (userData) => {
+    setCurrentUser(userData);
+    setIsAuthenticated(true);
+    
+    const isExistingEmployee = employees.some(emp => emp.phone === userData.phone);
+    if (!isExistingEmployee) {
+      const newEmployee = {
+        id: `E-00${employees.length + 1}`,
+        name: userData.name,
+        phone: userData.phone,
+        department: userData.department || '신규 사원',
+        date: new Date().toISOString().split('T')[0]
+      };
+      setEmployees([newEmployee, ...employees]);
+    }
+  };
+
+  const handleViewDetail = (property) => {
+    setSelectedProperty(property);
+    setCurrentView('detail');
+  };
+
+  const handleAddNew = () => {
+    setSelectedProperty(null);
+    setCurrentView('form');
+  };
+
+  const handleBackToList = () => {
+    setCurrentView('list');
+    setSelectedProperty(null);
+  };
+
+  const handleSaveProperty = (savedProperty) => {
+    if (savedProperty.id) {
+      setProperties(prev => prev.map(p => p.id === savedProperty.id ? savedProperty : p));
+      setSelectedProperty(savedProperty);
+      setCurrentView('detail');
+    } else {
+      const newProperty = { 
+        ...savedProperty, 
+        id: `P-00${properties.length + 1}`, 
+        date: new Date().toISOString().split('T')[0],
+        registrant: currentUser ? currentUser.name : '시스템' 
+      };
+      setProperties([newProperty, ...properties]);
+      setCurrentView('list');
+    }
+  };
+
+  const changeTab = (tab) => {
+    setActiveTab(tab);
+    setSearchTerm('');
+  };
+
+  const filteredProperties = properties.filter(p => 
+    p.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    p.address.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const filteredEmployees = employees.filter(e =>
+    e.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    e.department.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const filteredCustomers = customers.filter(c =>
+    c.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    c.region.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  if (!isAuthenticated) {
+    return <LoginView onLogin={handleLogin} />;
+  }
+
+  return (
+    <div className="flex h-screen bg-slate-50 font-sans text-slate-800">
+      <aside className="w-64 bg-slate-900 text-white flex flex-col">
+        <div className="p-6 border-b border-slate-800">
+          <div className="flex items-center gap-3">
+            <Building2 className="w-8 h-8 text-blue-400" />
+            <h1 className="text-xl font-bold tracking-tight">원프로젝트</h1>
+          </div>
+          <p className="text-xs text-slate-400 mt-2">부동산 종합 관리 시스템</p>
+        </div>
+        
+        <nav className="flex-1 p-4 space-y-2">
+          <SidebarItem icon={<CalendarIcon />} label="캘린더" active={activeTab === 'calendar'} onClick={() => changeTab('calendar')} />
+          <SidebarItem icon={<List />} label="물건 관리" active={activeTab === 'properties'} onClick={() => { changeTab('properties'); setCurrentView('list'); }} />
+          <SidebarItem icon={<UserCircle />} label="사원 관리" active={activeTab === 'employees'} onClick={() => { changeTab('employees'); setCurrentEmployeeView('list'); }} />
+          <SidebarItem icon={<Users />} label="고객 관리(매수자)" active={activeTab === 'customers'} onClick={() => { changeTab('customers'); setCurrentCustomerView('list'); }} />
+          <SidebarItem icon={<Settings />} label="시스템 설정" active={activeTab === 'settings'} onClick={() => changeTab('settings')} />
+        </nav>
+        
+        <div className="p-4 border-t border-slate-800">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center font-bold">
+              {currentUser ? currentUser.name.charAt(0) : 'U'}
+            </div>
+            <div>
+              <p className="text-sm font-medium">{currentUser ? currentUser.name : '사용자'} 님</p>
+              <p className="text-xs text-slate-400">{currentUser ? currentUser.department : '부동산 관리자'}</p>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <main className="flex-1 flex flex-col h-screen overflow-hidden">
+        <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-8 shadow-sm z-10">
+          <h2 className="text-xl font-semibold text-slate-800">
+            {activeTab === 'properties' ? '물건 관리' : 
+             activeTab === 'employees' ? '사원 관리' :
+             activeTab === 'customers' ? '고객 관리(매수자)' :
+             activeTab === 'calendar' ? '개인 캘린더' : '관리 메뉴'}
+          </h2>
+          <div className="flex items-center gap-4">
+            <div className="relative">
+              <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
+              <input 
+                type="text" 
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="이름, 지역 검색..." 
+                className="pl-9 pr-4 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-slate-50 w-64 transition-all focus:bg-white"
+              />
+            </div>
+            {activeTab === 'properties' && currentView === 'list' && (
+              <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2 whitespace-nowrap" onClick={handleAddNew}>
+                <Plus className="w-4 h-4" />
+                신규 물건 등록
+              </button>
+            )}
+            {activeTab === 'employees' && currentEmployeeView === 'list' && (
+              <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2" onClick={() => setCurrentEmployeeView('form')}>
+                <Plus className="w-4 h-4" />
+                사원 등록하기
+              </button>
+            )}
+            {activeTab === 'customers' && currentCustomerView === 'list' && (
+              <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors flex items-center gap-2" onClick={() => setCurrentCustomerView('form')}>
+                <Plus className="w-4 h-4" />
+                신규 손님 등록
+              </button>
+            )}
+          </div>
+        </header>
+
+        <div className="flex-1 overflow-auto p-8 relative">
+          {activeTab === 'properties' && (
+            <>
+              {currentView === 'list' && <PropertyListView properties={filteredProperties} onViewDetail={handleViewDetail} />}
+              {currentView === 'detail' && <PropertyDetailView property={selectedProperty} onBack={handleBackToList} onEdit={() => setCurrentView('form')} />}
+              {currentView === 'form' && <PropertyFormView initialData={selectedProperty} onBack={selectedProperty ? () => setCurrentView('detail') : handleBackToList} onSave={handleSaveProperty} />}
+            </>
+          )}
+          {activeTab === 'employees' && (
+            <>
+              {currentEmployeeView === 'list' && <EmployeeListView employees={filteredEmployees} />}
+              {currentEmployeeView === 'form' && (
+                <EmployeeFormView 
+                  onBack={() => setCurrentEmployeeView('list')} 
+                  onSave={(newEmp) => {
+                    setEmployees([{ ...newEmp, id: `E-00${employees.length + 1}`, date: new Date().toISOString().split('T')[0] }, ...employees]);
+                    setCurrentEmployeeView('list');
+                  }} 
+                />
+              )}
+            </>
+          )}
+          {activeTab === 'customers' && (
+            <>
+              {currentCustomerView === 'list' && <CustomerListView customers={filteredCustomers} />}
+              {currentCustomerView === 'form' && (
+                <CustomerFormView 
+                  onBack={() => setCurrentCustomerView('list')} 
+                  onSave={(newCust) => {
+                    setCustomers([{ ...newCust, id: `C-00${customers.length + 1}`, date: new Date().toISOString().split('T')[0] }, ...customers]);
+                    setCurrentCustomerView('list');
+                  }} 
+                />
+              )}
+            </>
+          )}
+          {activeTab === 'calendar' && <CalendarView />}
+          {activeTab !== 'properties' && activeTab !== 'employees' && activeTab !== 'customers' && activeTab !== 'calendar' && (
+            <div className="flex flex-col items-center justify-center h-full text-slate-400">
+              <Building2 className="w-16 h-16 mb-4 text-slate-300" />
+              <p>해당 기능은 준비 중입니다.</p>
+            </div>
+          )}
+        </div>
+      </main>
+    </div>
+  );
+}
+
+function SidebarItem({ icon, label, active, onClick }) {
+  return (
+    <button 
+      onClick={onClick}
+      className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors ${
+        active ? 'bg-blue-600 text-white' : 'text-slate-300 hover:bg-slate-800 hover:text-white'
+      }`}
+    >
+      {React.cloneElement(icon, { className: 'w-5 h-5' })}
+      {label}
+    </button>
+  );
+}
+
+function FormGroup({ label, children }) {
+  return (
+    <div className="flex flex-col gap-1.5">
+      <label className="text-sm font-semibold text-slate-700">{label}</label>
+      {children}
+    </div>
+  );
+}
+
+function SpecRow({ icon, label, value }) {
+  return (
+    <div className="flex items-center justify-between p-4 border-b border-slate-50 last:border-0 hover:bg-slate-50 transition-colors">
+      <div className="flex items-center gap-3 text-slate-500 text-sm">
+        {React.cloneElement(icon, { className: 'w-4 h-4 text-slate-400' })}
+        {label}
+      </div>
+      <div className="font-semibold text-slate-800 text-sm">{value}</div>
+    </div>
+  );
+}
+
+function LoginView({ onLogin }) {
+  const [loginData, setLoginData] = useState({ name: '', phone: '', department: '영업팀' });
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (loginData.name && loginData.phone) {
+      onLogin(loginData);
+    }
+  };
+
+  return (
+    <div className="flex h-screen w-full items-center justify-center bg-slate-100">
+      <div className="w-full max-w-md bg-white p-8 rounded-2xl shadow-xl border border-slate-200">
+        <div className="flex flex-col items-center justify-center mb-8">
+          <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
+            <Building2 className="w-8 h-8 text-blue-600" />
+          </div>
+          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">원프로젝트 CRM</h1>
+          <p className="text-sm text-slate-500 mt-2">사원 정보를 입력하고 접속하세요</p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div className="space-y-1">
+            <label className="text-sm font-bold text-slate-700">이름</label>
+            <div className="relative">
+              <User className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input 
+                required 
+                type="text" 
+                value={loginData.name} 
+                onChange={(e) => setLoginData({...loginData, name: e.target.value})} 
+                placeholder="홍길동" 
+                className="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-xl outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
+              />
+            </div>
+          </div>
+          <div className="space-y-1">
+            <label className="text-sm font-bold text-slate-700">연락처</label>
+            <div className="relative">
+              <Phone className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input 
+                required 
+                type="tel" 
+                value={loginData.phone} 
+                onChange={(e) => setLoginData({...loginData, phone: e.target.value})} 
+                placeholder="010-0000-0000" 
+                className="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-xl outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
+              />
+            </div>
+          </div>
+          <div className="space-y-1">
+            <label className="text-sm font-bold text-slate-700">소속 부서 (선택)</label>
+            <div className="relative">
+              <Briefcase className="w-5 h-5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <input 
+                type="text" 
+                value={loginData.department} 
+                onChange={(e) => setLoginData({...loginData, department: e.target.value})} 
+                placeholder="영업팀" 
+                className="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-xl outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all"
+              />
+            </div>
+          </div>
+
+          <button 
+            type="submit" 
+            className="w-full py-3.5 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-colors shadow-md shadow-blue-200 mt-4 flex items-center justify-center gap-2"
+          >
+            <Lock className="w-5 h-5" /> 접속하기
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+function PropertyListView({ properties, onViewDetail }) {
+  return (
+    <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+      <div className="p-5 border-b border-slate-200 flex justify-between items-center bg-slate-50/50">
+        <h3 className="font-semibold text-slate-800 flex items-center gap-2">
+          <List className="w-5 h-5 text-blue-600" />
+          등록된 물건 목록 <span className="text-blue-600 bg-blue-100 px-2 py-0.5 rounded-full text-xs">{properties.length}</span>
+        </h3>
+      </div>
+      <div className="overflow-x-auto">
+        <table className="w-full text-left border-collapse whitespace-nowrap">
+          <thead>
+            <tr className="bg-slate-50 border-b border-slate-200 text-[11px] uppercase tracking-wider text-slate-500">
+              <th className="p-3 font-medium">거래/종류</th>
+              <th className="p-3 font-medium">물건명 / 소재지</th>
+              <th className="p-3 font-medium text-center">대지(평)</th>
+              <th className="p-3 font-medium text-center">연면(평)</th>
+              <th className="p-3 font-medium text-right">매매가</th>
+              <th className="p-3 font-medium text-right">보증금</th>
+              <th className="p-3 font-medium text-right">월세</th>
+              <th className="p-3 font-medium text-center text-emerald-600">수익률</th>
+              <th className="p-3 font-medium text-center">등록일</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-slate-100 text-xs">
+            {properties.map((prop) => (
+              <tr key={prop.id} className="hover:bg-blue-50/50 transition-colors group">
+                <td className="p-3">
+                  <div className="flex gap-1.5">
+                    <span className={`px-1.5 py-0.5 rounded text-[10px] font-semibold ${
+                      prop.transactionType === '매매' ? 'bg-red-100 text-red-700' :
+                      prop.transactionType === '전세' ? 'bg-blue-100 text-blue-700' : 'bg-green-100 text-green-700'
+                    }`}>
+                      {prop.transactionType}
+                    </span>
+                    <span className="px-1.5 py-0.5 rounded text-[10px] bg-slate-100 text-slate-600 border border-slate-200">
+                      {prop.type}
+                    </span>
+                  </div>
+                </td>
+                <td className="p-3">
+                  <div className="flex flex-col gap-1">
+                    <span 
+                      onClick={() => onViewDetail(prop)} 
+                      className="font-bold text-blue-600 cursor-pointer hover:underline hover:text-blue-800 transition-colors truncate max-w-[200px] text-sm"
+                      title={prop.name}
+                    >
+                      {prop.name}
+                    </span>
+                    <span className="text-[11px] text-slate-400 truncate max-w-[200px] flex items-center gap-0.5" title={prop.address}>
+                      <MapPin className="w-3 h-3 opacity-70" /> {prop.address}
+                    </span>
+                  </div>
+                </td>
+                <td className="p-3 text-center text-slate-600">{Math.round((prop.landArea || 0) * 0.3025)}</td>
+                <td className="p-3 text-center text-slate-600">{Math.round((prop.totalFloorArea || 0) * 0.3025)}</td>
+                <td className="p-3 text-right font-bold text-red-600">{formatKoreanCurrency(prop.price?.sale || 0)}</td>
+                <td className="p-3 text-right text-slate-700">{formatKoreanCurrency(prop.price?.deposit || 0)}</td>
+                <td className="p-3 text-right text-slate-700">{formatKoreanCurrency(prop.price?.rent || 0)}</td>
+                <td className="p-3 text-center font-bold text-emerald-600">
+                  {prop.transactionType === '매매' ? `${getYield(prop.price?.sale, prop.price?.deposit, prop.price?.rent)}%` : '-'}
+                </td>
+                <td className="p-3 text-center text-slate-500">{prop.date}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+function PropertyDetailView({ property, onBack, onEdit }) {
+  const floorTotals = useMemo(() => {
+    if (!property || !property.floorDetails) return { deposit: 0, rent: 0, maintenance: 0 };
+    return property.floorDetails.reduce((acc, curr) => ({
+      deposit: acc.deposit + (Number(curr.deposit) || 0),
+      rent: acc.rent + (Number(curr.rent) || 0),
+      maintenance: acc.maintenance + (Number(curr.maintenance) || 0),
+    }), { deposit: 0, rent: 0, maintenance: 0 });
+  }, [property]);
+
+  if (!property) return null;
+
+  return (
+    <div className="max-w-5xl mx-auto space-y-6 pb-10">
+      <div className="flex justify-between items-center">
+        <button onClick={onBack} className="flex items-center gap-2 text-slate-500 hover:text-slate-800 transition-colors px-3 py-2 -ml-3 rounded-lg hover:bg-slate-100">
+          <ArrowLeft className="w-4 h-4" />
+          목록으로 돌아가기
+        </button>
+        <div className="flex gap-2">
+          <button onClick={onEdit} className="px-4 py-2 bg-white border border-slate-200 rounded-lg text-sm font-bold text-blue-600 hover:bg-blue-50 transition-colors">수정하기</button>
+          <button className="px-4 py-2 bg-slate-800 text-white rounded-lg text-sm font-medium hover:bg-slate-900">물건카드 인쇄</button>
+        </div>
+      </div>
+
+      <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex justify-between items-start">
+        <div>
+          <div className="flex gap-2 mb-3">
+            <span className={`px-2.5 py-1 rounded text-sm font-bold shadow-sm ${
+              property.transactionType === '매매' ? 'bg-red-500 text-white' :
+              property.transactionType === '전세' ? 'bg-blue-500 text-white' : 'bg-emerald-500 text-white'
+            }`}>
+              {property.transactionType}
+            </span>
+            <span className="px-2.5 py-1 rounded text-sm font-medium bg-slate-100 text-slate-600 border border-slate-200">
+              {property.type}
+            </span>
+            <span className="px-2.5 py-1 rounded text-sm font-medium bg-slate-800 text-white shadow-sm">
+              No. {property.id}
+            </span>
+          </div>
+          <div className="flex items-center gap-3 mb-2">
+            <h1 className="text-3xl font-bold text-slate-900">{property.name}</h1>
+            <a 
+              href={`https://map.naver.com/v5/search/${encodeURIComponent(property.address)}`} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-[#03c75a] text-white rounded-lg text-sm font-bold shadow-sm hover:bg-[#02b350] transition-colors"
+            >
+              <MapPin className="w-4 h-4" /> 네이버 지도 연동
+            </a>
+          </div>
+          <p className="text-slate-500 flex items-center gap-2 text-lg">
+            {property.address}
+          </p>
+        </div>
+        <div className="text-right">
+          <p className="text-sm text-slate-500 mb-1">
+            {property.transactionType === '매매' ? '매매가' : property.transactionType === '전세' ? '전세보증금' : '보증금 / 월세'}
+          </p>
+          <div className="text-4xl font-extrabold text-blue-600 flex items-baseline justify-end gap-1">
+            {property.transactionType === '매매' ? (
+              <span>{formatKoreanCurrency(property.price?.sale || 0)}</span>
+            ) : property.transactionType === '전세' ? (
+              <span>{formatKoreanCurrency(property.price?.deposit || 0)}</span>
+            ) : (
+              <>
+                <span>{formatKoreanCurrency(property.price?.deposit || 0)}</span>
+                <span className="text-2xl font-bold text-slate-800 mx-1">/</span>
+                <span>{formatKoreanCurrency(property.price?.rent || 0)}</span>
+              </>
+            )}
+          </div>
+          {property.transactionType === '매매' && (
+            <div className="mt-3 flex flex-col items-end gap-1">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-700 rounded-lg border border-emerald-200 text-sm font-bold shadow-sm">
+                <TrendingUp className="w-4 h-4" /> 
+                예상 수익률: <span className="text-base">{getYield(property.price?.sale, property.price?.deposit, property.price?.rent)}%</span>
+              </div>
+              <span className="text-xs text-slate-500 font-medium">
+                (실제 연 수익금: {formatKoreanCurrency((property.price?.rent || 0) * 12)})
+              </span>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+          <div className="p-4 bg-slate-50 border-b border-slate-200">
+            <h3 className="font-bold text-slate-800 flex items-center gap-2">
+              <Building2 className="w-5 h-5 text-blue-500" /> 기본 정보
+            </h3>
+          </div>
+          <div className="p-0">
+            <SpecRow icon={<User />} label="소유자" value={property.ownerName || '-'} />
+            <SpecRow icon={<Phone />} label="연락처" value={property.ownerPhone || '-'} />
+            <SpecRow icon={<MapPin />} label="소재지" value={property.address || '-'} />
+            <SpecRow icon={<Maximize />} label="대지면적" value={
+              <span>
+                {Math.round((property.landArea || 0) * 0.3025)}평 
+                <span className="text-slate-400 font-normal ml-1">({property.landArea || 0}㎡)</span>
+              </span>
+            } />
+            <SpecRow icon={<Maximize />} label="연면적" value={
+              <span>
+                {Math.round((property.totalFloorArea || 0) * 0.3025)}평 
+                <span className="text-slate-400 font-normal ml-1">({property.totalFloorArea || 0}㎡)</span>
+              </span>
+            } />
+            <SpecRow icon={<Building2 />} label="건물 층수" value={`지하 ${property.floorUnderground || 0}층 / 지상 ${property.floorGround || 0}층`} />
+            <SpecRow icon={<ArrowUpCircle />} label="엘리베이터" value={`${property.elevators || 0}대`} />
+            <SpecRow icon={<CheckCircle2 />} label="물건종류 / 거래방식" value={`${property.type} / ${property.transactionType}`} />
+            <SpecRow icon={<UserCircle />} label="등록자" value={property.registrant || '-'} />
+          </div>
+        </div>
+
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+          <div className="p-4 bg-slate-50 border-b border-slate-200">
+            <h3 className="font-bold text-slate-800 flex items-center gap-2">
+              <Banknote className="w-5 h-5 text-blue-500" /> 금액 정보
+            </h3>
+          </div>
+          <div className="p-0">
+            <SpecRow icon={<Banknote />} label="매매가" value={formatKoreanCurrency(property.price?.sale || 0)} />
+            <SpecRow icon={<Banknote />} label="보증금 (총액)" value={formatKoreanCurrency(property.price?.deposit || 0)} />
+            <SpecRow icon={<Banknote />} label="월세 (총액)" value={formatKoreanCurrency(property.price?.rent || 0)} />
+            <SpecRow icon={<Banknote />} label="관리비" value={formatKoreanCurrency(property.price?.maintenance || 0)} />
+            {property.transactionType === '매매' && (
+              <SpecRow icon={<TrendingUp />} label="실제 연 수익금" value={`${formatKoreanCurrency((property.price?.rent || 0) * 12)} (수익률 ${getYield(property.price?.sale, property.price?.deposit, property.price?.rent)}%)`} />
+            )}
+          </div>
+        </div>
+      </div>
+
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <div className="p-4 bg-slate-50 border-b border-slate-200">
+          <h3 className="font-bold text-slate-800 flex items-center gap-2">
+            <Maximize className="w-5 h-5 text-blue-500" /> 층별 현황 내역
+          </h3>
+        </div>
+        <div className="p-0 overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-white text-slate-500 text-sm border-b border-slate-200">
+                <th className="p-4 font-medium">층수</th>
+                <th className="p-4 font-medium text-right">보증금</th>
+                <th className="p-4 font-medium text-right">월세</th>
+                <th className="p-4 font-medium text-right">관리비</th>
+                <th className="p-4 font-medium">비고/상호명</th>
+              </tr>
+            </thead>
+            <tbody>
+              {property.floorDetails && property.floorDetails.length > 0 ? (
+                property.floorDetails.map(floor => (
+                  <tr key={floor.id} className="border-b border-slate-100 last:border-0 hover:bg-slate-50 text-sm transition-colors">
+                    <td className="p-4 text-slate-800 font-bold">{floor.floor}</td>
+                    <td className="p-4 text-slate-800 font-semibold text-right">{formatKoreanCurrency(floor.deposit || 0)}</td>
+                    <td className="p-4 text-slate-800 font-semibold text-right">{formatKoreanCurrency(floor.rent || 0)}</td>
+                    <td className="p-4 text-slate-800 font-semibold text-right">{formatKoreanCurrency(floor.maintenance || 0)}</td>
+                    <td className="p-4 text-slate-600">{floor.note}</td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="5" className="p-8 text-center text-slate-400 text-sm">
+                    등록된 층별 내역이 없습니다.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+
+          {property.floorDetails && property.floorDetails.length > 0 && (
+            <div className="p-4 bg-white border-t border-slate-100">
+              <div className="p-4 bg-blue-50 border border-blue-100 rounded-xl flex flex-wrap justify-between items-center gap-4">
+                <h4 className="text-sm font-bold text-blue-800">전체 합계 (총액)</h4>
+                <div className="flex flex-wrap gap-6 text-right">
+                  <div>
+                    <span className="text-xs text-blue-500 font-bold mr-2">총 보증금</span>
+                    <span className="text-lg font-extrabold text-slate-900">{formatKoreanCurrency(floorTotals.deposit)}</span>
+                  </div>
+                  <div>
+                    <span className="text-xs text-blue-500 font-bold mr-2">총 월세</span>
+                    <span className="text-lg font-extrabold text-slate-900">{formatKoreanCurrency(floorTotals.rent)}</span>
+                  </div>
+                  <div>
+                    <span className="text-xs text-blue-500 font-bold mr-2">총 관리비</span>
+                    <span className="text-lg font-extrabold text-slate-900">{formatKoreanCurrency(floorTotals.maintenance)}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+          <h3 className="text-lg font-bold text-slate-800 mb-4 pb-3 border-b border-slate-100 flex items-center gap-2">
+            <ImageIcon className="w-5 h-5 text-blue-500" /> 등록된 사진
+          </h3>
+          {property.images && property.images.length > 0 ? (
+            <>
+              <div className="aspect-video bg-slate-100 rounded-xl flex items-center justify-center overflow-hidden mb-3">
+                <img src={property.images[0]} alt="대표 사진" className="w-full h-full object-cover" />
+              </div>
+              <div className="grid grid-cols-4 gap-2">
+                {property.images.slice(1, 5).map((imgUrl, i) => (
+                  <div key={i} className="aspect-square bg-slate-100 rounded-lg overflow-hidden border border-slate-200">
+                    <img src={imgUrl} alt={`추가 사진 ${i+1}`} className="w-full h-full object-cover" />
+                  </div>
+                ))}
+              </div>
+            </>
+          ) : (
+            <div className="aspect-video bg-slate-50 border-2 border-dashed border-slate-200 rounded-xl flex flex-col items-center justify-center text-slate-400">
+              <ImageIcon className="w-12 h-12 mb-2 opacity-50" />
+              <p className="text-sm">등록된 사진이 없습니다</p>
+            </div>
+          )}
+        </div>
+
+        <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col">
+          <h3 className="text-lg font-bold text-slate-800 mb-4 pb-3 border-b border-slate-100 flex items-center gap-2">
+            <FileText className="w-5 h-5 text-blue-500" /> 물건 상세 설명
+          </h3>
+          <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 flex-1">
+            <p className="text-slate-700 leading-relaxed whitespace-pre-line text-sm">
+              {property.description || '등록된 설명이 없습니다.'}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function FloorMoneyInput({ label, value, onChange }) {
+  return (
+    <div className="flex-1 min-w-[100px]">
+      <div className="flex items-center border border-slate-300 rounded-lg bg-white focus-within:border-blue-500 focus-within:ring-1 overflow-hidden shadow-sm">
+        <span className="bg-slate-100 text-xs font-bold text-slate-600 px-2 py-2 border-r border-slate-200 whitespace-nowrap">{label}</span>
+        <input 
+          type="number" 
+          value={value || ''} 
+          onChange={onChange} 
+          className="w-full py-2 px-2 text-right text-sm font-bold outline-none bg-transparent [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" 
+          placeholder="0"
+        />
+        <span className="text-xs font-bold text-slate-500 pr-2 pl-1 whitespace-nowrap">만원</span>
+      </div>
+      <span className="text-[11px] text-blue-600 font-bold text-right block pr-1 min-h-[16px] mt-0.5">
+        {formatKoreanCurrency(value)}
+      </span>
+    </div>
+  );
+}
+
+function PropertyFormView({ initialData, onBack, onSave }) {
+  const [formData, setFormData] = useState(() => {
+    if (initialData) {
+      return {
+        id: initialData.id,
+        name: initialData.name || '',
+        ownerName: initialData.ownerName || '',
+        ownerPhone: initialData.ownerPhone || '',
+        type: initialData.type || '빌딩',
+        transactionType: initialData.transactionType || '매매',
+        address: initialData.address || '',
+        landArea: initialData.landArea || '',
+        totalFloorArea: initialData.totalFloorArea || '',
+        floorUnderground: initialData.floorUnderground || '',
+        floorGround: initialData.floorGround || '',
+        elevators: initialData.elevators || '',
+        sale: initialData.price?.sale || '',
+        deposit: initialData.price?.deposit || '',
+        rent: initialData.price?.rent || '',
+        maintenance: initialData.price?.maintenance || '',
+        floorDetails: initialData.floorDetails || [{ id: Date.now(), floor: '1층', deposit: '', rent: '', maintenance: '', note: '' }],
+        direction: initialData.direction || '남향',
+        description: initialData.description || '',
+        images: initialData.images || []
+      };
+    }
+    return {
+      name: '', ownerName: '', ownerPhone: '',
+      type: '빌딩', transactionType: '매매', address: '',
+      landArea: '', totalFloorArea: '', floorUnderground: '', floorGround: '', elevators: '',
+      sale: '', deposit: '', rent: '', maintenance: '',
+      floorDetails: [{ id: Date.now(), floor: '1층', deposit: '', rent: '', maintenance: '', note: '' }],
+      direction: '남향', description: '',
+      images: []
+    };
+  });
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleImageUpload = (e) => {
+    const files = Array.from(e.target.files);
+    const newImages = files.map(file => URL.createObjectURL(file));
+    setFormData(prev => ({ ...prev, images: [...(prev.images || []), ...newImages] }));
+  };
+
+  const removeImage = (index) => {
+    setFormData(prev => {
+      const newImages = [...(prev.images || [])];
+      newImages.splice(index, 1);
+      return { ...prev, images: newImages };
+    });
+  };
+
+  const totals = useMemo(() => formData.floorDetails.reduce((acc, curr) => ({
+    deposit: acc.deposit + (Number(curr.deposit) || 0),
+    rent: acc.rent + (Number(curr.rent) || 0),
+    maintenance: acc.maintenance + (Number(curr.maintenance) || 0),
+  }), { deposit: 0, rent: 0, maintenance: 0 }), [formData.floorDetails]);
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const newProperty = {
+      id: formData.id,
+      date: formData.date,
+      registrant: formData.registrant,
+      name: formData.name,
+      ownerName: formData.ownerName,
+      ownerPhone: formData.ownerPhone,
+      type: formData.type,
+      transactionType: formData.transactionType,
+      address: formData.address,
+      landArea: Number(formData.landArea || 0),
+      totalFloorArea: Number(formData.totalFloorArea || 0),
+      floorUnderground: Number(formData.floorUnderground || 0),
+      floorGround: Number(formData.floorGround || 0),
+      elevators: Number(formData.elevators || 0),
+      price: { 
+        sale: Number(formData.sale || 0), 
+        deposit: totals.deposit, 
+        rent: totals.rent, 
+        maintenance: totals.maintenance 
+      },
+      floorDetails: formData.floorDetails,
+      direction: formData.direction,
+      description: formData.description,
+      images: formData.images || [],
+    };
+    onSave(newProperty);
+  };
+
+  return (
+    <div className="max-w-4xl mx-auto pb-10">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-bold text-slate-800">{initialData ? '등록된 물건 수정' : '신규 물건 등록'}</h2>
+        <button type="button" onClick={onBack} className="text-slate-500 hover:text-slate-800 text-sm font-medium">취소 및 돌아가기</button>
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+          <h3 className="text-lg font-bold text-slate-800 mb-5 pb-3 border-b border-slate-100 flex items-center gap-2">
+            <Building2 className="w-5 h-5 text-blue-500" /> 기본 정보
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <FormGroup label="물건명 (필수)">
+              <input required type="text" name="name" value={formData.name || ''} onChange={handleChange} className="form-input w-full p-2.5 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" placeholder="예: 엠파이어 빌딩" />
+            </FormGroup>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <FormGroup label="소유자 이름">
+                <input type="text" name="ownerName" value={formData.ownerName || ''} onChange={handleChange} className="form-input w-full p-2.5 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500" placeholder="홍길동" />
+              </FormGroup>
+              <FormGroup label="전화번호">
+                <input type="tel" name="ownerPhone" value={formData.ownerPhone || ''} onChange={handleChange} className="form-input w-full p-2.5 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500" placeholder="010-0000-0000" />
+              </FormGroup>
+            </div>
+
+            <div className="md:col-span-2 space-y-4 bg-slate-50 p-5 rounded-xl border border-slate-200">
+              <FormGroup label="소재지 (주소)">
+                <input required type="text" name="address" value={formData.address || ''} onChange={handleChange} className="form-input w-full p-2.5 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 bg-white" placeholder="주소를 직접 입력하세요" />
+              </FormGroup>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <FormGroup label="대지면적 (㎡)">
+                  <div className="relative">
+                    <input type="number" name="landArea" value={formData.landArea || ''} onChange={handleChange} className="form-input w-full p-2.5 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 bg-white" placeholder="예: 330" />
+                    {formData.landArea && (
+                      <span className="absolute -bottom-5 left-1 text-[11px] text-blue-600 font-medium">약 {Math.round(Number(formData.landArea) * 0.3025)}평</span>
+                    )}
+                  </div>
+                </FormGroup>
+                <FormGroup label="연면적 (㎡)">
+                  <div className="relative">
+                    <input type="number" name="totalFloorArea" value={formData.totalFloorArea || ''} onChange={handleChange} className="form-input w-full p-2.5 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 bg-white" placeholder="예: 1500" />
+                    {formData.totalFloorArea && (
+                      <span className="absolute -bottom-5 left-1 text-[11px] text-blue-600 font-medium">약 {Math.round(Number(formData.totalFloorArea) * 0.3025)}평</span>
+                    )}
+                  </div>
+                </FormGroup>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-1">
+                <FormGroup label="지하 층수">
+                  <input type="number" name="floorUnderground" value={formData.floorUnderground || ''} onChange={handleChange} className="form-input w-full p-2.5 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 bg-white" placeholder="예: 1" />
+                </FormGroup>
+                <FormGroup label="지상 층수">
+                  <input type="number" name="floorGround" value={formData.floorGround || ''} onChange={handleChange} className="form-input w-full p-2.5 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 bg-white" placeholder="예: 5" />
+                </FormGroup>
+                <FormGroup label="E/V 대수">
+                  <input type="number" name="elevators" value={formData.elevators || ''} onChange={handleChange} className="form-input w-full p-2.5 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 bg-white" placeholder="예: 1" />
+                </FormGroup>
+              </div>
+            </div>
+
+            <FormGroup label="물건 종류">
+              <select name="type" value={formData.type || ''} onChange={handleChange} className="form-select w-full p-2.5 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                <option>빌딩</option><option>상가</option><option>오피스텔</option><option>아파트</option><option>빌라</option><option>원룸</option><option>투룸</option><option>쓰리룸+</option>
+              </select>
+            </FormGroup>
+            <FormGroup label="거래 방식">
+              <div className="flex gap-4 mt-2">
+                {['매매', '전세', '월세'].map(type => (
+                  <label key={type} className="flex items-center gap-2 cursor-pointer">
+                    <input type="radio" name="transactionType" value={type} checked={formData.transactionType === type} onChange={handleChange} className="w-4 h-4 text-blue-600" />
+                    <span className="text-sm font-medium text-slate-700">{type}</span>
+                  </label>
+                ))}
+              </div>
+            </FormGroup>
+          </div>
+        </div>
+
+        <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+          <h3 className="text-lg font-bold text-slate-800 mb-5 pb-3 border-b border-slate-100 flex items-center gap-2">
+            <Banknote className="w-5 h-5 text-blue-500" /> 매매가 정보 (단위: 만원)
+          </h3>
+          <div className="max-w-md">
+            <FormGroup label="매매가">
+              <div className="flex items-center gap-3">
+                <input type="number" name="sale" value={formData.sale || ''} onChange={handleChange} className="flex-1 p-2.5 border border-slate-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 text-right" placeholder="예: 50000" />
+                <div className="w-36 text-right text-sm font-bold text-blue-600 shrink-0 bg-blue-50 py-2.5 px-3 rounded-lg border border-blue-100 truncate">
+                  {formatKoreanCurrency(formData.sale) || '0원'}
+                </div>
+              </div>
+            </FormGroup>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
+          <div className="flex justify-between items-center mb-6 border-b border-slate-100 pb-4">
+            <h3 className="text-xl font-bold text-slate-800">층별 현황 (보증금/월세/관리비)</h3>
+            <button type="button" onClick={() => setFormData({...formData, floorDetails: [...formData.floorDetails, { id: Date.now(), floor: `${formData.floorDetails.length + 1}층`, deposit: '', rent: '', maintenance: '', note: '' }]})} className="px-4 py-2 bg-blue-50 text-blue-600 rounded-lg font-bold text-sm hover:bg-blue-100 transition-colors">
+              + 층 추가
+            </button>
+          </div>
+          
+          <div className="space-y-6">
+            {formData.floorDetails.map((f, i) => (
+              <div key={f.id} className="flex flex-wrap md:flex-nowrap items-start gap-4 p-5 bg-slate-50 rounded-xl border border-slate-200">
+                <div className="w-24 shrink-0">
+                  <label className="block text-xs font-bold text-slate-500 mb-1 ml-1">층수</label>
+                  <input className="w-full p-3 border border-slate-300 rounded-lg text-center font-bold text-lg outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500" value={f.floor} placeholder="1층" onChange={(e) => { const n = [...formData.floorDetails]; n[i].floor = e.target.value; setFormData({...formData, floorDetails: n}); }} />
+                </div>
+                
+                <FloorMoneyInput label="보증금" value={f.deposit} onChange={(e) => { const n = [...formData.floorDetails]; n[i].deposit = e.target.value; setFormData({...formData, floorDetails: n}); }} />
+                <FloorMoneyInput label="월세" value={f.rent} onChange={(e) => { const n = [...formData.floorDetails]; n[i].rent = e.target.value; setFormData({...formData, floorDetails: n}); }} />
+                <FloorMoneyInput label="관리비" value={f.maintenance} onChange={(e) => { const n = [...formData.floorDetails]; n[i].maintenance = e.target.value; setFormData({...formData, floorDetails: n}); }} />
+                
+                <div className="pt-6">
+                   <button type="button" onClick={() => setFormData({...formData, floorDetails: formData.floorDetails.filter(item => item.id !== f.id)})} className="p-3 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="삭제">
+                     <Trash2 className="w-6 h-6" />
+                   </button>
+                </div>
+              </div>
+            ))}
+          </div>
+          
+          <div className="mt-4 p-4 bg-blue-50 border border-blue-100 rounded-xl flex flex-wrap justify-between items-center gap-4">
+            <h4 className="text-sm font-bold text-blue-800">전체 합계 (총액)</h4>
+            <div className="flex flex-wrap gap-6 text-right">
+              <div>
+                <span className="text-xs text-blue-500 font-bold mr-2">총 보증금</span>
+                <span className="text-lg font-extrabold text-slate-900">{formatKoreanCurrency(totals.deposit)}</span>
+              </div>
+              <div>
+                <span className="text-xs text-blue-500 font-bold mr-2">총 월세</span>
+                <span className="text-lg font-extrabold text-slate-900">{formatKoreanCurrency(totals.rent)}</span>
+              </div>
+              <div>
+                <span className="text-xs text-blue-500 font-bold mr-2">총 관리비</span>
+                <span className="text-lg font-extrabold text-slate-900">{formatKoreanCurrency(totals.maintenance)}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+            <h3 className="text-lg font-bold text-slate-800 mb-5 pb-3 border-b border-slate-100 flex items-center justify-between">
+              <span className="flex items-center gap-2"><ImageIcon className="w-5 h-5 text-blue-500" /> 사진 첨부</span>
+              <label className="text-sm px-3 py-1.5 bg-blue-50 text-blue-600 rounded-lg hover:bg-blue-100 font-bold transition-colors cursor-pointer flex items-center gap-1.5">
+                <Upload className="w-4 h-4" /> PC에서 찾기
+                <input type="file" multiple accept="image/*" onChange={handleImageUpload} className="hidden" />
+              </label>
+            </h3>
+            {formData.images && formData.images.length > 0 ? (
+              <div className="grid grid-cols-3 gap-3">
+                {formData.images.map((imgUrl, idx) => (
+                  <div key={idx} className="relative aspect-square bg-slate-100 rounded-lg border border-slate-200 group overflow-hidden">
+                    <img src={imgUrl} alt="첨부" className="w-full h-full object-cover" />
+                    <button type="button" onClick={() => removeImage(idx)} className="absolute top-1 right-1 p-1 bg-white/80 rounded-full text-red-500 opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-50">
+                      <XCircle className="w-5 h-5" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center p-8 border-2 border-dashed border-slate-300 rounded-xl text-slate-400 bg-slate-50">
+                <ImageIcon className="w-10 h-10 mb-2 opacity-50" />
+                <p className="text-sm">사진을 첨부해주세요</p>
+              </div>
+            )}
+          </div>
+
+          <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+            <h3 className="text-lg font-bold text-slate-800 mb-5 pb-3 border-b border-slate-100 flex items-center justify-between">
+              <span className="flex items-center gap-2"><FileText className="w-5 h-5 text-blue-500" /> 물건 상세 설명</span>
+              <button type="button" className="text-xs bg-indigo-50 text-indigo-600 border border-indigo-200 px-3 py-1.5 rounded-full font-bold flex items-center gap-1 hover:bg-indigo-100">
+                ✨ AI 자동 문구 생성
+              </button>
+            </h3>
+            <textarea name="description" value={formData.description || ''} onChange={handleChange} rows={6} className="w-full p-4 border border-slate-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-sm leading-relaxed resize-none" placeholder="특징, 교통, 주변 편의시설 등 상세한 설명을 입력하세요." />
+          </div>
+        </div>
+
+        <div className="flex gap-3 pt-4">
+          <button type="button" onClick={onBack} className="flex-1 py-4 bg-slate-100 text-slate-700 font-bold rounded-xl hover:bg-slate-200 transition-colors text-lg">취소</button>
+          <button type="submit" className="flex-[2] py-4 bg-blue-600 text-white font-bold rounded-xl hover:bg-blue-700 transition-colors shadow-md text-lg">
+            <Save className="w-5 h-5 inline-block mr-2" />
+            {initialData ? '수정 내용 저장' : '물건 등록하기'}
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+}
+
+function EmployeeListView({ employees }) {
+  return (
+    <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+      <div className="p-5 border-b border-slate-200 flex justify-between items-center bg-slate-50/50">
+        <h3 className="font-semibold text-slate-800 flex items-center gap-2">
+          <UserCircle className="w-5 h-5 text-blue-600" /> 등록된 사원 목록
+        </h3>
+      </div>
+      <table className="w-full text-left border-collapse whitespace-nowrap">
+        <thead>
+          <tr className="bg-slate-50 border-b border-slate-200 text-xs uppercase tracking-wider text-slate-500">
+            <th className="p-4 font-medium">사번</th>
+            <th className="p-4 font-medium">이름</th>
+            <th className="p-4 font-medium">소속</th>
+            <th className="p-4 font-medium">전화번호</th>
+            <th className="p-4 font-medium text-center">등록일</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-slate-100 text-sm">
+          {employees.map(emp => (
+            <tr key={emp.id} className="hover:bg-blue-50/50 transition-colors">
+              <td className="p-4 text-slate-500">{emp.id}</td>
+              <td className="p-4 font-bold text-slate-800">{emp.name}</td>
+              <td className="p-4 text-slate-600"><span className="px-2 py-1 bg-slate-100 rounded text-xs border border-slate-200">{emp.department}</span></td>
+              <td className="p-4 text-slate-600">{emp.phone}</td>
+              <td className="p-4 text-center text-slate-500">{emp.date}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function EmployeeFormView({ onBack, onSave }) {
+  const [formData, setFormData] = useState({ name: '', phone: '', department: '' });
+  const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+  
+  return (
+    <div className="max-w-2xl mx-auto pb-10">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-bold text-slate-800">사원 등록하기</h2>
+        <button onClick={onBack} className="text-slate-500 hover:text-slate-800 text-sm font-medium">취소 및 돌아가기</button>
+      </div>
+      <form onSubmit={(e) => { e.preventDefault(); onSave(formData); }} className="space-y-6 bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+        <FormGroup label="이름"><input required type="text" name="name" onChange={handleChange} className="form-input w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" /></FormGroup>
+        <FormGroup label="전화번호"><input required type="tel" name="phone" onChange={handleChange} className="form-input w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" /></FormGroup>
+        <FormGroup label="소속"><input required type="text" name="department" onChange={handleChange} className="form-input w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" /></FormGroup>
+        <button type="submit" className="w-full py-3 bg-blue-600 text-white rounded-xl font-bold">사원 등록</button>
+      </form>
+    </div>
+  );
+}
+
+function CustomerListView({ customers }) {
+  return (
+    <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+      <div className="p-5 border-b border-slate-200 flex justify-between items-center bg-slate-50/50">
+        <h3 className="font-semibold text-slate-800 flex items-center gap-2">
+          <Users className="w-5 h-5 text-blue-600" /> 등록된 매수자 목록
+        </h3>
+      </div>
+      <table className="w-full text-left border-collapse whitespace-nowrap">
+        <thead>
+          <tr className="bg-slate-50 border-b border-slate-200 text-xs uppercase tracking-wider text-slate-500">
+            <th className="p-4 font-medium">이름</th>
+            <th className="p-4 font-medium">전화번호</th>
+            <th className="p-4 font-medium text-right">투자금액(만원)</th>
+            <th className="p-4 font-medium">희망 지역</th>
+            <th className="p-4 font-medium">구매사유</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-slate-100 text-sm">
+          {customers.map(cust => (
+            <tr key={cust.id} className="hover:bg-blue-50/50 transition-colors">
+              <td className="p-4 font-bold text-slate-800">{cust.name}</td>
+              <td className="p-4 text-slate-600">{cust.phone}</td>
+              <td className="p-4 text-right font-bold text-red-600">{Number(cust.budget).toLocaleString()}</td>
+              <td className="p-4 text-slate-600">{cust.region}</td>
+              <td className="p-4 text-slate-600 truncate max-w-[200px]">{cust.reason}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function CustomerFormView({ onBack, onSave }) {
+  const [formData, setFormData] = useState({ name: '', phone: '', budget: '', region: '', reason: '' });
+  const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+  
+  return (
+    <div className="max-w-2xl mx-auto pb-10">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-2xl font-bold text-slate-800">신규 손님 등록</h2>
+        <button onClick={onBack} className="text-slate-500 hover:text-slate-800 text-sm font-medium">취소 및 돌아가기</button>
+      </div>
+      <form onSubmit={(e) => { e.preventDefault(); onSave(formData); }} className="space-y-6 bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
+        <FormGroup label="이름"><input required type="text" name="name" onChange={handleChange} className="form-input w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" /></FormGroup>
+        <FormGroup label="전화번호"><input required type="tel" name="phone" onChange={handleChange} className="form-input w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" /></FormGroup>
+        <FormGroup label="금액 (만원)"><input required type="number" name="budget" onChange={handleChange} className="form-input w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" /></FormGroup>
+        <FormGroup label="지역"><input required type="text" name="region" onChange={handleChange} className="form-input w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" /></FormGroup>
+        <FormGroup label="구매사유"><input required type="text" name="reason" onChange={handleChange} className="form-input w-full p-2.5 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" /></FormGroup>
+        <button type="submit" className="w-full py-3 bg-blue-600 text-white rounded-xl font-bold">손님 등록</button>
+      </form>
+    </div>
+  );
+}
+
+function CalendarView() {
+  const [date, setDate] = useState(new Date());
+  const [memos, setMemos] = useState({});
+  const [editingDate, setEditingDate] = useState(null);
+  const [newMemo, setNewMemo] = useState('');
+
+  const year = date.getFullYear();
+  const month = date.getMonth();
+
+  const handleAddMemo = (e, dayStr) => {
+    e.stopPropagation();
+    setEditingDate(dayStr);
+    setNewMemo('');
+  };
+
+  const saveMemo = (e, dayStr) => {
+    e.stopPropagation();
+    if (newMemo.trim()) setMemos(prev => ({ ...prev, [dayStr]: [...(prev[dayStr] || []), newMemo.trim()] }));
+    setEditingDate(null);
+  };
+
+  const renderDays = () => {
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const firstDay = new Date(year, month, 1).getDay();
+    const days = [];
+    
+    for (let i = 0; i < firstDay; i++) days.push(<div key={`empty-${i}`} className="bg-slate-50 border rounded-lg min-h-[100px]" />);
+    for (let d = 1; d <= daysInMonth; d++) {
+      const dayStr = `${year}-${month + 1}-${d}`;
+      days.push(
+        <div key={d} onClick={(e) => { if (!editingDate) handleAddMemo(e, dayStr); }} className="min-h-[100px] p-2 bg-white border border-slate-100 rounded-lg cursor-pointer hover:border-blue-300">
+          <div className="font-bold text-sm mb-1">{d}</div>
+          {(memos[dayStr] || []).map((m, idx) => <div key={idx} className="text-xs bg-blue-100 text-blue-700 px-1 rounded mb-1">{m}</div>)}
+          {editingDate === dayStr && (
+            <div onClick={e => e.stopPropagation()}>
+              <input autoFocus value={newMemo} onChange={e => setNewMemo(e.target.value)} onKeyDown={e => e.key === 'Enter' && saveMemo(e, dayStr)} className="w-full text-xs p-1 border rounded" />
+              <button onClick={(e) => saveMemo(e, dayStr)} className="mt-1 text-xs bg-blue-600 text-white w-full py-1 rounded">저장</button>
+            </div>
+          )}
+        </div>
+      );
+    }
+    return days;
+  };
+
+  return (
+    <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 h-full flex flex-col">
+      <div className="flex justify-between items-center mb-6">
+        <h2 className="text-xl font-bold flex items-center gap-2"><CalendarIcon /> 개인 캘린더</h2>
+        <div className="flex gap-4">
+          <button onClick={() => setDate(new Date(year, month - 1, 1))}><ChevronLeft /></button>
+          <span className="font-bold">{year}년 {month + 1}월</span>
+          <button onClick={() => setDate(new Date(year, month + 1, 1))}><ChevronRight /></button>
+        </div>
+      </div>
+      <div className="grid grid-cols-7 gap-2 mb-2 text-center font-bold text-sm">
+        {['일', '월', '화', '수', '목', '금', '토'].map(d => <div key={d}>{d}</div>)}
+      </div>
+      <div className="grid grid-cols-7 gap-2 flex-1 overflow-y-auto">{renderDays()}</div>
+    </div>
+  );
+}

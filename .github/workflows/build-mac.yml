@@ -46,7 +46,7 @@ jobs:
             --collect-all yt_dlp --collect-all yt_dlp_ejs \
             scraper/app.py
           # 맥의 앱 이름을 한글로 표시
-          plutil -insert CFBundleDisplayName -string "대본 추출기" dist/ScriptGrabber.app/Contents/Info.plist
+          plutil -replace CFBundleDisplayName -string "대본 추출기" dist/ScriptGrabber.app/Contents/Info.plist
           plutil -replace CFBundleName -string "대본 추출기" dist/ScriptGrabber.app/Contents/Info.plist
           codesign --force --deep --sign - dist/ScriptGrabber.app
 

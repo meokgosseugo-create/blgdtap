@@ -7,50 +7,30 @@ URL을 넣으면 영상 대본을 `.txt`와 `.json`으로 저장합니다.
 
 > 내 컴퓨터(맥)에서 실행하세요. 클라우드 서버는 유튜브/인스타가 차단하는 경우가 많습니다.
 
-## 맥 설치 (처음 한 번만)
+## 맥에서 쉽게 쓰기 (터미널 몰라도 됨)
 
-터미널을 열고:
+1. **다운로드:** 아래 링크를 누르면 ZIP 파일이 받아집니다.
+   https://github.com/meokgosseugo-create/blgdtap/archive/refs/heads/claude/youtube-instagram-script-scraper-4myj0a.zip
+2. 다운로드 폴더에서 ZIP을 더블클릭해 압축을 풀고, 안의 `scraper` 폴더를 원하는 곳(예: 바탕화면)에 둡니다.
+3. `scraper` 폴더 안의 **`대본추출.command`** 를 더블클릭합니다.
+   - "확인되지 않은 개발자" 경고가 뜨면: **시스템 설정 → 개인정보 보호 및 보안** 맨 아래의 **"그래도 열기"** 를 누른 뒤 다시 더블클릭하세요. (처음 한 번만)
+4. 처음 실행할 때는 필요한 프로그램을 자동으로 설치합니다 (몇 분 걸림). 그다음부터는 바로 시작합니다.
+5. 영상 주소를 붙여넣고 엔터 → 끝나면 결과 폴더(`output`)가 자동으로 열립니다.
+   - 여러 개는 띄어쓰기로 구분해서 한 번에 붙여넣으면 됩니다.
+   - 끝내려면 아무것도 입력하지 않고 엔터.
 
-```bash
-# 1) 레포 받기 (이미 받았다면 생략)
-git clone https://github.com/meokgosseugo-create/blgdtap.git
-cd blgdtap/scraper
+인스타 릴스는 **크롬에 인스타그램이 로그인되어 있어야** 합니다. 처음에 "키체인 접근 허용" 창이 뜨면 "허용"을 누르세요.
 
-# 2) 가상환경 만들고 패키지 설치
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
-```
-
-`python3`가 없다고 나오면 먼저 `xcode-select --install` 또는 [python.org](https://www.python.org/downloads/macos/)에서 설치하세요.
-
-## 사용법
-
-터미널을 새로 열 때마다 먼저:
+## 터미널로 직접 쓰기 (고급)
 
 ```bash
-cd blgdtap/scraper
-source .venv/bin/activate
+cd scraper
+uv run transcript.py "https://www.youtube.com/watch?v=영상ID"
+uv run transcript.py -f urls.txt                         # 파일에 URL 한 줄씩
+uv run transcript.py "인스타 URL" --cookies-from-browser chrome
 ```
 
-그다음:
-
-```bash
-# 유튜브 하나
-python transcript.py "https://www.youtube.com/watch?v=영상ID"
-
-# 여러 개 한꺼번에
-python transcript.py "URL1" "URL2" "URL3"
-
-# 파일에 URL을 한 줄씩 적어두고 한꺼번에
-python transcript.py -f urls.txt
-
-# 인스타 릴스 (크롬에 인스타 로그인 되어 있어야 함)
-python transcript.py "https://www.instagram.com/reel/XXXX/" --cookies-from-browser chrome
-```
-
-결과는 `output/` 폴더에 `youtube_영상ID.txt`, `youtube_영상ID.json` 형태로 저장됩니다.
-`.txt`에는 제목, 채널, 게시글 설명, 대본이 들어가고 `.json`에는 구간별 타임스탬프까지 들어갑니다.
+uv 대신 일반 파이썬(3.10 이상)을 쓰려면 `pip install -r requirements.txt` 후 `python transcript.py ...`.
 
 ## 옵션
 
@@ -68,5 +48,5 @@ python transcript.py "https://www.instagram.com/reel/XXXX/" --cookies-from-brows
 
 - 음성인식을 처음 쓸 때 Whisper 모델을 내려받느라 1~2분 걸립니다 (`small` 약 500MB). 그 뒤로는 바로 시작합니다.
 - `--cookies-from-browser`를 처음 쓰면 맥이 키체인 접근 허용을 물어볼 수 있습니다 → "허용".
-- 오류가 나면 먼저 `pip install -U yt-dlp`로 업데이트해 보세요. 유튜브/인스타가 자주 바뀌어서 업데이트로 해결되는 경우가 많습니다.
+- 오류가 나면 최신 버전으로 받으면 해결되는 경우가 많습니다 (유튜브/인스타가 자주 바뀜).
 - 대본은 참고·분석용으로 쓰고, 남의 대본을 그대로 게시하지 마세요 (저작권).

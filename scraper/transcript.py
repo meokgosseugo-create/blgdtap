@@ -1,4 +1,12 @@
 #!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.10"
+# dependencies = [
+#     "youtube-transcript-api>=1.2",
+#     "yt-dlp>=2026.8.19",
+#     "faster-whisper>=1.1",
+# ]
+# ///
 """유튜브 / 인스타그램 영상 대본 추출기.
 
 사용법:

@@ -1,5 +1,6 @@
 """대본 추출기 — 링크를 붙여넣으면 영상 대본을 보여주는 데스크톱 앱."""
 
+import os
 import subprocess
 import sys
 import threading
@@ -92,7 +93,7 @@ def selftest(part):
     import tempfile
     import wave
 
-    faulthandler.dump_traceback_later(240, exit=True)
+    faulthandler.dump_traceback_later(240, exit=True)  # 멈추면 4분 뒤 어디서 멈췄는지 출력하고 종료
     with tempfile.TemporaryDirectory() as tmp:
         wav = Path(tmp) / "silence.wav"
         with wave.open(str(wav), "wb") as w:
@@ -102,14 +103,22 @@ def selftest(part):
             w.writeframes(b"\x00\x00" * 16000 * 2)
         segments = core.transcribe(str(wav), "tiny", lambda stage, ratio: print("  ", stage, ratio, flush=True))
     print("whisper ok:", segments, flush=True)
+    faulthandler.cancel_dump_traceback_later()
     return 0
+
+
+def quit_now(code=0):
+    """남은 보조 프로세스와 상관없이 바로 종료한다. (종료할 때 멈추는 일을 막는다)"""
+    sys.stdout.flush()
+    sys.stderr.flush()
+    os._exit(code)
 
 
 def main():
     if "--selftest" in sys.argv:
-        sys.exit(selftest("basic"))
+        quit_now(selftest("basic"))
     if "--selftest-whisper" in sys.argv:
-        sys.exit(selftest("whisper"))
+        quit_now(selftest("whisper"))
 
     import webview
 
@@ -119,7 +128,12 @@ def main():
         "대본 추출기", html=html, js_api=api, width=820, height=760, min_size=(520, 560)
     )
     webview.start()
+    quit_now(0)  # 창을 닫으면 프로세스도 확실히 끝낸다
 
 
 if __name__ == "__main__":
+    # 묶음(PyInstaller) 앱에서 보조 프로세스가 앱을 통째로 다시 실행하는 것을 막는다.
+    import multiprocessing
+
+    multiprocessing.freeze_support()
     main()

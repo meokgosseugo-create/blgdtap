@@ -1,3 +1,5 @@
 yt-dlp[default]>=2026.8.19
 faster-whisper>=1.1
+# av 19부터 faster-whisper와 맞지 않아 소리 파일을 읽지 못한다 (metadata_errors 오류)
+av>=15,<19
 pywebview>=6.0

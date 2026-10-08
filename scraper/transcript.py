@@ -112,65 +112,76 @@ def download_audio(url, workdir, args):
 _whisper_model = None
 
 
-def whisper_transcribe(audio_path, args):
+def whisper_transcribe(audio_path, args, log=print):
     global _whisper_model
     from faster_whisper import WhisperModel  # 무거우니 필요할 때만 불러온다
 
     if _whisper_model is None:
-        print(f"  · Whisper 모델 로딩 ({args.model}) — 처음엔 다운로드로 시간이 걸립니다")
+        log(f"  · Whisper 모델 로딩 ({args.model}) — 처음엔 다운로드로 시간이 걸립니다")
         _whisper_model = WhisperModel(args.model, device="auto", compute_type="int8")
     language = None if args.whisper_lang == "auto" else args.whisper_lang
     segments, info = _whisper_model.transcribe(audio_path, language=language, vad_filter=True)
     result = []
     for seg in segments:
         result.append({"start": round(seg.start, 2), "end": round(seg.end, 2), "text": seg.text.strip()})
-        print(f"\r  · 받아쓰는 중... {seg.end:.0f}초", end="", flush=True)
-    print()
+        log(f"  · 받아쓰는 중... {seg.end:.0f}초")
     return {"source": f"whisper-{args.model} ({info.language})", "segments": result}
 
 
-def process(url, args):
+def extract(url, args, log=print):
+    """URL 하나에서 대본을 추출해 record(dict)로 돌려준다. 파일 저장은 하지 않는다."""
     platform, video_id = detect_platform(url)
-    print(f"[{platform}] {url}")
+    log(f"[{platform}] {url}")
 
     meta = fetch_metadata(url, args)
 
     transcript = None
     if platform == "youtube" and not args.force_whisper:
+        log("  · 유튜브 자막 확인 중...")
         transcript = youtube_captions(video_id, args.lang)
         if transcript is None:
-            print("  · 자막이 없어 음성인식으로 진행합니다")
+            log("  · 자막이 없어 음성인식으로 진행합니다")
 
     if transcript is None:
         with tempfile.TemporaryDirectory() as tmp:
-            print("  · 오디오 다운로드 중...")
+            log("  · 오디오 다운로드 중...")
             audio = download_audio(url, tmp, args)
-            transcript = whisper_transcribe(audio, args)
+            transcript = whisper_transcribe(audio, args, log)
 
-    full_text = " ".join(s["text"] for s in transcript["segments"])
-    record = {
+    return {
         "url": url,
         "platform": platform,
         "id": video_id,
         **meta,
         "transcript_source": transcript["source"],
-        "transcript": full_text,
+        "transcript": " ".join(s["text"] for s in transcript["segments"]),
         "segments": transcript["segments"],
         "fetched_at": datetime.now().isoformat(timespec="seconds"),
     }
 
+
+def format_text(record, timestamps=False):
+    """사람이 읽는 텍스트 형식(제목, 채널, 설명, 대본)으로 만든다."""
+    header = [f"제목: {record.get('title') or '-'}", f"채널: {record.get('uploader') or '-'}", f"URL: {record['url']}"]
+    if record.get("description"):
+        header.append(f"\n[게시글 설명]\n{record['description']}")
+    if timestamps:
+        lines = [f"[{fmt_time(s['start'])}] {s['text']}" for s in record["segments"]]
+    else:
+        lines = [record["transcript"]]
+    return "\n".join(header) + "\n\n[대본]\n" + "\n".join(lines) + "\n"
+
+
+def process(url, args):
+    record = extract(url, args)
+
     out_dir = Path(args.output)
     out_dir.mkdir(parents=True, exist_ok=True)
-    stem = out_dir / f"{platform}_{video_id}"
+    stem = out_dir / f"{record['platform']}_{record['id']}"
     stem.with_suffix(".json").write_text(json.dumps(record, ensure_ascii=False, indent=2), encoding="utf-8")
+    stem.with_suffix(".txt").write_text(format_text(record, args.timestamps), encoding="utf-8")
 
-    header = [f"제목: {meta.get('title') or '-'}", f"채널: {meta.get('uploader') or '-'}", f"URL: {url}"]
-    if meta.get("description"):
-        header.append(f"\n[게시글 설명]\n{meta['description']}")
-    lines = [f"[{fmt_time(s['start'])}] {s['text']}" for s in transcript["segments"]] if args.timestamps else [full_text]
-    stem.with_suffix(".txt").write_text("\n".join(header) + "\n\n[대본]\n" + "\n".join(lines) + "\n", encoding="utf-8")
-
-    print(f"  ✓ 저장: {stem}.txt / .json ({transcript['source']}, {len(full_text)}자)")
+    print(f"  ✓ 저장: {stem}.txt / .json ({record['transcript_source']}, {len(record['transcript'])}자)")
 
 
 def fmt_time(seconds):

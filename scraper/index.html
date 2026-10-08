@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>대본 추출기</title>
+<style>
+  :root { --bg:#f6f7f9; --card:#fff; --text:#1d1f23; --sub:#6b7280; --line:#e3e6ea; --accent:#2f6bff; --accent-d:#2455d1; --err:#d32f2f; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg:#16181c; --card:#1f2227; --text:#eceef1; --sub:#9aa1ab; --line:#30343b; --accent:#5b8cff; --accent-d:#7aa2ff; --err:#ff6b6b; }
+  }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--bg); color:var(--text); font:16px/1.6 -apple-system, "Apple SD Gothic Neo", sans-serif; }
+  main { max-width: 760px; margin: 0 auto; padding: 40px 16px 80px; }
+  h1 { font-size: 24px; margin: 0 0 4px; }
+  .sub { color: var(--sub); margin: 0 0 24px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 20px; }
+  .row { display: flex; gap: 8px; }
+  input[type=text] { flex: 1; min-width: 0; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; font-size: 16px; background: var(--bg); color: var(--text); }
+  input[type=text]:focus { outline: 2px solid var(--accent); border-color: transparent; }
+  button { padding: 12px 20px; border: 0; border-radius: 10px; background: var(--accent); color: #fff; font-size: 16px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+  button:hover { background: var(--accent-d); }
+  button:disabled { opacity: .5; cursor: default; }
+  button.ghost { background: transparent; color: var(--accent); border: 1px solid var(--line); padding: 8px 14px; font-size: 14px; }
+  button.ghost:hover { background: var(--bg); }
+  .opts { margin-top: 12px; font-size: 14px; color: var(--sub); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+  select { padding: 4px 8px; border-radius: 6px; border: 1px solid var(--line); background: var(--bg); color: var(--text); font-size: 14px; }
+  #status { margin-top: 20px; display: none; align-items: center; gap: 12px; color: var(--sub); }
+  .spin { width: 18px; height: 18px; border: 3px solid var(--line); border-top-color: var(--accent); border-radius: 50%; animation: r 1s linear infinite; flex: none; }
+  @keyframes r { to { transform: rotate(360deg); } }
+  #error { margin-top: 20px; display: none; color: var(--err); white-space: pre-wrap; word-break: break-word; font-size: 14px; }
+  #result { margin-top: 24px; display: none; }
+  #title { font-size: 18px; font-weight: 700; margin: 0; }
+  #meta { color: var(--sub); font-size: 14px; margin: 2px 0 14px; }
+  .bar { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 12px; }
+  .bar label { font-size: 14px; color: var(--sub); display: flex; align-items: center; gap: 6px; margin-left: auto; }
+  textarea { width: 100%; height: 420px; padding: 14px; border: 1px solid var(--line); border-radius: 10px; font: inherit; font-size: 15px; line-height: 1.7; resize: vertical; background: var(--bg); color: var(--text); }
+  .hint { color: var(--sub); font-size: 13px; margin-top: 16px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>대본 추출기</h1>
+  <p class="sub">유튜브 · 인스타 릴스 링크를 붙여넣으면 영상 대본을 가져옵니다.</p>
+
+  <div class="card">
+    <div class="row">
+      <input id="url" type="text" placeholder="https://www.youtube.com/watch?v=..." autofocus>
+      <button id="go">대본 가져오기</button>
+    </div>
+    <div class="opts">
+      인스타 로그인 정보를 가져올 브라우저:
+      <select id="browser">
+        <option value="chrome">크롬</option>
+        <option value="safari">사파리</option>
+        <option value="firefox">파이어폭스</option>
+        <option value="edge">엣지</option>
+        <option value="brave">브레이브</option>
+      </select>
+    </div>
+    <div id="status"><div class="spin"></div><span id="statusText"></span></div>
+    <div id="error"></div>
+  </div>
+
+  <div id="result" class="card">
+    <h2 id="title"></h2>
+    <div id="meta"></div>
+    <div class="bar">
+      <button id="copy">대본 복사</button>
+      <button id="save" class="ghost">.txt로 저장</button>
+      <label><input type="checkbox" id="ts"> 시간 표시</label>
+    </div>
+    <textarea id="text" readonly></textarea>
+  </div>
+
+  <p class="hint">처리는 이 컴퓨터 안에서만 이뤄집니다. 유튜브는 자막이 있으면 몇 초, 없거나 인스타면 음성인식이라 영상 길이에 따라 몇 분 걸려요.</p>
+</main>
+
+<script>
+const $ = id => document.getElementById(id);
+let record = null;
+
+try { $('browser').value = localStorage.getItem('browser') || 'chrome'; } catch (e) {}
+$('browser').onchange = () => { try { localStorage.setItem('browser', $('browser').value); } catch (e) {} };
+
+function show(el, on) { el.style.display = on ? (el.id === 'status' ? 'flex' : 'block') : 'none'; }
+
+function render() {
+  if (!record) return;
+  $('title').textContent = record.title || '(제목 없음)';
+  $('meta').textContent = [record.uploader, record.transcript_source].filter(Boolean).join(' · ');
+  $('text').value = $('ts').checked ? record.text_timestamps : record.text;
+}
+
+async function go() {
+  const url = $('url').value.trim();
+  if (!url) return;
+  show($('error'), false); show($('result'), false);
+  $('go').disabled = true; show($('status'), true); $('statusText').textContent = '시작하는 중...';
+  try {
+    const res = await fetch('/api/extract', { method: 'POST', body: JSON.stringify({ url, browser: $('browser').value }) });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error);
+    while (true) {
+      await new Promise(r => setTimeout(r, 1000));
+      const job = await (await fetch('/api/status/' + data.job_id)).json();
+      if (job.status === 'running') { $('statusText').textContent = job.log || '처리 중...'; continue; }
+      if (job.status === 'error') throw new Error(job.error);
+      record = job.result; render(); show($('result'), true); break;
+    }
+  } catch (e) {
+    $('error').textContent = e.message; show($('error'), true);
+  } finally {
+    $('go').disabled = false; show($('status'), false);
+  }
+}
+
+$('go').onclick = go;
+$('url').addEventListener('keydown', e => { if (e.key === 'Enter') go(); });
+$('ts').onchange = render;
+$('copy').onclick = async () => {
+  await navigator.clipboard.writeText($('ts').checked ? record.script_timestamps : record.transcript);
+  $('copy').textContent = '복사됨 ✓'; setTimeout(() => $('copy').textContent = '대본 복사', 1500);
+};
+$('save').onclick = () => {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([$('text').value], { type: 'text/plain;charset=utf-8' }));
+  a.download = (record.title || record.id).replace(/[\\/:*?"<>|]/g, '_') + '.txt';
+  a.click();
+};
+</script>
+</body>
+</html>

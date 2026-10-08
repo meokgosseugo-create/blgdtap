@@ -59,32 +59,40 @@ class Api:
         return True
 
 
-def selftest():
+def selftest(part):
     """빌드된 앱 안에서 필요한 부품이 모두 동작하는지 확인한다. (CI에서 사용)"""
+    if part == "basic":
+        import av  # noqa: F401
+        import ctranslate2  # noqa: F401
+        import onnxruntime  # noqa: F401
+        import webview  # noqa: F401
+        import yt_dlp  # noqa: F401
+
+        try:
+            import yt_dlp_ejs  # noqa: F401
+        except ImportError:
+            print("! yt_dlp_ejs 없음", flush=True)
+            return 1
+        print("imports ok", flush=True)
+
+        deno = core.deno_path()
+        if not deno:
+            print("! deno 없음", flush=True)
+            return 1
+        print("deno:", subprocess.run([deno, "--version"], capture_output=True, text=True).stdout.splitlines()[0], flush=True)
+
+        if not (BASE / "index.html").is_file():
+            print("! index.html 없음", flush=True)
+            return 1
+        print("index.html ok", flush=True)
+        return 0
+
+    # part == "whisper": 모델을 내려받아 무음 파일을 받아쓰게 해 본다. 멈추면 어디서 멈췄는지 출력한다.
+    import faulthandler
     import tempfile
     import wave
 
-    import av  # noqa: F401
-    import ctranslate2  # noqa: F401
-    import onnxruntime  # noqa: F401
-    import webview  # noqa: F401
-    import yt_dlp  # noqa: F401
-
-    try:
-        import yt_dlp_ejs  # noqa: F401
-    except ImportError:
-        print("! yt_dlp_ejs 없음")
-        return 1
-    print("imports ok")
-
-    deno = core.deno_path()
-    if not deno:
-        print("! deno 없음")
-        return 1
-    print("deno:", subprocess.run([deno, "--version"], capture_output=True, text=True).stdout.splitlines()[0])
-
-    assert (BASE / "index.html").is_file(), "index.html 없음"
-
+    faulthandler.dump_traceback_later(240, exit=True)
     with tempfile.TemporaryDirectory() as tmp:
         wav = Path(tmp) / "silence.wav"
         with wave.open(str(wav), "wb") as w:
@@ -92,14 +100,16 @@ def selftest():
             w.setsampwidth(2)
             w.setframerate(16000)
             w.writeframes(b"\x00\x00" * 16000 * 2)
-        segments = core.transcribe(str(wav), "tiny", lambda *a: None)
-    print("whisper ok:", segments)
+        segments = core.transcribe(str(wav), "tiny", lambda stage, ratio: print("  ", stage, ratio, flush=True))
+    print("whisper ok:", segments, flush=True)
     return 0
 
 
 def main():
     if "--selftest" in sys.argv:
-        sys.exit(selftest())
+        sys.exit(selftest("basic"))
+    if "--selftest-whisper" in sys.argv:
+        sys.exit(selftest("whisper"))
 
     import webview
 

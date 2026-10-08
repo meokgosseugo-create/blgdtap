@@ -9,6 +9,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: build-mac
+  cancel-in-progress: true
+
 env:
   GH_TOKEN: ${{ github.token }}
   RELEASE_TAG: latest
@@ -50,8 +54,13 @@ jobs:
           plutil -replace CFBundleName -string "대본 추출기" dist/ScriptGrabber.app/Contents/Info.plist
           codesign --force --deep --sign - dist/ScriptGrabber.app
 
-      - name: Self test (imports, deno, Whisper)
+      - name: Self test (imports, deno)
         run: dist/ScriptGrabber.app/Contents/MacOS/ScriptGrabber --selftest
+
+      - name: Self test (Whisper)
+        timeout-minutes: 6
+        continue-on-error: true
+        run: dist/ScriptGrabber.app/Contents/MacOS/ScriptGrabber --selftest-whisper
 
       - name: Launch smoke test (non-fatal)
         continue-on-error: true

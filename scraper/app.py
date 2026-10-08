@@ -1,131 +1,115 @@
-#!/usr/bin/env python3
-# /// script
-# requires-python = ">=3.10"
-# dependencies = [
-#     "youtube-transcript-api>=1.2",
-#     "yt-dlp>=2026.8.19",
-#     "faster-whisper>=1.1",
-# ]
-# ///
-"""대본 추출기 웹 화면. 내 컴퓨터(127.0.0.1)에서만 열리며 외부에 공개되지 않는다.
+"""대본 추출기 — 링크를 붙여넣으면 영상 대본을 보여주는 데스크톱 앱."""
 
-    uv run app.py      → 브라우저가 자동으로 열린다
-"""
-
-import json
+import subprocess
 import sys
 import threading
-import uuid
-import webbrowser
-from argparse import Namespace
-from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
-import transcript as T
+import core
 
-HOST, PORT = "127.0.0.1", 8765
-PAGE = (Path(__file__).parent / "index.html").read_text(encoding="utf-8")
-
-jobs = {}  # job_id -> {"status": "running"|"done"|"error", "log": str, "result": dict, "error": str}
-whisper_lock = threading.Lock()  # 음성인식은 한 번에 하나씩만
+BASE = Path(getattr(sys, "_MEIPASS", Path(__file__).parent))
 
 
-def make_args(browser):
-    return Namespace(
-        cookies_from_browser=browser or None,
-        cookies=None,
-        lang=["ko", "en"],
-        whisper_lang="ko",
-        model="small",
-        force_whisper=False,
-    )
+class Api:
+    """화면(index.html)에서 호출하는 기능들."""
+
+    def __init__(self):
+        self.window = None
+        self._job = {"state": "idle"}
+        self._lock = threading.Lock()
+
+    def start(self, url, model, browser):
+        with self._lock:
+            if self._job["state"] == "running":
+                return
+            self._job = {"state": "running", "stage": "시작하는 중", "ratio": None}
+        threading.Thread(target=self._run, args=(url, model, browser), daemon=True).start()
+
+    def _progress(self, stage, ratio):
+        self._job.update(stage=stage, ratio=ratio)
+
+    def _run(self, url, model, browser):
+        try:
+            result = core.extract(url, model, browser, self._progress)
+            self._job = {"state": "done", **result}
+        except Exception as e:
+            self._job = {"state": "error", "error": core.friendly_error(url, e)}
+
+    def status(self):
+        return self._job
+
+    def copy(self, text):
+        """클립보드에 복사한다. 성공하면 True."""
+        if sys.platform != "darwin":
+            return False
+        subprocess.run(["pbcopy"], input=text.encode("utf-8"), check=True)
+        return True
+
+    def save(self, filename, text):
+        """저장 위치를 물어보고 .txt로 저장한다."""
+        import webview
+
+        dialog = getattr(webview, "FileDialog", None)
+        kind = dialog.SAVE if dialog else webview.SAVE_DIALOG
+        path = self.window.create_file_dialog(kind, save_filename=filename)
+        if not path:
+            return False
+        path = path if isinstance(path, str) else path[0]
+        Path(path).write_text(text, encoding="utf-8")
+        return True
 
 
-def run_job(job_id, url, browser):
-    job = jobs[job_id]
+def selftest():
+    """빌드된 앱 안에서 필요한 부품이 모두 동작하는지 확인한다. (CI에서 사용)"""
+    import tempfile
+    import wave
 
-    def log(msg):
-        job["log"] = msg.strip(" ·")
+    import av  # noqa: F401
+    import ctranslate2  # noqa: F401
+    import onnxruntime  # noqa: F401
+    import webview  # noqa: F401
+    import yt_dlp  # noqa: F401
 
     try:
-        with whisper_lock:
-            record = T.extract(url, make_args(browser), log)
-        record["text"] = T.format_text(record)
-        record["text_timestamps"] = T.format_text(record, timestamps=True)
-        record["script_timestamps"] = "\n".join(f"[{T.fmt_time(x['start'])}] {x['text']}" for x in record["segments"])
-        job["result"] = record
-        job["status"] = "done"
-    except Exception as e:
-        job["error"] = friendly_error(url, e)
-        job["status"] = "error"
+        import yt_dlp_ejs  # noqa: F401
+    except ImportError:
+        print("! yt_dlp_ejs 없음")
+        return 1
+    print("imports ok")
 
+    deno = core.deno_path()
+    if not deno:
+        print("! deno 없음")
+        return 1
+    print("deno:", subprocess.run([deno, "--version"], capture_output=True, text=True).stdout.splitlines()[0])
 
-def friendly_error(url, e):
-    msg = str(e)
-    if isinstance(e, ValueError):
-        return msg
-    if "instagram" in url and ("login" in msg.lower() or "cookies" in msg.lower() or "rate" in msg.lower()):
-        return "인스타 로그인 정보를 읽지 못했어요. 선택한 브라우저에 인스타그램이 로그인되어 있는지 확인해 주세요.\n\n" + msg
-    if "ffmpeg" in msg.lower():
-        return "ffmpeg가 필요합니다. 터미널에서 `brew install ffmpeg` 후 다시 시도해 주세요.\n\n" + msg
-    return msg
+    assert (BASE / "index.html").is_file(), "index.html 없음"
 
-
-class Handler(BaseHTTPRequestHandler):
-    def log_message(self, *a):  # 터미널 로그 조용히
-        pass
-
-    def send_json(self, data, code=200):
-        body = json.dumps(data, ensure_ascii=False).encode("utf-8")
-        self.send_response(code)
-        self.send_header("Content-Type", "application/json; charset=utf-8")
-        self.send_header("Content-Length", str(len(body)))
-        self.end_headers()
-        self.wfile.write(body)
-
-    def do_GET(self):
-        if self.path == "/":
-            body = PAGE.encode("utf-8")
-            self.send_response(200)
-            self.send_header("Content-Type", "text/html; charset=utf-8")
-            self.send_header("Content-Length", str(len(body)))
-            self.end_headers()
-            self.wfile.write(body)
-        elif self.path.startswith("/api/status/"):
-            job = jobs.get(self.path.rsplit("/", 1)[-1])
-            self.send_json(job or {"status": "error", "error": "작업을 찾을 수 없어요"}, 200 if job else 404)
-        else:
-            self.send_error(404)
-
-    def do_POST(self):
-        if self.path != "/api/extract":
-            return self.send_error(404)
-        # 다른 웹사이트가 내 컴퓨터의 이 주소로 요청을 보내는 것을 막는다.
-        if self.headers.get("Host", "").split(":")[0] not in ("127.0.0.1", "localhost"):
-            return self.send_error(403)
-        try:
-            payload = json.loads(self.rfile.read(int(self.headers.get("Content-Length", 0))))
-            url = payload["url"].strip()
-            T.detect_platform(url)
-        except (ValueError, KeyError) as e:
-            return self.send_json({"error": str(e) if isinstance(e, ValueError) and "URL" in str(e) else "주소를 확인해 주세요"}, 400)
-        job_id = uuid.uuid4().hex
-        jobs[job_id] = {"status": "running", "log": "시작하는 중..."}
-        threading.Thread(target=run_job, args=(job_id, url, payload.get("browser")), daemon=True).start()
-        self.send_json({"job_id": job_id})
+    with tempfile.TemporaryDirectory() as tmp:
+        wav = Path(tmp) / "silence.wav"
+        with wave.open(str(wav), "wb") as w:
+            w.setnchannels(1)
+            w.setsampwidth(2)
+            w.setframerate(16000)
+            w.writeframes(b"\x00\x00" * 16000 * 2)
+        segments = core.transcribe(str(wav), "tiny", lambda *a: None)
+    print("whisper ok:", segments)
+    return 0
 
 
 def main():
-    server = ThreadingHTTPServer((HOST, PORT), Handler)
-    url = f"http://{HOST}:{PORT}"
-    print(f"대본 추출기가 열렸습니다: {url}")
-    print("이 창을 닫으면 프로그램이 종료됩니다.")
-    threading.Timer(0.8, lambda: webbrowser.open(url)).start()
-    try:
-        server.serve_forever()
-    except KeyboardInterrupt:
-        pass
+    if "--selftest" in sys.argv:
+        sys.exit(selftest())
+
+    import webview
+
+    api = Api()
+    html = (BASE / "index.html").read_text(encoding="utf-8")
+    api.window = webview.create_window(
+        "대본 추출기", html=html, js_api=api, width=820, height=760, min_size=(520, 560)
+    )
+    webview.start()
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

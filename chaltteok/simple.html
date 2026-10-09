@@ -1,0 +1,818 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>찰떡 — 세상 모든 꿀조합</title>
+  <style>
+:root {
+  --bg: #ffffff;
+  --card: #ffffff;
+  --ink: #111111;
+  --muted: #8a8a8e;
+  --line: #e8e8ea;
+  --fill: #f3f3f5;
+  --brand: #111111;
+  --brand-ink: #ffffff;
+  --badge: #ffc83d;
+  --badge-ink: #111111;
+  --good: #1f9d63;
+  --radius: 24px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0e0e10;
+    --card: #1a1a1d;
+    --ink: #f5f5f7;
+    --muted: #96969c;
+    --line: #2c2c30;
+    --fill: #232327;
+    --brand: #f5f5f7;
+    --brand-ink: #111111;
+    --good: #4cc98a;
+  }
+}
+
+* { box-sizing: border-box; }
+
+html, body { margin: 0; padding: 0; }
+
+body {
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: "Pretendard", -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", system-ui, sans-serif;
+  line-height: 1.5;
+  -webkit-text-size-adjust: 100%;
+}
+
+#app {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 20px 16px 56px;
+}
+
+button { font: inherit; color: inherit; cursor: pointer; }
+
+/* 상단 */
+.top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+.brand { display: flex; align-items: baseline; gap: 8px; }
+.logo { font-size: 28px; font-weight: 900; letter-spacing: -0.04em; color: var(--ink); }
+.sub { font-size: 13px; color: var(--muted); }
+.dex { font-size: 12px; font-weight: 600; padding: 6px 12px; border-radius: 999px; background: var(--fill); color: var(--muted); }
+
+/* 트레이 (고른 재료) */
+.tray { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 28px; }
+.slot {
+  position: relative; min-height: 84px; padding: 10px 4px 8px; border-radius: 20px;
+  border: 1.5px dashed var(--line); background: transparent; color: var(--muted);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  text-align: center; font-size: 12px; line-height: 1.25; word-break: keep-all;
+}
+.slot .num { font-size: 11px; font-weight: 700; opacity: .7; }
+.slot.filled {
+  border: 1.5px solid var(--ink); background: var(--card); color: var(--ink); font-weight: 700;
+  animation: pop .25s ease-out; transition: transform .1s ease;
+}
+.slot.filled:active { transform: scale(.96); }
+.slot .emoji { font-size: 28px; line-height: 1.1; }
+.slot .sname { font-size: 11px; font-weight: 700; }
+.slot .x {
+  position: absolute; top: -7px; right: -5px; width: 20px; height: 20px; border-radius: 50%;
+  background: var(--ink); color: var(--bg); font-size: 13px; line-height: 20px; text-align: center; font-weight: 800;
+}
+@keyframes pop { from { transform: scale(.85); opacity: .4; } to { transform: scale(1); opacity: 1; } }
+
+/* 단계 제목 */
+.step-title { font-size: 24px; font-weight: 800; margin: 0 0 6px; letter-spacing: -0.03em; }
+.step-hint { margin: 0 0 18px; font-size: 13px; color: var(--muted); }
+
+/* 검색 */
+.search {
+  width: 100%; padding: 14px 18px; margin-bottom: 14px;
+  border-radius: 999px; border: 0; background: var(--fill); color: var(--ink); font: inherit;
+}
+.search:focus-visible, .comment-form input:focus-visible { outline: 2px solid var(--ink); outline-offset: 1px; }
+
+/* 재료 후보 */
+.opts { display: grid; gap: 10px; }
+.opt {
+  display: grid; grid-template-columns: 1fr auto; row-gap: 10px; align-items: center;
+  width: 100%; text-align: left; padding: 18px 20px;
+  background: var(--card); border: 1.5px solid var(--line); border-radius: var(--radius);
+  transition: border-color .15s ease, transform .1s ease;
+}
+.opt:hover { border-color: var(--ink); }
+.opt:active { transform: scale(.98); }
+.opt:focus-visible, .btn:focus-visible, .slot:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+.opt-name { display: inline-flex; align-items: center; gap: 10px; font-weight: 700; font-size: 17px; letter-spacing: -0.02em; }
+.ico svg { width: 1.15em; height: 1.15em; display: block; }
+.slot .emoji svg { width: 30px; height: 30px; }
+.opt-pct { font-weight: 800; color: var(--muted); font-variant-numeric: tabular-nums; font-size: 15px; }
+.bar { grid-column: 1 / -1; display: block; height: 6px; border-radius: 999px; background: var(--fill); overflow: hidden; }
+.fill { display: block; height: 100%; border-radius: 999px; background: var(--ink); }
+.empty { padding: 16px; text-align: center; color: var(--muted); font-size: 14px; }
+
+/* 버튼 */
+.actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+.btn {
+  padding: 13px 20px; border-radius: 999px; border: 0;
+  background: var(--fill); font-weight: 700; font-size: 14px;
+}
+.btn.primary { background: var(--brand); color: var(--brand-ink); }
+.btn.finish { width: 100%; padding: 18px; font-size: 16px; margin-top: 16px; }
+.btn.on { background: transparent; box-shadow: inset 0 0 0 1.5px var(--good); color: var(--good); }
+.more { width: 100%; margin-top: 10px; }
+
+/* 결과 */
+.result {
+  background: var(--card); border: 1.5px solid var(--line); border-radius: 28px;
+  padding: 26px 22px; animation: pop .3s ease-out;
+}
+.kicker { font-size: 12px; font-weight: 800; color: var(--muted); margin: 0 0 6px; }
+.result h2 { margin: 0 0 6px; font-size: 28px; letter-spacing: -0.04em; }
+.tagline { margin: 0 0 14px; color: var(--muted); font-size: 14px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 14px; }
+.chip { font-size: 12px; font-weight: 600; padding: 5px 11px; border-radius: 999px; background: var(--fill); }
+.chip.time { color: var(--muted); }
+.chip.src { background: var(--badge); color: var(--badge-ink); font-weight: 700; }
+.stats { display: grid; gap: 16px; margin: 20px 0; }
+.stat-row { display: grid; grid-template-columns: 1fr auto; row-gap: 8px; font-size: 14px; }
+.stat-row b { font-variant-numeric: tabular-nums; }
+.stat-row .bar { height: 8px; }
+.note { font-size: 11px; color: var(--muted); margin: 6px 0 0; }
+.section-title { font-size: 15px; font-weight: 800; margin: 24px 0 8px; }
+.steps { margin: 0; padding-left: 20px; }
+.steps li { margin-bottom: 6px; }
+.tip { margin-top: 12px; padding: 14px 16px; border-radius: 18px; background: var(--fill); font-size: 13px; }
+
+/* 코멘트 */
+.comments { margin-top: 28px; }
+.comment-form { display: flex; gap: 8px; }
+.comment-form input {
+  flex: 1; min-width: 0; padding: 14px 18px; border-radius: 999px;
+  border: 0; background: var(--fill); color: var(--ink); font: inherit;
+}
+.comment-list { list-style: none; margin: 12px 0 0; padding: 0; display: grid; gap: 8px; }
+.comment-list li { padding: 14px 16px; border-radius: 18px; background: var(--fill); font-size: 14px; overflow-wrap: anywhere; }
+.comment-list time { display: block; margin-top: 2px; font-size: 11px; color: var(--muted); }
+
+.footer-note { margin-top: 32px; font-size: 11px; color: var(--muted); text-align: center; }
+
+.still .slot.filled, .still .result { animation: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .slot.filled, .result { animation: none; }
+  .opt, .slot.filled { transition: none; }
+}
+</style>
+</head>
+<body>
+  <main id="app" aria-live="polite"></main>
+  <script>
+// 찰떡 — 조합 샘플 데이터 (초안)
+//
+// 주의: votes(선택 수)와 score(맛 점수)는 화면 확인용 "임시 샘플 값"이에요.
+//       실제 서비스에서는 유저가 고른 기록(picks)과 평점으로 바뀌어야 해요.
+// 주의: 만드는 법/시간은 대략적인 초안이에요. 직접 먹어 보고 고쳐 주세요.
+//
+// items: 재료 이름. 순서는 "추천 순서"일 뿐, 고르는 순서는 상관없어요(집합으로 비교).
+//        같은 재료는 모든 조합에서 같은 이름으로 써야 연결돼요. (예: '스트링치즈')
+
+(function (root) {
+  // src: 'web' = 검색으로 확인한 조합, 'idea' = 검색 결과를 바탕으로 한 추정 조합
+  const COMBOS = [
+    {
+      id: 'bul-gyechi', main: '불닭볶음면', src: 'web',
+      name: '불계치',
+      items: ['불닭볶음면', '계란 후라이', '치즈'],
+      tagline: '불닭볶음면에 계란 후라이와 치즈를 더해 고소하게',
+      tags: ['매콤', '고소'],
+      minutes: 7,
+      steps: ['불닭볶음면을 조리해요.', '계란 후라이를 부쳐 올려요.', '치즈를 올려 살짝 녹여요.'],
+      tip: '', votes: 200, score: 90
+    },
+    {
+      id: 'bul-triangle-cheese', main: '불닭볶음면', src: 'web',
+      name: '불닭 치즈 볶음밥',
+      items: ['불닭볶음면', '참치 삼각김밥', '스트링치즈'],
+      tagline: '매운 면에 삼각김밥과 스트링치즈를 더한 편의점 단골 조합',
+      tags: ['매콤', '든든'],
+      minutes: 7,
+      steps: ['불닭볶음면을 조리해요.', '참치 삼각김밥을 넣고 그대로 비벼요.', '스트링치즈를 올려 녹여요.'],
+      tip: '삼각김밥은 참치마요가 잘 어울린다고 해요.', votes: 180, score: 91
+    },
+    {
+      id: 'bul-getti', main: '불닭볶음면', src: 'web',
+      name: '불닭게티',
+      items: ['불닭볶음면', '짜파게티', '치즈'],
+      tagline: '불닭과 짜파게티를 섞고 치즈를 올린 짜파구리 계열 조합',
+      tags: ['매콤', '짜장'],
+      minutes: 8,
+      steps: ['불닭볶음면과 짜파게티를 각각 조리해요.', '한 그릇에 섞어요.', '치즈를 올려 녹여요.'],
+      tip: '', votes: 150, score: 88
+    },
+    {
+      id: 'bul-cream', main: '불닭볶음면', src: 'web',
+      name: '크림 불닭',
+      items: ['불닭볶음면', '우유', '치즈'],
+      tagline: '우유와 치즈로 크림소스 파스타처럼 만든 불닭',
+      tags: ['크리미', '매콤'],
+      minutes: 7,
+      steps: ['불닭볶음면을 조리해요.', '우유와 치즈를 넣고 섞어 졸여요.'],
+      tip: '우유는 조금씩 넣으면서 농도를 맞춰요.', votes: 120, score: 85
+    },
+    {
+      id: 'carbo-bacon', main: '까르보불닭볶음면', src: 'web',
+      name: '까르보불닭 베이컨',
+      items: ['까르보불닭볶음면', '모짜렐라 치즈', '베이컨'],
+      tagline: '크리미한 까르보불닭에 모짜렐라와 구운 베이컨을 더한 조합',
+      tags: ['크리미', '매콤'],
+      minutes: 8,
+      steps: [
+        '까르보불닭볶음면을 평소보다 물을 조금 더 남기고 조리해요.',
+        '모짜렐라 치즈를 넣고 전자레인지에 2분 30초 돌려요.',
+        '구운 베이컨을 올려요.'
+      ],
+      tip: '', votes: 170, score: 90
+    },
+    {
+      id: 'carbo-dakbal', main: '까르보불닭볶음면', src: 'web',
+      name: '불닭발면',
+      items: ['까르보불닭볶음면', '닭발', '옥수수콘', '모짜렐라 치즈'],
+      tagline: '까르보불닭에 닭발, 콘, 치즈를 올린 푸짐한 조합',
+      tags: ['매콤', '푸짐'],
+      minutes: 8,
+      steps: ['까르보불닭볶음면을 조리해요.', '닭발을 올려요.', '옥수수콘과 모짜렐라 치즈를 뿌려요.'],
+      tip: '햇반과 조미김으로 콘치즈 주먹밥을 곁들이기도 해요.', votes: 90, score: 82
+    },
+    {
+      id: 'carbo-cream', main: '까르보불닭볶음면', src: 'web',
+      name: '크림 까르보불닭',
+      items: ['까르보불닭볶음면', '양파', '버터', '우유'],
+      tagline: '양파와 버터, 우유로 소스를 만들어 더 진하게',
+      tags: ['크리미', '진한맛'],
+      minutes: 12,
+      steps: [
+        '버터에 양파를 볶아요.',
+        '우유를 넣고 소스를 만들어요.',
+        '반쯤 익힌 까르보불닭볶음면을 넣고 함께 볶아요.'
+      ],
+      tip: '면은 반만 익혀서 소스와 합쳐요.', votes: 80, score: 83
+    },
+    {
+      id: 'shin-cheese', main: '신라면', src: 'web',
+      name: '신라면 치즈 볶음',
+      items: ['신라면', '치즈', '후추'],
+      tagline: '치즈를 잘게 잘라 넣고 후추를 듬뿍 뿌려 볶은 신라면',
+      tags: ['고소', '얼큰'],
+      minutes: 8,
+      steps: [
+        '신라면을 조리해요. 분말스프는 치즈가 들어가니 1개만 써요.',
+        '치즈를 잘게 잘라 넣고 후추를 듬뿍 뿌려요.',
+        '치즈가 녹아 면과 어우러지게 1분 정도 볶아요.'
+      ],
+      tip: '', votes: 130, score: 86
+    },
+    {
+      id: 'shin-triangle', main: '신라면', src: 'idea',
+      name: '신라면 삼각김밥 치즈',
+      items: ['신라면', '삼각김밥', '스트링치즈'],
+      tagline: '매운 라면에 삼각김밥과 치즈를 더하는 조합을 신라면에 적용',
+      tags: ['얼큰', '든든'],
+      minutes: 7,
+      steps: ['신라면을 조리해요.', '삼각김밥을 넣어요.', '스트링치즈를 올려 녹여요.'],
+      tip: '삼각김밥 반 개를 남겨 두었다가 국물에 말아 마무리해요.', votes: 90, score: 80
+    },
+    {
+      id: 'gonghwa-jjagyechi', main: '공화춘 짜장', src: 'idea',
+      name: '공화춘 짜계치',
+      items: ['공화춘 짜장', '계란 후라이', '치즈'],
+      tagline: '짜파게티 짜계치 조합을 공화춘에 적용',
+      tags: ['고소', '짜장'],
+      minutes: 7,
+      steps: ['공화춘 짜장을 조리해요.', '반숙 계란 후라이를 올려요.', '치즈를 올려 노른자와 비벼요.'],
+      tip: '', votes: 100, score: 82
+    },
+    {
+      id: 'gonghwa-bul', main: '공화춘 짜장', src: 'idea',
+      name: '공화춘 불닭 믹스',
+      items: ['공화춘 짜장', '불닭볶음면', '치즈'],
+      tagline: '짜장에 매운 라면을 섞는 불닭게티 계열 조합',
+      tags: ['매콤', '짜장'],
+      minutes: 8,
+      steps: ['공화춘 짜장과 불닭볶음면을 각각 조리해요.', '함께 섞고 치즈를 올려요.'],
+      tip: '불닭 소스는 조금씩 넣으며 맛을 봐요.', votes: 80, score: 78
+    },
+    {
+      id: 'banana-hazelnut', main: '바나나우유', src: 'web',
+      name: '헤이즐넛 바나나라떼',
+      items: ['바나나우유', '헤이즐넛 커피', '얼음컵'],
+      tagline: '바나나우유와 헤이즐넛 커피를 층으로 부은 편의점 라떼',
+      tags: ['달콤', '고소', '음료'],
+      minutes: 3,
+      steps: [
+        '얼음컵에 바나나우유를 먼저 부어요.',
+        '헤이즐넛 커피를 천천히 돌려가며 부어요.'
+      ],
+      tip: '커피를 마지막에 천천히 부으면 층이 예쁘게 나뉘어요.', votes: 220, score: 90
+    },
+    {
+      id: 'banana-bar', main: '바나나우유', src: 'web',
+      name: '뚱바 더위사냥',
+      items: ['바나나우유', '더위사냥'],
+      tagline: '커피맛 아이스바를 부숴 넣어 차갑게 즐기는 조합',
+      tags: ['달콤', '시원', '음료'],
+      minutes: 2,
+      steps: ['컵에 바나나우유를 부어요.', '더위사냥을 부숴 넣어요.'],
+      tip: '아이스바가 천천히 녹아서 묽어지지 않고 차갑게 유지돼요.', votes: 90, score: 80
+    },
+    {
+      id: 'sari-mandu', main: '사리곰탕 컵라면', src: 'web',
+      name: '사리곰탕 만둣국',
+      items: ['사리곰탕 컵라면', '만두'],
+      tagline: '곰탕 컵라면에 만두를 넣어 만든 간단 만둣국',
+      tags: ['담백', '가성비'],
+      minutes: 6,
+      steps: ['사리곰탕 컵라면에 물과 스프를 넣어요.', '만두를 넣고 전자레인지에 2분 정도 돌려요.'],
+      tip: '', votes: 120, score: 84
+    },
+    {
+      id: 'mark-jeongsik', main: '컵 떡볶이', src: 'web',
+      name: '마크 정식',
+      items: ['컵 떡볶이', '스파게티 컵라면', '소시지', '치즈'],
+      tagline: '컵 떡볶이에 스파게티를 넣고 치즈와 소시지를 더한 조합',
+      tags: ['매콤', '든든', '푸짐'],
+      minutes: 10,
+      steps: [
+        '컵 떡볶이를 조리해요.',
+        '스파게티 컵라면을 조리해 떡볶이에 섞어요.',
+        '소시지와 치즈를 올려 녹여요.'
+      ],
+      tip: '컵라면은 면이 스파게티여야 맛이 살아난다고 해요.', votes: 180, score: 91
+    },
+    {
+      id: 'triangle-bibimbap', main: '삼각김밥', src: 'web',
+      name: '삼각김밥 비빔밥',
+      items: ['삼각김밥', '볶음김치', '달걀'],
+      tagline: '유민상 레시피로 알려진 전자레인지 비빔밥',
+      tags: ['얼큰', '든든'],
+      minutes: 4,
+      steps: [
+        '삼각김밥과 볶음김치를 넓은 그릇에 넣어요.',
+        '달걀을 깨 넣어요.',
+        '전자레인지에 1~2분 돌려 비벼요.'
+      ],
+      tip: '', votes: 140, score: 86
+    }
+  ];
+
+  if (typeof module !== 'undefined' && module.exports) {
+    module.exports = COMBOS;
+  } else {
+    root.CHALTTEOK_COMBOS = COMBOS;
+  }
+})(typeof window !== 'undefined' ? window : globalThis);
+</script>
+  <script>
+// 찰떡 — 조합 선택 로직 (화면과 분리된 순수 함수)
+//
+// 규칙
+// - 첫 번째로 고르는 재료는 "메인 재료"(combo.main)예요. 첫 화면에는 메인 재료만 나와요.
+// - 메인 재료를 고른 뒤에는 나머지 재료의 순서가 상관없어요. (치즈→계란 = 계란→치즈)
+// - 다음 재료 후보는 "같은 메인 재료이고, 지금까지 고른 재료를 모두 포함하는 조합"에서만 뽑아요.
+// - 퍼센트는 후보 조합들의 선택 수(votes) 중 그 재료가 들어간 조합의 비율이에요.
+//   (한 조합에 재료가 여러 개라 후보들의 퍼센트 합이 100을 넘을 수 있어요.)
+
+(function (root) {
+  'use strict';
+
+  function sumVotes(list) {
+    return list.reduce(function (acc, c) { return acc + c.votes; }, 0);
+  }
+
+  // chosen[0]이 메인 재료인 조합 중, chosen 재료를 모두 포함하는 조합들
+  function matching(combos, chosen) {
+    return combos.filter(function (c) {
+      if (chosen.length && c.main !== chosen[0]) return false;
+      return chosen.every(function (x) { return c.items.indexOf(x) !== -1; });
+    });
+  }
+
+  // 첫 화면: 메인 재료 목록 (인기순)
+  function mainOptions(combos) {
+    var total = sumVotes(combos);
+    var map = {};
+    var order = [];
+    combos.forEach(function (c) {
+      if (!map[c.main]) { map[c.main] = { item: c.main, votes: 0, combos: 0 }; order.push(c.main); }
+      map[c.main].votes += c.votes;
+      map[c.main].combos += 1;
+    });
+    return order.map(function (k) {
+      return { item: k, combos: map[k].combos, percent: total ? Math.round((map[k].votes / total) * 100) : 0 };
+    }).sort(function (a, b) {
+      return b.percent - a.percent || b.combos - a.combos || a.item.localeCompare(b.item, 'ko');
+    });
+  }
+
+  // 다음에 고를 수 있는 재료 목록 (인기순). limit이 0이면 전부.
+  function nextOptions(combos, chosen, limit) {
+    if (!chosen.length) { var mains = mainOptions(combos); return limit ? mains.slice(0, limit) : mains; }
+    var pool = matching(combos, chosen);
+    var total = sumVotes(pool);
+    var map = {};
+    var order = [];
+    pool.forEach(function (c) {
+      c.items.forEach(function (it) {
+        if (chosen.indexOf(it) !== -1) return;
+        if (!map[it]) { map[it] = { item: it, votes: 0, combos: 0 }; order.push(it); }
+        map[it].votes += c.votes;
+        map[it].combos += 1;
+      });
+    });
+    var arr = order.map(function (k) {
+      var e = map[k];
+      return {
+        item: e.item,
+        combos: e.combos,
+        percent: total ? Math.round((e.votes / total) * 100) : 0
+      };
+    });
+    arr.sort(function (a, b) {
+      return b.percent - a.percent || b.combos - a.combos || a.item.localeCompare(b.item, 'ko');
+    });
+    return limit ? arr.slice(0, limit) : arr;
+  }
+
+  // 고른 재료가 정확히 하나의 조합과 같으면 그 조합, 아니면 null
+  function findComplete(combos, chosen) {
+    for (var i = 0; i < combos.length; i++) {
+      var c = combos[i];
+      if (c.items.length === chosen.length &&
+          chosen.every(function (x) { return c.items.indexOf(x) !== -1; })) {
+        return c;
+      }
+    }
+    return null;
+  }
+
+  // 같은 메인 재료의 조합들 중, 이 조합을 고른 사람의 비율(%)
+  function pickRate(combos, combo) {
+    var pool = matching(combos, [combo.main]);
+    var total = sumVotes(pool);
+    return total ? Math.round((combo.votes / total) * 100) : 0;
+  }
+
+  var api = {
+    matching: matching,
+    mainOptions: mainOptions,
+    nextOptions: nextOptions,
+    findComplete: findComplete,
+    pickRate: pickRate
+  };
+
+  if (typeof module !== 'undefined' && module.exports) {
+    module.exports = api;
+  } else {
+    root.ChaltteokLogic = api;
+  }
+})(typeof window !== 'undefined' ? window : globalThis);
+</script>
+  <script>
+// 찰떡 — 화면 (프레임워크 없이 순수 JS)
+// 흐름: 재료 고르기(최대 4단계) → 결과(비율/맛 점수/만드는 법/코멘트)
+
+(function () {
+  'use strict';
+
+  const COMBOS = window.CHALTTEOK_COMBOS;
+  const L = window.ChaltteokLogic;
+  const MAX_STEPS = 4;     // 한 조합에 들어가는 재료 최대 개수
+  const FIRST_LIMIT = 10;  // 첫 화면에 보여줄 메인 재료 수 (나머지는 검색)
+  const VISIBLE = 6;       // 다음 단계에서 먼저 보여줄 후보 수
+
+  const KEY_TRIED = 'chaltteok:tried';
+  const KEY_COMMENTS = 'chaltteok:comments:';
+
+  const state = { chosen: [], combo: null, auto: false, query: '', expanded: false };
+  const app = document.getElementById('app');
+
+  /* ---------- 저장소 (프로토타입: 브라우저 localStorage) ---------- */
+  function lsGet(key, fallback) {
+    try {
+      const v = localStorage.getItem(key);
+      return v ? JSON.parse(v) : fallback;
+    } catch (e) { return fallback; }
+  }
+  function lsSet(key, val) {
+    try { localStorage.setItem(key, JSON.stringify(val)); } catch (e) { /* 저장 실패해도 화면은 동작 */ }
+  }
+
+  /* ---------- DOM 헬퍼 ---------- */
+  function h(tag, props, ...kids) {
+    const el = document.createElement(tag);
+    Object.entries(props || {}).forEach(([k, v]) => {
+      if (v === false || v == null) return;
+      if (k === 'class') el.className = v;
+      else if (k === 'style') el.style.cssText = v;
+      else if (k.startsWith('on')) el.addEventListener(k.slice(2), v);
+      else if (v === true) el.setAttribute(k, '');
+      else el.setAttribute(k, v);
+    });
+    kids.flat().forEach((c) => {
+      if (c == null || c === false) return;
+      el.append(c.nodeType ? c : document.createTextNode(String(c)));
+    });
+    return el;
+  }
+
+  /* ---------- 동작 ---------- */
+  function choose(item) {
+    state.chosen.push(item);
+    state.query = '';
+    state.expanded = false;
+    const done = L.findComplete(COMBOS, state.chosen);
+    const more = L.nextOptions(COMBOS, state.chosen, 0);
+    if (done && (more.length === 0 || state.chosen.length >= MAX_STEPS)) {
+      state.combo = done;
+      state.auto = true;
+    }
+    render();
+  }
+
+  function finish() {
+    const done = L.findComplete(COMBOS, state.chosen);
+    if (done) { state.combo = done; state.auto = false; render(); }
+  }
+
+  function back() {
+    if (state.combo) {
+      state.combo = null;
+      if (state.auto) state.chosen.pop();
+    } else {
+      state.chosen.pop();
+    }
+    state.auto = false;
+    state.expanded = false;
+    render();
+  }
+
+  // 트레이에서 고른 재료를 눌러 빼기. 메인 재료(1번)를 빼면 처음부터 다시 시작해요.
+  function removeAt(i) {
+    if (i === 0) { reset(); return; }
+    state.chosen.splice(i, 1);
+    state.combo = null;
+    state.auto = false;
+    state.query = '';
+    state.expanded = false;
+    render();
+  }
+
+  function reset() {
+    state.chosen = [];
+    state.combo = null;
+    state.auto = false;
+    state.query = '';
+    state.expanded = false;
+    render();
+  }
+
+  function toggleTried(id) {
+    const list = lsGet(KEY_TRIED, []);
+    const i = list.indexOf(id);
+    if (i === -1) list.push(id); else list.splice(i, 1);
+    lsSet(KEY_TRIED, list);
+    render(true);
+  }
+
+  /* ---------- 재료 이모티콘 ---------- */
+  const EMOJI = {
+    '바나나우유': '🍌', '삼각김밥': '🍙', '참치 삼각김밥': '🍙',
+    '치즈': '🧀', '스트링치즈': '🧀', '모짜렐라 치즈': '🧀',
+    '계란 후라이': '🍳', '달걀': '🥚', '우유': '🥛', '베이컨': '🥓',
+    '닭발': '🍗', '옥수수콘': '🌽', '양파': '🧅', '버터': '🧈', '후추': '🧂',
+    '헤이즐넛 커피': '☕', '얼음컵': '🧊', '더위사냥': '🍦', '만두': '🥟', '볶음김치': '🥬',
+    '스파게티 컵라면': '🍝'
+  };
+  // 표준 이모티콘에 없는 재료(떡볶이, 소시지)는 직접 그린 SVG 아이콘을 써요.
+  const SVG_ICONS = {
+    '컵 떡볶이': '<svg viewBox="0 0 32 32" aria-hidden="true"><ellipse cx="16" cy="25" rx="12" ry="3" fill="#00000022"/><path d="M3 15h26c0 7-5.5 11-13 11S3 22 3 15z" fill="#f4efe6"/><ellipse cx="16" cy="15" rx="13" ry="4.5" fill="#c8281e"/><g fill="#f26a3d"><rect x="6" y="11.5" width="10" height="5" rx="2.5" transform="rotate(-18 11 14)"/><rect x="15" y="10.5" width="10" height="5" rx="2.5" transform="rotate(14 20 13)"/><rect x="11" y="15" width="10" height="5" rx="2.5" transform="rotate(-6 16 17.5)"/></g><g fill="#ffd0b8" opacity=".7"><rect x="7.5" y="12.2" width="5" height="1.2" rx=".6" transform="rotate(-18 10 12.8)"/><rect x="17" y="11.2" width="5" height="1.2" rx=".6" transform="rotate(14 19 11.8)"/></g></svg>',
+    '소시지': '<svg viewBox="0 0 32 32" aria-hidden="true"><g transform="rotate(-28 16 16)"><rect x="2" y="10.5" width="28" height="11" rx="5.5" fill="#d9573a"/><rect x="4.5" y="12" width="21" height="2.4" rx="1.2" fill="#f58a6a" opacity=".85"/><g stroke="#9c2f1c" stroke-width="1.4" stroke-linecap="round"><path d="M10 15.5v5.5"/><path d="M15 15.5v5.5"/><path d="M20 15.5v5.5"/></g></g></svg>'
+  };
+  const EMOJI_KEYWORDS = [['라면', '🍜'], ['볶음면', '🍜'], ['짜장', '🍜'], ['게티', '🍜'], ['치즈', '🧀'], ['커피', '☕']];
+  function emojiFor(name) {
+    if (EMOJI[name]) return EMOJI[name];
+    const hit = EMOJI_KEYWORDS.find((k) => name.includes(k[0]));
+    return hit ? hit[1] : '🍴';
+  }
+  // 재료 아이콘 요소 (SVG가 있으면 SVG, 없으면 이모티콘 글자)
+  function iconEl(name) {
+    const el = document.createElement('span');
+    el.className = 'ico';
+    el.setAttribute('aria-hidden', 'true');
+    if (SVG_ICONS[name]) el.innerHTML = SVG_ICONS[name];
+    else el.textContent = emojiFor(name);
+    return el;
+  }
+
+  /* ---------- 공통 조각 ---------- */
+  function header() {
+    const tried = lsGet(KEY_TRIED, []);
+    return h('header', { class: 'top' },
+      h('div', { class: 'brand' },
+        h('span', { class: 'logo' }, '찰떡'),
+        h('span', { class: 'sub' }, '세상 모든 꿀조합')),
+      h('div', { class: 'dex', title: '먹어본 조합' }, '도감 ' + tried.length + '/' + COMBOS.length));
+  }
+
+  function tray() {
+    const slots = [];
+    for (let i = 0; i < MAX_STEPS; i++) {
+      const it = state.chosen[i];
+      slots.push(it
+        ? h('button', {
+            class: 'slot filled', type: 'button',
+            'aria-label': it + (i === 0 ? ' 빼고 처음부터' : ' 빼기'),
+            title: i === 0 ? '누르면 처음부터' : '눌러서 빼기',
+            onclick: () => removeAt(i)
+          },
+          h('span', { class: 'emoji' }, iconEl(it)),
+          h('span', { class: 'sname' }, it),
+          h('span', { class: 'x', 'aria-hidden': 'true' }, '×'))
+        : h('div', { class: 'slot' }, h('span', { class: 'num' }, i + 1), '?'));
+    }
+    return h('section', { class: 'tray', 'aria-label': '고른 재료' }, slots);
+  }
+
+  function optionButton(o) {
+    return h('button', { class: 'opt', type: 'button', onclick: () => choose(o.item) },
+      h('span', { class: 'opt-name' }, iconEl(o.item), o.item),
+      h('span', { class: 'opt-pct' }, o.percent + '%'),
+      h('span', { class: 'bar' }, h('span', { class: 'fill', style: 'width:' + o.percent + '%' })));
+  }
+
+  /* ---------- 재료 고르기 화면 ---------- */
+  function pickView() {
+    const n = state.chosen.length + 1;
+    const all = L.nextOptions(COMBOS, state.chosen, 0);
+    const optsEl = h('div', { class: 'opts' });
+    const moreWrap = h('div', {});
+
+    function fill() {
+      optsEl.replaceChildren();
+      moreWrap.replaceChildren();
+      let list;
+      if (n === 1) {
+        const q = state.query.trim();
+        list = q ? all.filter((o) => o.item.includes(q)) : all.slice(0, FIRST_LIMIT);
+      } else {
+        list = state.expanded ? all : all.slice(0, VISIBLE);
+      }
+      if (list.length === 0) {
+        optsEl.append(h('p', { class: 'empty' }, '찾는 재료가 아직 없어요.'));
+      } else {
+        list.forEach((o) => optsEl.append(optionButton(o)));
+      }
+      const hidden = n === 1 ? 0 : all.length - list.length;
+      if (hidden > 0) {
+        moreWrap.append(h('button', {
+          class: 'btn more', type: 'button',
+          onclick: () => { state.expanded = true; fill(); }
+        }, '나머지 ' + hidden + '개 더 보기'));
+      }
+    }
+
+    const done = L.findComplete(COMBOS, state.chosen);
+
+    const view = h('section', {},
+      h('h1', { class: 'step-title' }, n === 1 ? '메인 재료부터 골라요' : n + '번째 재료를 골라요'),
+      h('p', { class: 'step-hint' },
+        n === 1 ? '메인 재료를 고르면 어울리는 재료가 이어서 나와요.' : '숫자는 이 재료를 고른 사람의 비율이에요.'));
+
+    if (n === 1) {
+      view.append(h('input', {
+        class: 'search', type: 'search', placeholder: '메인 재료 검색 (예: 불닭, 신라면)',
+        'aria-label': '메인 재료 검색', value: state.query,
+        oninput: (e) => { state.query = e.target.value; fill(); }
+      }));
+    }
+
+    view.append(optsEl, moreWrap);
+
+    if (done) {
+      view.append(h('button', { class: 'btn primary finish', type: 'button', onclick: finish }, '여기서 완성하기'));
+    }
+
+    const actions = h('div', { class: 'actions' });
+    if (state.chosen.length > 0) {
+      actions.append(
+        h('button', { class: 'btn', type: 'button', onclick: back }, '← 한 단계 뒤로'),
+        h('button', { class: 'btn', type: 'button', onclick: reset }, '처음부터'));
+    }
+    view.append(actions);
+
+    fill();
+    return view;
+  }
+
+  /* ---------- 결과 화면 ---------- */
+  function statRow(label, value, note) {
+    return h('div', { class: 'stat-row' },
+      h('span', {}, label),
+      h('b', {}, value + '%'),
+      h('span', { class: 'bar' }, h('span', { class: 'fill', style: 'width:' + value + '%' })),
+      note ? h('span', { class: 'note' }, note) : null);
+  }
+
+  function commentsSection(combo) {
+    const key = KEY_COMMENTS + combo.id;
+    const listEl = h('ul', { class: 'comment-list' });
+    const input = h('input', {
+      type: 'text', maxlength: '100', placeholder: '한 줄 코멘트를 남겨보세요',
+      'aria-label': '코멘트 입력'
+    });
+
+    function fillList() {
+      listEl.replaceChildren();
+      const items = lsGet(key, []).slice().reverse();
+      if (items.length === 0) {
+        listEl.append(h('li', { class: 'empty' }, '아직 코멘트가 없어요. 첫 코멘트를 남겨보세요!'));
+        return;
+      }
+      items.forEach((c) => {
+        listEl.append(h('li', {},
+          c.text,
+          h('time', {}, new Date(c.ts).toLocaleDateString('ko-KR'))));
+      });
+    }
+
+    function submit(e) {
+      e.preventDefault();
+      const text = input.value.trim();
+      if (!text) return;
+      const items = lsGet(key, []);
+      items.push({ text: text.slice(0, 100), ts: Date.now() });
+      lsSet(key, items);
+      input.value = '';
+      fillList();
+    }
+
+    fillList();
+    return h('section', { class: 'comments' },
+      h('h3', { class: 'section-title' }, '코멘트'),
+      h('form', { class: 'comment-form', onsubmit: submit },
+        input,
+        h('button', { class: 'btn primary', type: 'submit' }, '남기기')),
+      listEl);
+  }
+
+  function resultView() {
+    const c = state.combo;
+    const rate = L.pickRate(COMBOS, c);
+    const isTried = lsGet(KEY_TRIED, []).indexOf(c.id) !== -1;
+
+    return h('section', {},
+      h('article', { class: 'result' },
+        h('p', { class: 'kicker' }, '조합 완성!'),
+        h('h2', {}, c.name),
+        h('p', { class: 'tagline' }, c.tagline),
+        h('div', { class: 'chips' },
+          c.tags.map((t) => h('span', { class: 'chip' }, '#' + t)),
+          h('span', { class: 'chip time' }, '약 ' + c.minutes + '분'),
+          h('span', { class: 'chip src' }, c.src === 'web' ? '출처 확인' : '추정 조합')),
+        h('div', { class: 'stats' },
+          statRow('같은 메인 재료 중 이 조합 비율', rate),
+          statRow('맛 점수', c.score, '※ 숫자는 임시 샘플 값이에요.')),
+        h('h3', { class: 'section-title' }, '만드는 법'),
+        h('ol', { class: 'steps' }, c.steps.map((s) => h('li', {}, s))),
+        c.tip ? h('p', { class: 'tip' }, '💡 ' + c.tip) : null),
+      h('div', { class: 'actions' },
+        h('button', {
+          class: 'btn' + (isTried ? ' on' : ''), type: 'button',
+          'aria-pressed': isTried ? 'true' : 'false',
+          onclick: () => toggleTried(c.id)
+        }, isTried ? '✓ 먹어봤어요' : '먹어봤어요'),
+        h('button', { class: 'btn', type: 'button', onclick: back }, '← 뒤로'),
+        h('button', { class: 'btn primary', type: 'button', onclick: reset }, '다른 조합 찾기')),
+      commentsSection(c));
+  }
+
+  /* ---------- 그리기 ---------- */
+  function render(keepScroll) {
+    // 같은 화면을 다시 그릴 때(먹어봤어요 등)는 등장 애니메이션을 다시 재생하지 않아요.
+    app.classList.toggle('still', !!keepScroll);
+    app.replaceChildren(
+      header(),
+      tray(),
+      state.combo ? resultView() : pickView(),
+      h('p', { class: 'footer-note' }, '프로토타입 · 퍼센트와 점수는 임시 값이고, 코멘트와 도감은 이 브라우저에만 저장돼요. “추정 조합”은 검색으로 직접 확인하지 못한 조합이에요.'));
+    if (!keepScroll) window.scrollTo(0, 0);
+  }
+
+  render(true);
+})();
+</script>
+</body>
+</html>

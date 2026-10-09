@@ -205,6 +205,25 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .tile-ico .ico svg { width: 1.1em; height: 1.1em; }
 .tile-name { font-size: 12px; letter-spacing: -0.03em; font-weight: 700; line-height: 1.25; word-break: keep-all; overflow-wrap: anywhere; }
 .tile-pct { font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+/* 메인 재료 타일: 1위는 넓은 카드, 퍼센트는 높낮이에 따라 색을 달리해요 */
+.tile-ico { font-size: 32px; }
+.tile-name { min-height: 2.5em; display: flex; align-items: center; justify-content: center; font-size: 14px; letter-spacing: -0.02em; }
+.tile-name > span { display: block; text-wrap: balance; word-break: keep-all; }
+.hero-wrap:not(:empty) { margin-bottom: 10px; }
+.pct { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.pct-hi { background: linear-gradient(135deg, var(--accent-b, #ffb02e), var(--accent, var(--brand))); color: #2a1204; }
+.pct-mid { background: var(--accent-soft, var(--bg)); color: #c4531a; }
+.pct-low { background: var(--fill, var(--bg)); color: var(--muted); }
+.tile.top {
+  width: 100%; aspect-ratio: auto; flex-direction: row; justify-content: flex-start; gap: 14px; padding: 16px 18px; text-align: left;
+  border-color: var(--accent, var(--brand)); background: linear-gradient(135deg, var(--accent-soft, var(--bg)), var(--card));
+}
+.tile.top .tile-ico { font-size: 40px; }
+.tile.top .tile-info { display: grid; gap: 2px; flex: 1; min-width: 0; }
+.tile.top .tile-name { min-height: 0; justify-content: flex-start; font-size: 18px; font-weight: 800; text-align: left; }
+.tile.top .tile-sub { font-size: 12px; color: var(--muted); }
+.tile.top .pct { font-size: 16px; padding: 5px 14px; }
 </style>
 </head>
 <body>
@@ -1185,12 +1204,24 @@ button { font: inherit; color: inherit; cursor: pointer; }
     return h('section', { class: 'tray', 'aria-label': '고른 재료' }, slots);
   }
 
-  // 첫 화면 메인 재료 버튼 (정사각형)
-  function mainTile(o, showCat) {
+  // 긴 이름은 '불닭' 앞에서만 줄이 바뀌도록 보이지 않는 줄바꿈 자리를 넣어요.
+  function softBreak(name) { return name.replace(/(?!^)불닭/g, '\u200b불닭'); }
+
+  // 첫 화면 메인 재료 버튼 (정사각형, 1위는 넓은 카드). 퍼센트 색은 목록 안에서의 높낮이로 정해요.
+  function mainTile(o, showCat, tier, hero) {
+    const pct = h('span', { class: 'pct pct-' + tier }, o.percent + '%');
+    if (hero) {
+      return h('button', { class: 'tile top', type: 'button', onclick: () => choose(o.item, o.cat) },
+        h('span', { class: 'tile-ico' }, iconEl(o.item)),
+        h('span', { class: 'tile-info' },
+          h('span', { class: 'tile-name' }, h('span', {}, softBreak(o.item))),
+          h('span', { class: 'tile-sub' }, '가장 많이 고르는 메인')),
+        pct);
+    }
     return h('button', { class: 'tile', type: 'button', onclick: () => choose(o.item, o.cat) },
       h('span', { class: 'tile-ico' }, iconEl(o.item)),
-      h('span', { class: 'tile-name' }, o.item),
-      showCat ? h('span', { class: 'opt-cat' }, o.cat) : h('span', { class: 'tile-pct' }, o.percent + '%'));
+      h('span', { class: 'tile-name' }, h('span', {}, softBreak(o.item))),
+      showCat ? h('span', { class: 'opt-cat' }, o.cat) : pct);
   }
 
   function optionButton(o, showCat) {
@@ -1218,10 +1249,12 @@ button { font: inherit; color: inherit; cursor: pointer; }
     const n = state.chosen.length + 1;
     const all = L.nextOptions(COMBOS, state.chosen, 0, state.cat);
     const optsEl = h('div', { class: 'opts' + (n === 1 ? ' grid3' : '') });
+    const heroEl = h('div', { class: 'hero-wrap' });
     const moreWrap = h('div', {});
 
     function fill() {
       optsEl.replaceChildren();
+      heroEl.replaceChildren();
       moreWrap.replaceChildren();
       let list;
       const q = n === 1 ? state.query.trim() : '';
@@ -1233,7 +1266,14 @@ button { font: inherit; color: inherit; cursor: pointer; }
       if (list.length === 0) {
         optsEl.append(h('p', { class: 'empty' }, '찾는 재료가 아직 없어요.'));
       } else {
-        list.forEach((o) => optsEl.append(n === 1 ? mainTile(o, !!q) : optionButton(o)));
+        const maxPct = Math.max.apply(null, list.map((o) => o.percent));
+        list.forEach((o, i) => {
+          const r = maxPct ? o.percent / maxPct : 0;
+          const hero = n === 1 && !q && i === 0;
+          (hero ? heroEl : optsEl).append(n === 1
+            ? mainTile(o, !!q, r >= 0.6 ? 'hi' : r >= 0.3 ? 'mid' : 'low', hero)
+            : optionButton(o));
+        });
       }
       const hidden = n === 1 ? 0 : all.length - list.length;
       if (hidden > 0) {
@@ -1259,7 +1299,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
       }));
     }
 
-    view.append(optsEl, moreWrap);
+    view.append(heroEl, optsEl, moreWrap);
 
     if (done) {
       view.append(h('button', { class: 'btn primary finish', type: 'button', onclick: finish }, '여기서 완성하기'));

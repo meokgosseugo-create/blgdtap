@@ -189,6 +189,22 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .cat.on { color: var(--ink); border-bottom-color: var(--accent, var(--brand)); }
 .cat:focus-visible { outline: 2px solid var(--accent, var(--brand)); outline-offset: 2px; }
 .opt-cat { font-size: 11px; font-weight: 700; color: var(--muted); background: var(--fill, var(--bg)); border-radius: 999px; padding: 2px 8px; }
+
+/* 첫 화면 메인 재료: 정사각형 3열 */
+.opts.grid3 { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.tile {
+  aspect-ratio: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+  padding: 10px 3px; text-align: center; background: var(--card);
+  border: 1.5px solid var(--line); border-radius: 20px; box-shadow: var(--shadow, none);
+  transition: border-color .15s ease, transform .1s ease;
+}
+.tile:hover { border-color: var(--accent, var(--brand)); background: var(--accent-soft, var(--bg)); }
+.tile:active { transform: scale(.96); }
+.tile:focus-visible { outline: 2px solid var(--accent, var(--brand)); outline-offset: 2px; }
+.tile-ico { font-size: 30px; line-height: 1; }
+.tile-ico .ico svg { width: 1.1em; height: 1.1em; }
+.tile-name { font-size: 12px; letter-spacing: -0.03em; font-weight: 700; line-height: 1.25; word-break: keep-all; overflow-wrap: anywhere; }
+.tile-pct { font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums; }
 </style>
 </head>
 <body>
@@ -1169,6 +1185,14 @@ button { font: inherit; color: inherit; cursor: pointer; }
     return h('section', { class: 'tray', 'aria-label': '고른 재료' }, slots);
   }
 
+  // 첫 화면 메인 재료 버튼 (정사각형)
+  function mainTile(o, showCat) {
+    return h('button', { class: 'tile', type: 'button', onclick: () => choose(o.item, o.cat) },
+      h('span', { class: 'tile-ico' }, iconEl(o.item)),
+      h('span', { class: 'tile-name' }, o.item),
+      showCat ? h('span', { class: 'opt-cat' }, o.cat) : h('span', { class: 'tile-pct' }, o.percent + '%'));
+  }
+
   function optionButton(o, showCat) {
     return h('button', { class: 'opt', type: 'button', onclick: () => choose(o.item, o.cat) },
       h('span', { class: 'opt-name' }, iconEl(o.item), o.item,
@@ -1193,7 +1217,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
   function pickView() {
     const n = state.chosen.length + 1;
     const all = L.nextOptions(COMBOS, state.chosen, 0, state.cat);
-    const optsEl = h('div', { class: 'opts' });
+    const optsEl = h('div', { class: 'opts' + (n === 1 ? ' grid3' : '') });
     const moreWrap = h('div', {});
 
     function fill() {
@@ -1209,7 +1233,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
       if (list.length === 0) {
         optsEl.append(h('p', { class: 'empty' }, '찾는 재료가 아직 없어요.'));
       } else {
-        list.forEach((o) => optsEl.append(optionButton(o, !!q)));
+        list.forEach((o) => optsEl.append(n === 1 ? mainTile(o, !!q) : optionButton(o)));
       }
       const hidden = n === 1 ? 0 : all.length - list.length;
       if (hidden > 0) {

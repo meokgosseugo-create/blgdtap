@@ -653,6 +653,33 @@ button { font: inherit; color: inherit; cursor: pointer; }
       tip: '', votes: 90, score: 84
     },
     {
+      id: 'tudari-ramen', main: '육개장 사발면', cat: '컵라면', src: 'user',
+      name: '투다리 국물라면',
+      items: ['육개장 사발면', '김치 사발면'],
+      tagline: '육개장 사발면과 김치 사발면을 섞어 투다리 국물 맛을 내는 조합',
+      tags: ['얼큰', '국물'],
+      minutes: 5,
+      steps: [
+        '육개장 사발면과 김치 사발면에 물을 부어 익혀요.',
+        '두 라면을 섞으면 완성!'
+      ],
+      tip: '국물이 진짜 투다리 맛이 난다고 해요.', votes: 100, score: 83
+    },
+    {
+      id: 'ganjjam-spaghetti', main: '간짬뽕', cat: '컵라면', src: 'user',
+      name: '간짬 스파게티',
+      items: ['간짬뽕', '콕콕콕 스파게티', '핫바'],
+      tagline: '군대에서 먹던 추억의 라면. 간짬뽕과 스파게티를 섞고 핫바를 올려요',
+      tags: ['얼큰', '든든'],
+      minutes: 7,
+      steps: [
+        '간짬뽕과 콕콕콕 스파게티를 각각 조리해요.',
+        '두 라면을 섞어요.',
+        '핫바를 올려 먹어요.'
+      ],
+      tip: '핫바까지 올려 먹으면 기가 막힌다고 해요.', votes: 110, score: 85
+    },
+    {
       id: 'carbo-bacon', main: '까르보불닭볶음면', cat: '컵라면', src: 'web',
       name: '까르보불닭 베이컨',
       items: ['까르보불닭볶음면', '모짜렐라 치즈', '베이컨'],
@@ -1069,7 +1096,8 @@ button { font: inherit; color: inherit; cursor: pointer; }
     '컵 떡볶이': '<svg viewBox="0 0 32 32" aria-hidden="true"><ellipse cx="16" cy="25" rx="12" ry="3" fill="#00000022"/><path d="M3 15h26c0 7-5.5 11-13 11S3 22 3 15z" fill="#f4efe6"/><ellipse cx="16" cy="15" rx="13" ry="4.5" fill="#c8281e"/><g fill="#f26a3d"><rect x="6" y="11.5" width="10" height="5" rx="2.5" transform="rotate(-18 11 14)"/><rect x="15" y="10.5" width="10" height="5" rx="2.5" transform="rotate(14 20 13)"/><rect x="11" y="15" width="10" height="5" rx="2.5" transform="rotate(-6 16 17.5)"/></g><g fill="#ffd0b8" opacity=".7"><rect x="7.5" y="12.2" width="5" height="1.2" rx=".6" transform="rotate(-18 10 12.8)"/><rect x="17" y="11.2" width="5" height="1.2" rx=".6" transform="rotate(14 19 11.8)"/></g></svg>',
     '소시지': '<svg viewBox="0 0 32 32" aria-hidden="true"><g transform="rotate(-28 16 16)"><rect x="2" y="10.5" width="28" height="11" rx="5.5" fill="#d9573a"/><rect x="4.5" y="12" width="21" height="2.4" rx="1.2" fill="#f58a6a" opacity=".85"/><g stroke="#9c2f1c" stroke-width="1.4" stroke-linecap="round"><path d="M10 15.5v5.5"/><path d="M15 15.5v5.5"/><path d="M20 15.5v5.5"/></g></g></svg>'
   };
-  const EMOJI_KEYWORDS = [['라면', '🍜'], ['볶음면', '🍜'], ['짜장', '🍜'], ['게티', '🍜'], ['곰탕', '🍜'], ['당면', '🍜'], ['누들', '🍜'], ['우동', '🍜'], ['칼국수', '🍜'], ['짬뽕', '🍜'], ['구리', '🍜'], ['삼각김밥', '🍙'], ['치즈', '🧀'], ['커피', '☕']];
+  SVG_ICONS['핫바'] = SVG_ICONS['소시지'];
+  const EMOJI_KEYWORDS = [['라면', '🍜'], ['볶음면', '🍜'], ['짜장', '🍜'], ['게티', '🍜'], ['곰탕', '🍜'], ['당면', '🍜'], ['누들', '🍜'], ['우동', '🍜'], ['사발면', '🍜'], ['칼국수', '🍜'], ['짬뽕', '🍜'], ['구리', '🍜'], ['삼각김밥', '🍙'], ['치즈', '🧀'], ['커피', '☕']];
   function emojiFor(name) {
     if (EMOJI[name]) return EMOJI[name];
     const hit = EMOJI_KEYWORDS.find((k) => name.includes(k[0]));

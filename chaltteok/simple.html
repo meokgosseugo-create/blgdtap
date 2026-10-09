@@ -875,13 +875,12 @@ button { font: inherit; color: inherit; cursor: pointer; }
   const L = window.ChaltteokLogic;
   const MAX_STEPS = 4;     // 한 조합에 들어가는 재료 최대 개수
   const CATEGORIES = ['라면', '컵라면', '김밥·밥', '분식', '음료·커피'];  // 대분류 탭 순서
-  const FIRST_LIMIT = 16;  // 첫 화면에 먼저 보여줄 메인 재료 수 (나머지는 더 보기/검색)
   const VISIBLE = 6;       // 다음 단계에서 먼저 보여줄 후보 수
 
   const KEY_TRIED = 'chaltteok:tried';
   const KEY_COMMENTS = 'chaltteok:comments:';
 
-  const state = { chosen: [], combo: null, auto: false, query: '', expanded: false, cat: '전체', view: 'pick', fromList: false, listQuery: '' };
+  const state = { chosen: [], combo: null, auto: false, query: '', expanded: false, cat: '라면', view: 'pick', fromList: false, listQuery: '' };
   const app = document.getElementById('app');
 
   /* ---------- 저장소 (프로토타입: 브라우저 localStorage) ---------- */
@@ -1077,7 +1076,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
   // 대분류 탭 (첫 화면에서만 보여요)
   function catBar() {
     const extra = COMBOS.map((c) => c.cat).filter((c, i, a) => c && CATEGORIES.indexOf(c) === -1 && a.indexOf(c) === i);
-    const cats = ['전체'].concat(CATEGORIES, extra);
+    const cats = CATEGORIES.concat(extra);
     return h('nav', { class: 'cats', 'aria-label': '대분류' },
       cats.map((c) => h('button', {
         class: 'cat' + (state.cat === c ? ' on' : ''), type: 'button',
@@ -1099,9 +1098,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
       let list;
       if (n === 1) {
         const q = state.query.trim();
-        const byCat = state.cat === '전체' ? all : all.filter((o) => o.cat === state.cat);
-        list = q ? all.filter((o) => o.item.includes(q))
-          : (state.cat !== '전체' || state.expanded ? byCat : byCat.slice(0, FIRST_LIMIT));
+        list = q ? all.filter((o) => o.item.includes(q)) : all.filter((o) => o.cat === state.cat);
       } else {
         list = state.expanded ? all : all.slice(0, VISIBLE);
       }
@@ -1110,7 +1107,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
       } else {
         list.forEach((o) => optsEl.append(optionButton(o)));
       }
-      const hidden = (n === 1 && (state.query.trim() || state.cat !== '전체')) ? 0 : all.length - list.length;
+      const hidden = n === 1 ? 0 : all.length - list.length;
       if (hidden > 0) {
         moreWrap.append(h('button', {
           class: 'btn more', type: 'button',

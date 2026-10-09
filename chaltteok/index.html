@@ -6,7 +6,8 @@
   <title>찰떡 — 세상 모든 꿀조합</title>
   <style>
 :root {
-  --bg: #fbf8f4;
+  color-scheme: light;
+  --bg: #ffffff;
   --card: #ffffff;
   --ink: #17141f;
   --muted: #6f6a7a;
@@ -23,34 +24,13 @@
   --radius: 20px;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #0f0d14;
-    --card: #1a1722;
-    --ink: #f5f2fa;
-    --muted: #a39db3;
-    --line: rgba(255, 255, 255, .10);
-    --brand: #ff7a52;
-    --brand-a: #ff7a52;
-    --brand-b: #ffb84d;
-    --mesh1: rgba(255, 122, 82, .16);
-    --mesh2: rgba(130, 100, 255, .20);
-    --good: #4cc98a;
-    --shadow: 0 10px 30px rgba(0, 0, 0, .35);
-  }
-}
-
 * { box-sizing: border-box; }
 
 html, body { margin: 0; padding: 0; }
 
 body {
   min-height: 100vh;
-  background:
-    radial-gradient(520px 360px at 0% -5%, var(--mesh1), transparent 70%),
-    radial-gradient(520px 380px at 100% 0%, var(--mesh2), transparent 70%),
-    var(--bg);
-  background-attachment: fixed;
+  background: var(--bg);
   color: var(--ink);
   font-family: "Pretendard", -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", system-ui, sans-serif;
   line-height: 1.5;

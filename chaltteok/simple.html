@@ -680,6 +680,21 @@ button { font: inherit; color: inherit; cursor: pointer; }
       tip: '핫바까지 올려 먹으면 기가 막힌다고 해요.', votes: 110, score: 85
     },
     {
+      id: 'nurungji-yoon', main: '누룽지', cat: '김밥·밥', src: 'user',
+      name: '윤남노 누룽지라면',
+      items: ['누룽지', '라면', '고추참치', '슈레드 치즈'],
+      tagline: '누룽지에 라면 국물을 붓고 고추참치와 치즈를 올려 돌린 조합',
+      tags: ['얼큰', '든든'],
+      minutes: 8,
+      steps: [
+        '라면을 끓여요.',
+        '누룽지를 넣고 물 대신 라면 국물을 부어요.',
+        '고추참치와 슈레드 치즈를 올려요.',
+        '전자레인지에 1분 돌려요.'
+      ],
+      tip: '참치는 그냥 참치보다 고추참치가 더 낫다고 해요. 9,800원으로 만드는 편의점 최상의 조합이래요.', votes: 120, score: 87
+    },
+    {
       id: 'carbo-bacon', main: '까르보불닭볶음면', cat: '컵라면', src: 'web',
       name: '까르보불닭 베이컨',
       items: ['까르보불닭볶음면', '모짜렐라 치즈', '베이컨'],
@@ -949,13 +964,13 @@ button { font: inherit; color: inherit; cursor: pointer; }
   const COMBOS = window.CHALTTEOK_COMBOS;
   const L = window.ChaltteokLogic;
   const MAX_STEPS = 4;     // 한 조합에 들어가는 재료 최대 개수
-  const CATEGORIES = ['라면', '컵라면', '김밥·밥', '분식', '음료·커피'];  // 대분류 탭 순서
+  const CATEGORIES = ['컵라면', '라면', '김밥·밥', '분식', '음료·커피'];  // 대분류 탭 순서
   const VISIBLE = 6;       // 다음 단계에서 먼저 보여줄 후보 수
 
   const KEY_TRIED = 'chaltteok:tried';
   const KEY_COMMENTS = 'chaltteok:comments:';
 
-  const state = { chosen: [], combo: null, auto: false, query: '', expanded: false, cat: '라면', view: 'pick', fromList: false, listQuery: '' };
+  const state = { chosen: [], combo: null, auto: false, query: '', expanded: false, cat: '컵라면', view: 'pick', fromList: false, listQuery: '' };
   const app = document.getElementById('app');
 
   /* ---------- 저장소 (프로토타입: 브라우저 localStorage) ---------- */
@@ -1088,7 +1103,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
     '치즈': '🧀', '스트링치즈': '🧀', '모짜렐라 치즈': '🧀',
     '계란 후라이': '🍳', '달걀': '🥚', '우유': '🥛', '베이컨': '🥓',
     '닭발': '🍗', '옥수수콘': '🌽', '양파': '🧅', '버터': '🧈', '후추': '🧂',
-    '헤이즐넛 커피': '☕', '얼음컵': '🧊', '계란': '🥚', '오뎅한그릇': '🍢', '감동란': '🥚', '닭가슴살': '🍗', '즉석밥': '🍚', '박카스': '🔋', '사이다': '🥤', '더위사냥': '🍦', '만두': '🥟', '볶음김치': '🥬',
+    '헤이즐넛 커피': '☕', '얼음컵': '🧊', '누룽지': '🍚', '고추참치': '🐟', '계란': '🥚', '오뎅한그릇': '🍢', '감동란': '🥚', '닭가슴살': '🍗', '즉석밥': '🍚', '박카스': '🔋', '사이다': '🥤', '더위사냥': '🍦', '만두': '🥟', '볶음김치': '🥬',
     '스파게티 컵라면': '🍝', '콕콕콕 스파게티': '🍝'
   };
   // 표준 이모티콘에 없는 재료(떡볶이, 소시지)는 직접 그린 SVG 아이콘을 써요.

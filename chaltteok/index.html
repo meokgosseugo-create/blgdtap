@@ -263,6 +263,66 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
 .rating-note { margin: 6px 0 0; font-size: 13px; color: var(--muted); }
 .cc-star { margin-left: 8px; font-size: 13px; font-weight: 800; color: #ffb400; }
 @media (prefers-reduced-motion: reduce) { .star.pop { animation: none; } .star { transition: none; } }
+
+/* 하단 이동칸 */
+#app { padding-bottom: calc(104px + env(safe-area-inset-bottom, 0px)); }
+.navbar { position: fixed; left: 0; right: 0; bottom: 0; z-index: 20; background: var(--card); border-top: 1px solid var(--line); padding-bottom: env(safe-area-inset-bottom, 0px); }
+.navbar-in { max-width: 480px; margin: 0 auto; display: grid; grid-template-columns: repeat(4, 1fr); }
+.nav-item { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 10px 4px 9px; background: none; border: 0; color: var(--muted); font-size: 11px; font-weight: 700; }
+.nav-item svg { width: 26px; height: 26px; display: block; }
+.nav-item.on { color: var(--ink); }
+.nav-item.on svg { color: var(--accent, var(--brand)); }
+.nav-item:focus-visible { outline: 2px solid var(--accent, var(--brand)); outline-offset: -4px; border-radius: 12px; }
+
+/* 홈 */
+.home-date { margin: 0; font-size: 13px; font-weight: 700; color: var(--muted); }
+.home-title { margin: 2px 0 16px; font-size: 26px; font-weight: 900; letter-spacing: -0.03em; }
+.hero-card { display: grid; gap: 10px; width: 100%; text-align: left; padding: 20px; border-radius: 28px; border: 1.5px solid var(--accent, var(--brand)); background: linear-gradient(135deg, var(--accent-soft, #fff3ec), var(--card)); box-shadow: var(--shadow, none); }
+.hero-label { font-size: 12px; font-weight: 800; color: var(--accent, var(--brand)); }
+.hero-icons { display: flex; align-items: center; gap: 4px; font-size: 38px; line-height: 1; }
+.hero-icons .ico svg { width: 1.2em; height: 1.2em; display: block; }
+.hero-name { margin: 0; font-size: 24px; font-weight: 900; letter-spacing: -0.03em; }
+.hero-sub { margin: 0; font-size: 13px; color: var(--muted); }
+.hero-go { font-size: 14px; font-weight: 800; }
+.section-head { display: flex; align-items: baseline; justify-content: space-between; margin: 28px 0 10px; }
+.section-head .section-title { margin: 0; }
+.rail { display: flex; gap: 10px; overflow-x: auto; margin: 0 -16px; padding: 2px 16px 10px; scroll-snap-type: x proximity; scroll-padding: 0 16px; scrollbar-width: none; }
+.rail::-webkit-scrollbar { display: none; }
+.mini-card { flex: none; width: 152px; scroll-snap-align: start; display: grid; align-content: start; gap: 6px; padding: 14px; text-align: left; border-radius: 20px; border: 1.5px solid var(--line); background: var(--card); }
+.mini-icons { display: flex; align-items: center; gap: 2px; min-height: 30px; font-size: 26px; line-height: 1; }
+.mini-icons .ico svg { width: 1.2em; height: 1.2em; display: block; }
+.mini-name { font-size: 15px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.25; }
+.mini-sub { font-size: 12px; line-height: 1.35; color: var(--muted); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.mini-card:hover, .combo-card:hover { border-color: var(--accent, var(--brand)); }
+.find-cta { display: flex; align-items: center; justify-content: space-between; width: 100%; margin-top: 24px; padding: 18px 20px; border: 0; border-radius: 22px; background: var(--ink); color: var(--bg); text-align: left; }
+.find-cta b { display: block; font-size: 17px; letter-spacing: -0.02em; }
+.find-cta span { font-size: 12px; opacity: .8; }
+.find-cta .go { font-size: 22px; opacity: 1; }
+.cat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.cat-tile { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 14px 6px 12px; border-radius: 20px; border: 1.5px solid var(--line); background: var(--card); font-size: 13px; font-weight: 700; }
+.cat-tile .ico { font-size: 28px; line-height: 1.1; }
+.cat-tile .ico svg { width: 1.3em; height: 1.3em; display: block; }
+.cat-tile small { font-size: 11px; font-weight: 600; color: var(--muted); }
+.cat-tile:hover { border-color: var(--accent, var(--brand)); }
+.progress-card { display: grid; gap: 8px; width: 100%; margin-top: 22px; padding: 16px 18px; border: 0; border-radius: 22px; background: var(--fill, var(--bg)); text-align: left; }
+.progress-card b { font-size: 15px; }
+.progress-card .bar { margin: 0; }
+
+/* 마이 / 더보기 */
+.my-summary { display: grid; gap: 8px; margin: 14px 0 4px; padding: 20px; border-radius: 24px; background: var(--fill, var(--bg)); }
+.my-num { font-size: 34px; font-weight: 900; letter-spacing: -0.03em; }
+.my-num small { font-size: 16px; font-weight: 700; color: var(--muted); }
+.my-empty { margin: 0 0 6px; padding: 14px 16px; border-radius: 16px; background: var(--fill, var(--bg)); font-size: 13px; color: var(--muted); }
+.more-row { display: flex; align-items: center; justify-content: space-between; width: 100%; margin-bottom: 8px; padding: 16px 18px; text-align: left; border-radius: 18px; border: 1.5px solid var(--line); background: var(--card); }
+.more-row:hover:not([disabled]) { border-color: var(--accent, var(--brand)); }
+.more-row[disabled] { opacity: .55; cursor: default; }
+.more-text { display: grid; gap: 2px; }
+.more-text b { font-size: 16px; letter-spacing: -0.02em; }
+.more-sub { font-size: 12px; color: var(--muted); }
+.more-arrow { font-size: 13px; font-weight: 700; color: var(--muted); }
+.about { margin-top: 16px; padding: 16px 18px; border-radius: 18px; background: var(--fill, var(--bg)); font-size: 13px; line-height: 1.6; color: var(--muted); }
+.edit-chip.sel { border-color: var(--accent, var(--brand)); background: var(--accent-soft, var(--bg)); }
+.back-link { margin-bottom: 4px; }
 </style>
 </head>
 <body>
@@ -1289,7 +1349,7 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
   const KEY_MINE = 'chaltteok:mine';
   const KEY_RATING = 'chaltteok:rating:';
 
-  const state = { chosen: [], combo: null, auto: false, query: '', expanded: false, cat: '컵라면', view: 'pick', fromList: false, listQuery: '', draft: null, confirmDel: null };
+  const state = { chosen: [], combo: null, auto: false, query: '', expanded: false, cat: '컵라면', view: 'home', fromList: '', listQuery: '', draft: null, confirmDel: null };
   const CUSTOM_ICON = {};  // 내 조합에서 새로 만든 재료의 아이콘
   const app = document.getElementById('app');
 
@@ -1358,8 +1418,8 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
     if (state.combo && state.fromList) {
       state.combo = null;
       state.chosen = [];
-      state.fromList = false;
-      state.view = 'list';
+      state.view = state.fromList;
+      state.fromList = '';
       render();
       return;
     }
@@ -1395,14 +1455,13 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
     state.query = '';
     state.listQuery = '';
     state.expanded = false;
-    state.fromList = false;
+    state.fromList = '';
     state.view = 'list';
     render();
   }
 
   function openCombo(c) {
-    state.view = 'list';
-    state.fromList = true;
+    state.fromList = state.view;   // 뒤로 가면 지금 보던 화면(홈, 목록, 마이 등)으로 돌아가요.
     state.cat = c.cat;
     state.combo = c;
     state.chosen = [c.main].concat(c.items.filter((i) => i !== c.main));
@@ -1478,14 +1537,10 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
 
   /* ---------- 공통 조각 ---------- */
   function header() {
-    const tried = lsGet(KEY_TRIED, []);
     return h('header', { class: 'top' },
       h('div', { class: 'brand' },
         h('span', { class: 'logo' }, '찰떡'),
-        h('span', { class: 'sub' }, '세상 모든 꿀조합')),
-      h('div', { class: 'top-right' },
-        h('button', { class: 'dex listbtn', type: 'button', onclick: openList }, '전체 조합 ' + COMBOS.length),
-        h('div', { class: 'dex', title: '먹어본 조합' }, '도감 ' + tried.length + '/' + COMBOS.length)));
+        h('span', { class: 'sub' }, '세상 모든 꿀조합')));
   }
 
   function tray() {
@@ -1647,6 +1702,7 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
     }
 
     const view = h('section', {},
+      h('button', { class: 'btn back-link', type: 'button', onclick: () => goTab('more') }, '← 더보기'),
       h('h1', { class: 'step-title' }, '전체 조합'),
       h('p', { class: 'step-hint' }, '지금까지 등록된 ' + COMBOS.length + '개 조합이에요. 눌러서 만드는 법을 볼 수 있어요.'),
       h('input', {
@@ -1666,14 +1722,18 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
     '🍄', '🦐', '🐟', '🍤', '🥔', '🍞', '🧂', '☕', '🧊', '🍌', '🍅', '🍦', 'svg:소시지', 'svg:컵 떡볶이', 'svg:컵라면'];
 
   function openAdd() {
-    state.draft = { name: '', items: state.chosen.slice(1), icons: {}, text: '', input: '', err: '' };
+    const locked = state.chosen.length > 0;
+    state.draft = {
+      name: '', items: state.chosen.slice(1), icons: {}, text: '', input: '', err: '',
+      main: locked ? state.chosen[0] : '', mainText: '', cat: locked ? state.cat : (state.cat || CATEGORIES[0])
+    };
     state.view = 'add';
     render();
   }
 
   function cancelAdd() {
     state.draft = null;
-    state.view = 'pick';
+    state.view = state.chosen.length ? 'pick' : 'home';
     render();
   }
 
@@ -1690,14 +1750,16 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
     state.confirmDel = null;
     state.combo = null;
     state.chosen = [];
-    state.view = state.fromList ? 'list' : 'pick';
+    state.view = state.fromList || 'home';
+    state.fromList = '';
     render();
   }
 
   function addView() {
     const d = state.draft;
-    const main = state.chosen[0];
-    const cat = state.cat;
+    const locked = state.chosen.length > 0;
+    const curMain = () => (locked ? state.chosen[0] : (d.mainText.trim() || d.main));
+    const curCat = () => (locked ? state.cat : d.cat);
 
     function redraw(focusId) {
       render(true);
@@ -1706,8 +1768,10 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
     }
     function fail(msg) { d.err = msg; redraw(); }
     function addItem() {
+      const main = curMain();
       const name = d.input.trim();
       if (!name) return;
+      if (!main) return fail('먼저 메인 재료를 골라 주세요.');
       if (name === main || d.items.indexOf(name) !== -1) return fail('이미 들어 있는 재료예요.');
       if (d.items.length >= 3) return fail('재료는 메인을 포함해 4개까지예요.');
       d.items.push(name);
@@ -1723,16 +1787,20 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
       redraw();
     }
     function save() {
+      const main = curMain();
+      const cat = curCat();
       const name = d.name.trim();
       const steps = d.text.split('\n').map((x) => x.trim()).filter(Boolean);
       const items = [main].concat(d.items);
+      if (!main) return fail('메인 재료를 골라 주세요.');
       if (!name) return fail('조합 이름을 적어 주세요.');
       if (d.items.length < 1) return fail('재료를 하나 이상 추가해 주세요.');
+      if (d.items.indexOf(main) !== -1) return fail('메인 재료와 같은 재료가 들어 있어요.');
       if (steps.length < 1) return fail('만드는 법을 한 줄 이상 적어 주세요.');
       const dup = L.findComplete(COMBOS, items, cat);
       if (dup) return fail('이미 있는 조합이에요: ' + dup.name);
       const icons = {};
-      d.items.forEach((it) => { if (d.icons[it]) icons[it] = d.icons[it]; });
+      items.forEach((it) => { if (isNewItem(it)) icons[it] = d.icons[it] || '🍴'; });
       const c = {
         id: 'mine-' + Date.now(), main: main, cat: cat, src: 'mine', mine: true,
         name: name, items: items, tagline: '', tags: [], minutes: null, steps: steps, tip: '',
@@ -1741,21 +1809,48 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
       COMBOS.push(c);
       Object.assign(CUSTOM_ICON, icons);
       saveMine();
+      state.cat = cat;
       state.chosen = items.slice();
       state.combo = c;
       state.view = 'pick';
-      state.fromList = false;
+      state.fromList = '';
       state.draft = null;
       render();
     }
 
+    const main0 = curMain();
     const known = [];
-    COMBOS.forEach((c) => c.items.forEach((i) => { if (i !== main && known.indexOf(i) === -1 && d.items.indexOf(i) === -1) known.push(i); }));
-    const iconTitle = (it) => h('p', { class: 'icon-pick-title' }, '「' + it + '」 아이콘을 골라요');
+    COMBOS.forEach((c) => c.items.forEach((i) => { if (i !== main0 && known.indexOf(i) === -1 && d.items.indexOf(i) === -1) known.push(i); }));
+    const mainsInCat = L.nextOptions(COMBOS, [], 0).filter((o) => o.cat === d.cat).map((o) => o.item);
+    const needIcon = [main0].concat(d.items).filter((x) => x && isNewItem(x));
+
+    const mainPicker = locked ? null : [
+      h('div', { class: 'form-block' },
+        h('span', { class: 'form-label' }, '분류'),
+        h('div', { class: 'edit-chips' }, CATEGORIES.map((c) => h('button', {
+          class: 'edit-chip' + (d.cat === c ? ' sel' : ''), type: 'button', 'aria-pressed': d.cat === c ? 'true' : 'false',
+          onclick: () => { d.cat = c; d.main = ''; d.mainText = ''; d.err = ''; redraw(); }
+        }, c)))),
+      h('div', { class: 'form-block' },
+        h('span', { class: 'form-label' }, '메인 재료'),
+        h('div', { class: 'edit-chips' }, mainsInCat.map((m) => h('button', {
+          class: 'edit-chip' + (d.main === m && !d.mainText.trim() ? ' sel' : ''), type: 'button',
+          onclick: () => { d.main = m; d.mainText = ''; d.err = ''; redraw(); }
+        }, iconEl(m, d.cat), m))),
+        h('div', { class: 'row-add' },
+          h('input', {
+            id: 'mine-main', class: 'field', type: 'text', maxlength: '15', value: d.mainText, 'aria-label': '메인 재료 직접 입력',
+            placeholder: '목록에 없으면 직접 입력 (예: 신라면 블랙)',
+            oninput: (e) => { d.mainText = e.target.value; },
+            onkeydown: (e) => { if (e.key === 'Enter') { e.preventDefault(); d.err = ''; redraw(); } }
+          }),
+          h('button', { class: 'btn', type: 'button', onclick: () => { d.err = ''; redraw(); } }, '선택')))
+    ];
 
     return h('section', {},
-      h('h1', { class: 'step-title' }, '나만의 조합 넣기'),
-      h('p', { class: 'step-hint' }, '메인 재료는 ' + main + '예요. 이 브라우저에만 저장돼요.'),
+      h('h1', { class: 'step-title' }, '나만의 조합 만들기'),
+      h('p', { class: 'step-hint' }, locked ? '메인 재료는 ' + main0 + '예요. 이 브라우저에만 저장돼요.' : '분류와 메인 재료를 고르고 조합을 적어요. 이 브라우저에만 저장돼요.'),
+      mainPicker,
       h('div', { class: 'form-block' },
         h('label', { class: 'form-label', for: 'mine-name' }, '조합 이름'),
         h('input', {
@@ -1765,10 +1860,10 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
       h('div', { class: 'form-block' },
         h('span', { class: 'form-label' }, '재료 (메인 포함 최대 4개)'),
         h('div', { class: 'edit-chips' },
-          h('span', { class: 'edit-chip fixed' }, iconEl(main), main),
+          main0 ? h('span', { class: 'edit-chip fixed' }, iconEl(main0, curCat()), main0) : h('span', { class: 'form-hint' }, '메인 재료를 먼저 골라 주세요.'),
           d.items.map((it) => h('button', {
             class: 'edit-chip', type: 'button', 'aria-label': it + ' 빼기', onclick: () => removeItem(it)
-          }, iconEl(it), it, h('span', { class: 'x', 'aria-hidden': 'true' }, '×')))),
+          }, iconEl(it, curCat()), it, h('span', { class: 'x', 'aria-hidden': 'true' }, '×')))),
         h('div', { class: 'row-add' },
           h('input', {
             id: 'mine-item', class: 'field', type: 'text', maxlength: '15', list: 'mine-suggest',
@@ -1778,12 +1873,13 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
           }),
           h('button', { class: 'btn', type: 'button', onclick: addItem }, '추가')),
         h('datalist', { id: 'mine-suggest' }, known.map((n) => h('option', { value: n })))),
-      d.items.filter(isNewItem).map((it) => h('div', { class: 'form-block icon-pick' },
-        iconTitle(it),
+      needIcon.map((it) => h('div', { class: 'form-block icon-pick' },
+        h('p', { class: 'icon-pick-title' }, '「' + it + '」 아이콘을 골라요'),
         h('div', { class: 'icon-grid' }, ICON_CHOICES.map((ic) => {
+          const on = (d.icons[it] || '🍴') === ic;
           const o = h('button', {
-            class: 'icon-opt' + ((d.icons[it] || '🍴') === ic ? ' on' : ''), type: 'button',
-            'aria-label': '아이콘 ' + ic, 'aria-pressed': (d.icons[it] || '🍴') === ic ? 'true' : 'false',
+            class: 'icon-opt' + (on ? ' on' : ''), type: 'button',
+            'aria-label': '아이콘 ' + ic, 'aria-pressed': on ? 'true' : 'false',
             onclick: () => { d.icons[it] = ic; redraw(); }
           });
           const span = document.createElement('span');
@@ -1915,19 +2011,208 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
       commentsSection(c));
   }
 
+  /* ---------- 하단 이동칸 (홈 · 마이 · 조합 만들기 · 더보기) ---------- */
+  const NAV_SVG = (inner) => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + inner + '</svg>';
+  const NAV = [
+    { key: 'home', label: '홈', views: ['home', 'pick'], icon: NAV_SVG('<path d="M3.5 10.5 12 3l8.5 7.5"/><path d="M5.5 9.5V20h13V9.5"/><path d="M10 20v-5.5h4V20"/>') },
+    { key: 'my', label: '마이', views: ['my'], icon: NAV_SVG('<circle cx="12" cy="8" r="3.6"/><path d="M4.5 20c.8-4 3.8-6 7.5-6s6.7 2 7.5 6"/>') },
+    { key: 'make', label: '조합 만들기', views: ['add'], icon: NAV_SVG('<circle cx="12" cy="12" r="8.5"/><path d="M12 8v8M8 12h8"/>') },
+    { key: 'more', label: '더보기', views: ['more', 'list'], icon: NAV_SVG('<path d="M4 7h16M4 12h16M4 17h16"/>') }
+  ];
+
+  // 탭을 바꿀 때는 고르던 것과 열려 있던 결과를 모두 정리하고 그 탭의 첫 화면으로 가요.
+  function goTab(key) {
+    state.chosen = [];
+    state.combo = null;
+    state.auto = false;
+    state.query = '';
+    state.listQuery = '';
+    state.expanded = false;
+    state.fromList = '';
+    state.confirmDel = null;
+    state.draft = null;
+    if (key === 'make') { openAdd(); return; }
+    state.view = key;
+    render();
+  }
+
+  function navBar() {
+    return h('nav', { class: 'navbar', 'aria-label': '메뉴' },
+      h('div', { class: 'navbar-in' }, NAV.map((n) => {
+        const on = n.views.indexOf(state.view) !== -1;
+        const btn = h('button', { class: 'nav-item' + (on ? ' on' : ''), type: 'button', 'aria-current': on ? 'page' : null, onclick: () => goTab(n.key) });
+        btn.innerHTML = n.icon + '<span class="nav-label">' + n.label + '</span>';
+        return btn;
+      })));
+  }
+
+  /* ---------- 홈: 오늘의 추천 조합 ---------- */
+  const CAT_ICON = { '컵라면': 'svg:컵라면', '라면': '🍜', '김밥·밥': '🍙', '분식': 'svg:컵 떡볶이', '디저트': '🍰', '음료': '🥤', '커피': '☕' };
+
+  // 날짜가 같으면 같은 결과가 나오는 간단한 난수 (하루 동안 추천이 바뀌지 않아요)
+  function seededRandom(seed) {
+    let t = seed >>> 0;
+    return function () {
+      t += 0x6D2B79F5;
+      let r = Math.imul(t ^ (t >>> 15), 1 | t);
+      r ^= r + Math.imul(r ^ (r >>> 7), 61 | r);
+      return ((r ^ (r >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  function todayPicks(n) {
+    const d = new Date();
+    const rnd = seededRandom(d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate());
+    const seen = {};
+    const pool = COMBOS.filter((c) => {
+      if (c.mine || seen[c.name]) return false;   // 같은 이름(여러 메인에 둔 조합)은 한 번만
+      seen[c.name] = true;
+      return true;
+    });
+    for (let i = pool.length - 1; i > 0; i--) {
+      const j = Math.floor(rnd() * (i + 1));
+      const t = pool[i]; pool[i] = pool[j]; pool[j] = t;
+    }
+    const picked = [];
+    const per = {};
+    pool.forEach((c) => {
+      if (picked.length < n && (per[c.cat] || 0) < 2) { picked.push(c); per[c.cat] = (per[c.cat] || 0) + 1; }
+    });
+    pool.forEach((c) => { if (picked.length < n && picked.indexOf(c) === -1) picked.push(c); });
+    return picked;
+  }
+
+  function itemIcons(c, n, cls) {
+    return h('span', { class: cls, 'aria-hidden': 'true' }, c.items.slice(0, n).map((it) => iconEl(it, c.cat)));
+  }
+
+  function heroCard(c) {
+    return h('button', { class: 'hero-card', type: 'button', onclick: () => openCombo(c) },
+      h('span', { class: 'hero-label' }, '오늘의 꿀조합'),
+      itemIcons(c, 4, 'hero-icons'),
+      h('h2', { class: 'hero-name' }, c.name),
+      h('p', { class: 'hero-sub' }, c.tagline || c.items.join(' + ')),
+      h('span', { class: 'hero-go' }, '만드는 법 보기 →'));
+  }
+
+  function miniCard(c) {
+    const stars = lsGet(KEY_RATING + c.id, 0);
+    return h('button', { class: 'mini-card', type: 'button', onclick: () => openCombo(c) },
+      itemIcons(c, 3, 'mini-icons'),
+      h('span', { class: 'mini-name' }, c.name),
+      h('span', { class: 'mini-sub' }, c.items.filter((i) => i !== c.main).join(' + ')),
+      stars ? h('span', { class: 'cc-star', style: 'margin:0' }, '★' + stars) : null);
+  }
+
+  function homeView() {
+    const picks = todayPicks(6);
+    const hero = picks[0];
+    const rest = picks.slice(1);
+    const d = new Date();
+    const week = ['일', '월', '화', '수', '목', '금', '토'][d.getDay()];
+    const mains = L.nextOptions(COMBOS, [], 0);
+    const tried = COMBOS.filter((c) => lsGet(KEY_TRIED, []).indexOf(c.id) !== -1).length;
+    const pct = COMBOS.length ? Math.round((tried / COMBOS.length) * 100) : 0;
+    return h('section', { class: 'home' },
+      h('p', { class: 'home-date' }, (d.getMonth() + 1) + '월 ' + d.getDate() + '일 ' + week + '요일'),
+      h('h1', { class: 'home-title' }, '오늘은 이 조합 어때요?'),
+      hero ? heroCard(hero) : null,
+      h('div', { class: 'section-head' },
+        h('h2', { class: 'section-title' }, '오늘의 추천 조합'),
+        h('span', { class: 'group-count' }, rest.length + '개')),
+      h('div', { class: 'rail' }, rest.map(miniCard)),
+      h('button', { class: 'find-cta', type: 'button', onclick: reset },
+        h('span', {}, h('b', {}, '재료로 조합 찾기'), h('span', {}, '메인 재료부터 하나씩 골라 봐요')),
+        h('span', { class: 'go', 'aria-hidden': 'true' }, '→')),
+      h('div', { class: 'section-head' },
+        h('h2', { class: 'section-title' }, '분류별로 보기')),
+      h('div', { class: 'cat-grid' }, CATEGORIES.map((c) => {
+        const icon = document.createElement('span');
+        icon.className = 'ico';
+        fillIcon(icon, CAT_ICON[c] || '🍴');
+        return h('button', { class: 'cat-tile', type: 'button', onclick: () => { state.cat = c; reset(); } },
+          icon, c, h('small', {}, mains.filter((o) => o.cat === c).length + '개 메인'));
+      })),
+      h('button', { class: 'progress-card', type: 'button', onclick: () => goTab('my') },
+        h('b', {}, '먹어본 조합 ' + tried + '/' + COMBOS.length),
+        h('span', { class: 'bar' }, h('span', { class: 'fill', style: 'width:' + pct + '%' }))));
+  }
+
+  /* ---------- 마이 ---------- */
+  function comboCard(c, extra) {
+    return h('button', { class: 'combo-card', type: 'button', onclick: () => openCombo(c) },
+      h('span', { class: 'cc-name' }, c.name,
+        c.mine ? h('span', { class: 'opt-cat mine-tag' }, '내 조합') : null, extra || null),
+      h('span', { class: 'cc-items' }, c.items.filter((i) => i !== c.main).join(' + ')));
+  }
+
+  function mySection(title, list, emptyText, builder) {
+    return [
+      h('div', { class: 'section-head' },
+        h('h2', { class: 'section-title' }, title),
+        h('span', { class: 'group-count' }, list.length + '개')),
+      list.length ? h('div', {}, list.map(builder)) : h('p', { class: 'my-empty' }, emptyText)
+    ];
+  }
+
+  function myView() {
+    const triedIds = lsGet(KEY_TRIED, []);
+    const tried = COMBOS.filter((c) => triedIds.indexOf(c.id) !== -1);
+    const mine = COMBOS.filter((c) => c.mine);
+    const rated = COMBOS.map((c) => [c, lsGet(KEY_RATING + c.id, 0)]).filter((a) => a[1] > 0).sort((a, b) => b[1] - a[1]);
+    const pct = COMBOS.length ? Math.round((tried.length / COMBOS.length) * 100) : 0;
+    return h('section', { class: 'my' },
+      h('h1', { class: 'step-title' }, '마이'),
+      h('div', { class: 'my-summary' },
+        h('span', { class: 'form-label' }, '먹어본 조합'),
+        h('span', { class: 'my-num' }, String(tried.length), h('small', {}, ' / ' + COMBOS.length)),
+        h('span', { class: 'bar' }, h('span', { class: 'fill', style: 'width:' + pct + '%' }))),
+      mySection('먹어본 조합', tried, '조합 화면에서 "먹어봤어요"를 누르면 여기에 모여요.', (c) => comboCard(c)),
+      mySection('내가 만든 조합', mine, '아직 만든 조합이 없어요. 아래 "조합 만들기"에서 만들어 보세요.', (c) => comboCard(c)),
+      mySection('내가 준 별점', rated, '조합 화면에서 별을 눌러 별점을 남겨 보세요.', (a) => comboCard(a[0], h('span', { class: 'cc-star' }, '★' + a[1]))));
+  }
+
+  /* ---------- 더보기 ---------- */
+  function moreRow(title, sub, onclick, soon) {
+    return h('button', { class: 'more-row', type: 'button', disabled: !!soon, onclick: onclick || null },
+      h('span', { class: 'more-text' }, h('b', {}, title), h('span', { class: 'more-sub' }, sub)),
+      h('span', { class: 'more-arrow', 'aria-hidden': 'true' }, soon ? '준비 중' : '›'));
+  }
+
+  function moreView() {
+    return h('section', { class: 'more' },
+      h('h1', { class: 'step-title' }, '더보기'),
+      h('p', { class: 'step-hint' }, '찰떡의 나머지 메뉴예요.'),
+      moreRow('전체 조합 보기', COMBOS.length + '개 조합을 한눈에', openList),
+      moreRow('재료로 조합 찾기', '메인 재료부터 하나씩 골라요', reset),
+      moreRow('내 기록', '먹어본 조합과 내가 준 별점', () => goTab('my')),
+      moreRow('조합 월드컵', '두 조합 중 하나를 골라요', null, true),
+      moreRow('인기 랭킹', '다 같이 고른 조합 순위', null, true),
+      h('p', { class: 'about' }, '찰떡은 편의점 꿀조합을 모아 두고, 재료를 하나씩 골라 찾는 앱이에요. 조합은 영상과 글을 참고해 정리했고, 일부 이름과 시간은 임시예요. 내 조합과 별점은 이 브라우저에만 저장돼요.'));
+  }
+
   /* ---------- 그리기 ---------- */
   function render(keepScroll) {
     // 같은 화면을 다시 그릴 때(먹어봤어요 등)는 등장 애니메이션을 다시 재생하지 않아요.
     app.classList.toggle('still', !!keepScroll);
-    const inList = state.view === 'list' && !state.combo;
-    const inAdd = state.view === 'add' && !state.combo && !!state.draft;
-    const atStart = !state.combo && !inList && !inAdd && state.chosen.length === 0;
+    const v = state.view;
+    const inPick = v === 'pick' && !state.combo;
+    const atStart = inPick && state.chosen.length === 0;
+    let body;
+    if (state.combo) body = resultView();
+    else if (v === 'add' && state.draft) body = addView();
+    else if (v === 'list') body = listView();
+    else if (v === 'my') body = myView();
+    else if (v === 'more') body = moreView();
+    else if (v === 'pick') body = pickView();
+    else body = homeView();
     app.replaceChildren(...[
       header(),
       atStart ? catBar() : null,
-      (inList || inAdd) ? null : tray(),
-      state.combo ? resultView() : (inAdd ? addView() : (inList ? listView() : pickView())),
-      h('p', { class: 'footer-note' }, '프로토타입 · 퍼센트와 점수는 임시 값이고, 코멘트·도감·내 조합은 이 브라우저에만 저장돼요.')].filter(Boolean));
+      (inPick || state.combo) ? tray() : null,
+      body,
+      h('p', { class: 'footer-note' }, '프로토타입 · 퍼센트와 점수는 임시 값이고, 코멘트·도감·내 조합은 이 브라우저에만 저장돼요.'),
+      navBar()].filter(Boolean));
     if (!keepScroll) window.scrollTo(0, 0);
   }
 

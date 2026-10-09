@@ -984,6 +984,33 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
       tip: '분말스프를 반만 넣는 게 포인트예요. 먹어 보면 냄새부터 대박이라고 해요.', votes: 130, score: 88
     },
     {
+      id: 'omori-milk-kimchi', main: '오모리 김치찌개', cat: '컵라면', src: 'user',
+      name: '우유 오모리 김치찌개',
+      items: ['오모리 김치찌개', '우유', '체다치즈', '스트링치즈'],
+      tagline: '오모리 김치찌개에 물 대신 우유를 붓고 치즈를 올려 돌린 크리미한 조합',
+      tags: ['얼큰', '크리미', '치즈'],
+      minutes: 6,
+      steps: [
+        '면이 잠길 만큼 우유를 부어요.',
+        '스프와 김치는 반만 넣어요.',
+        '체다치즈와 스트링치즈를 넣어요.',
+        '전자레인지에 데우면 끝!'
+      ],
+      tip: '웬만한 까르보나라보다 맛있다는 평이에요. 돈은 없는데 입은 호강하고 싶을 때 좋아요.', votes: 130, score: 88
+    },
+    {
+      id: 'tudari-kimchi-udong', main: '김치 사발면', cat: '컵라면', src: 'user',
+      name: '투다리 김치우동',
+      items: ['김치 사발면', '생생우동'],
+      tagline: '김치 사발면과 생생우동으로 투다리 김치우동 맛을 내는 조합',
+      tags: ['얼큰', '국물'],
+      minutes: 6,
+      steps: [
+        '김치 사발면과 생생우동을 합쳐서 조리해요.'
+      ],
+      tip: '얼큰한 국물 맛이 예전 투다리 김치우동과 똑같다고 해요. 정확한 조리 순서는 영상에서 확인하지 못했어요.', votes: 110, score: 85
+    },
+    {
       id: 'carbo-bacon', main: '까르보불닭볶음면', cat: '컵라면', src: 'web',
       name: '까르보불닭 베이컨',
       items: ['까르보불닭볶음면', '모짜렐라 치즈', '베이컨'],
@@ -1421,7 +1448,7 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
   SVG_ICONS['핫바'] = SVG_ICONS['소시지'];
   SVG_ICONS['치즈소시지'] = SVG_ICONS['소시지'];
   SVG_ICONS['비엔나소시지'] = SVG_ICONS['소시지'];
-  const EMOJI_KEYWORDS = [['라면', '🍜'], ['볶음면', '🍜'], ['짜장', '🍜'], ['게티', '🍜'], ['곰탕', '🍜'], ['당면', '🍜'], ['누들', '🍜'], ['우동', '🍜'], ['사발면', '🍜'], ['누들면', '🍜'], ['칼국수', '🍜'], ['짬뽕', '🍜'], ['구리', '🍜'], ['삼각김밥', '🍙'], ['치즈', '🧀'], ['커피', '☕']];
+  const EMOJI_KEYWORDS = [['라면', '🍜'], ['볶음면', '🍜'], ['짜장', '🍜'], ['게티', '🍜'], ['곰탕', '🍜'], ['당면', '🍜'], ['누들', '🍜'], ['우동', '🍜'], ['사발면', '🍜'], ['찌개', '🍜'], ['누들면', '🍜'], ['칼국수', '🍜'], ['짬뽕', '🍜'], ['구리', '🍜'], ['삼각김밥', '🍙'], ['치즈', '🧀'], ['커피', '☕']];
   function emojiFor(name) {
     if (EMOJI[name]) return EMOJI[name];
     const hit = EMOJI_KEYWORDS.find((k) => name.includes(k[0]));

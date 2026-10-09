@@ -767,8 +767,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
         h('p', { class: 'tagline' }, c.tagline),
         h('div', { class: 'chips' },
           c.tags.map((t) => h('span', { class: 'chip' }, '#' + t)),
-          h('span', { class: 'chip time' }, '약 ' + c.minutes + '분'),
-          h('span', { class: 'chip src' }, c.src === 'web' ? '출처 확인' : '추정 조합')),
+          h('span', { class: 'chip time' }, '약 ' + c.minutes + '분')),
         h('div', { class: 'stats' },
           statRow('같은 메인 재료 중 이 조합 비율', rate),
           statRow('맛 점수', c.score, '※ 숫자는 임시 샘플 값이에요.')),
@@ -794,7 +793,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
       header(),
       tray(),
       state.combo ? resultView() : pickView(),
-      h('p', { class: 'footer-note' }, '프로토타입 · 퍼센트와 점수는 임시 값이고, 코멘트와 도감은 이 브라우저에만 저장돼요. “추정 조합”은 검색으로 직접 확인하지 못한 조합이에요.'));
+      h('p', { class: 'footer-note' }, '프로토타입 · 퍼센트와 점수는 임시 값이고, 코멘트와 도감은 이 브라우저에만 저장돼요.'));
     if (!keepScroll) window.scrollTo(0, 0);
   }
 

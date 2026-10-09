@@ -866,6 +866,47 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
       tip: '군필이라면 꼭 생각난다는 조합이에요.', votes: 140, score: 87
     },
     {
+      id: 'bul-gonghwa-g', main: '공화춘 짜장', cat: '컵라면', src: 'user',
+      name: '불닭 공화춘',
+      items: ['공화춘 짜장', '불닭볶음면'],
+      tagline: '공화춘과 불닭볶음면을 섞어 짜장의 단맛으로 불닭의 매운맛을 잡은 조합',
+      tags: ['매콤', '짜장'],
+      minutes: 8,
+      steps: [
+        '공화춘을 조리해요.',
+        '불닭볶음면도 조리해요.',
+        '한 그릇에 합쳐 섞으면 완성!'
+      ],
+      tip: '짜장맛이 느껴질 때 불닭이 탁 치고 들어오고, 그 매운맛을 짜장이 잡아줘요. 군필자라면 모를 수 없는 조합이래요.', votes: 160, score: 89
+    },
+    {
+      id: 'bul-gonghwa-b', main: '불닭볶음면', cat: '컵라면', src: 'user',
+      name: '불닭 공화춘',
+      items: ['불닭볶음면', '공화춘 짜장'],
+      tagline: '공화춘과 불닭볶음면을 섞어 짜장의 단맛으로 불닭의 매운맛을 잡은 조합',
+      tags: ['매콤', '짜장'],
+      minutes: 8,
+      steps: [
+        '공화춘을 조리해요.',
+        '불닭볶음면도 조리해요.',
+        '한 그릇에 합쳐 섞으면 완성!'
+      ],
+      tip: '짜장맛이 느껴질 때 불닭이 탁 치고 들어오고, 그 매운맛을 짜장이 잡아줘요. 군필자라면 모를 수 없는 조합이래요.', votes: 160, score: 89
+    },
+    {
+      id: 'kok-combo', main: '콕콕콕 스파게티', cat: '컵라면', src: 'user',
+      name: '콕콕콕 조합',
+      items: ['콕콕콕 스파게티', '콕콕콕 라면볶이'],
+      tagline: '콕콕콕 스파게티와 라면볶이를 섞은 매콤 단짠 조합',
+      tags: ['매콤', '단짠'],
+      minutes: 8,
+      steps: [
+        '콕콕콕 스파게티와 콕콕콕 라면볶이를 각각 조리해요.',
+        '한 그릇에 섞어요.'
+      ],
+      tip: '매콤 단짠한 맛에 스파게티의 새콤함이 더해져 입 안에서 터지는 맛이래요. 콕콕콕 조합의 끝판왕!', votes: 140, score: 88
+    },
+    {
       id: 'carbo-bacon', main: '까르보불닭볶음면', cat: '컵라면', src: 'web',
       name: '까르보불닭 베이컨',
       items: ['까르보불닭볶음면', '모짜렐라 치즈', '베이컨'],
@@ -1095,6 +1136,7 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
     for (var i = 0; i < combos.length; i++) {
       var c = combos[i];
       if (cat && c.cat !== cat) continue;
+      if (chosen.length && c.main !== chosen[0]) continue;
       if (c.items.length === chosen.length &&
           chosen.every(function (x) { return c.items.indexOf(x) !== -1; })) {
         return c;

@@ -291,7 +291,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
     {
       id: 'cup-cheesebokki', main: '불닭볶음면 (컵라면)', src: 'user',
       name: '불닭치즈볶이',
-      items: ['불닭볶음면 (컵라면)', '치즈볶이'],
+      items: ['불닭볶음면 (컵라면)', '콕콕콕 치즈볶이'],
       tagline: '불닭과 치즈볶이 컵을 섞은 매콤 치즈 조합',
       tags: ['매콤', '치즈'],
       minutes: 7,
@@ -306,7 +306,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
     {
       id: 'cup-spaghetti', main: '불닭볶음면 (컵라면)', src: 'user',
       name: '불닭스파게티',
-      items: ['불닭볶음면 (컵라면)', '스파게티 컵라면'],
+      items: ['불닭볶음면 (컵라면)', '콕콕콕 스파게티'],
       tagline: '불닭 소스에 스파게티 컵라면을 섞은 조합',
       tags: ['매콤'],
       minutes: 7,
@@ -405,6 +405,66 @@ button { font: inherit; color: inherit; cursor: pointer; }
         '가게에서도 이름 걸고 판다는 카구리 완성!'
       ],
       tip: '국물에 밥을 비벼 먹으면 입속이 천국! 취향에 따라 고명을 추가해도 좋아요.', votes: 80, score: 82
+    },
+    {
+      id: 'shin-black', main: '신라면', src: 'user',
+      name: '신라면블랙',
+      items: ['신라면', '사리곰탕면'],
+      tagline: '신라면에 사리곰탕 소스를 더해 진하고 고소하게',
+      tags: ['고소', '얼큰'],
+      minutes: 8,
+      steps: [
+        '냄비에 물을 넣고 신라면 면을 먼저 삶아요. (+후레이크)',
+        '두 개의 면이 어느 정도 익었을 때 두 개의 소스를 넣어요.',
+        '고소하고 부드러움을 원하면 사리곰탕 소스를 몽땅 넣어요!',
+        '기존 신라면 블랙보다 더 진하고 고소한 신라면 블랙 완성!'
+      ],
+      tip: '면을 끓일 때 신라면을 먼저 넣어 주세요.', votes: 110, score: 86
+    },
+    {
+      id: 'tumsae-kalguksu', main: '틈새라면', src: 'user',
+      name: '틈새칼국수',
+      items: ['틈새라면', '멸치칼국수'],
+      tagline: '멸치칼국수 면발에 틈새라면의 매콤한 감칠맛을 더한 조합',
+      tags: ['매콤', '쫄깃'],
+      minutes: 9,
+      steps: [
+        '냄비에 물을 넣고 면을 삶아요. (+후레이크)',
+        '칼국수 면을 1분 30초 더 끓인 후 틈새라면을 넣어요.',
+        '두 개의 소스를 같이 넣어요.',
+        '매콤한 감칠맛이 나는 쫄깃쫄깃 칼국수 면발, 틈새칼국수 완성!'
+      ],
+      tip: '칼국수 면을 1분 30초 더 끓인 후 틈새라면을 넣어 주세요.', votes: 90, score: 84
+    },
+    {
+      id: 'cheese-getti', main: '콕콕콕 스파게티', src: 'user',
+      name: '치즈게티',
+      items: ['콕콕콕 스파게티', '콕콕콕 치즈볶이'],
+      tagline: '스파게티와 치즈볶이 소스를 섞은 고소 매콤 조합',
+      tags: ['고소', '치즈'],
+      minutes: 8,
+      steps: [
+        '물을 넣고 면을 삶아요. (+후레이크)',
+        '면이 익으면 물을 조금 남기고 버려요.',
+        '스파게티 소스와 치즈볶이 소스를 투척해요.',
+        '쉐킷쉐킷하고 별첨소스를 뿌리면 치즈게티 완성!'
+      ],
+      tip: '면은 약간 덜 익혀서 꼬들하게 먹어요.', votes: 100, score: 85
+    },
+    {
+      id: 'bag-cheese-bulbokki', main: '불닭볶음면 (봉지라면)', src: 'user',
+      name: '치즈불닭볶이',
+      items: ['불닭볶음면 (봉지라면)', '콕콕콕 치즈볶이'],
+      tagline: '불닭볶음면과 치즈볶이를 섞은 매콤 치즈 조합',
+      tags: ['매콤', '치즈'],
+      minutes: 8,
+      steps: [
+        '냄비에 물을 넣고 면을 삶아요. (+후레이크)',
+        '면이 익으면 물을 조금 남기고 버려요.',
+        '불닭볶음면 소스와 치즈볶이 소스를 투척해요.',
+        '쉐킷쉐킷하고 별첨소스를 뿌리면 치즈불닭볶이 완성!'
+      ],
+      tip: '마지막에 계란 한 개를 넣어 먹으면 부드러움 최고!', votes: 120, score: 87
     },
     {
       id: 'carbo-bacon', main: '까르보불닭볶음면', src: 'web',
@@ -673,7 +733,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
   const COMBOS = window.CHALTTEOK_COMBOS;
   const L = window.ChaltteokLogic;
   const MAX_STEPS = 4;     // 한 조합에 들어가는 재료 최대 개수
-  const FIRST_LIMIT = 10;  // 첫 화면에 보여줄 메인 재료 수 (나머지는 검색)
+  const FIRST_LIMIT = 16;  // 첫 화면에 먼저 보여줄 메인 재료 수 (나머지는 더 보기/검색)
   const VISIBLE = 6;       // 다음 단계에서 먼저 보여줄 후보 수
 
   const KEY_TRIED = 'chaltteok:tried';
@@ -777,14 +837,14 @@ button { font: inherit; color: inherit; cursor: pointer; }
     '계란 후라이': '🍳', '달걀': '🥚', '우유': '🥛', '베이컨': '🥓',
     '닭발': '🍗', '옥수수콘': '🌽', '양파': '🧅', '버터': '🧈', '후추': '🧂',
     '헤이즐넛 커피': '☕', '얼음컵': '🧊', '더위사냥': '🍦', '만두': '🥟', '볶음김치': '🥬',
-    '스파게티 컵라면': '🍝'
+    '스파게티 컵라면': '🍝', '콕콕콕 스파게티': '🍝'
   };
   // 표준 이모티콘에 없는 재료(떡볶이, 소시지)는 직접 그린 SVG 아이콘을 써요.
   const SVG_ICONS = {
     '컵 떡볶이': '<svg viewBox="0 0 32 32" aria-hidden="true"><ellipse cx="16" cy="25" rx="12" ry="3" fill="#00000022"/><path d="M3 15h26c0 7-5.5 11-13 11S3 22 3 15z" fill="#f4efe6"/><ellipse cx="16" cy="15" rx="13" ry="4.5" fill="#c8281e"/><g fill="#f26a3d"><rect x="6" y="11.5" width="10" height="5" rx="2.5" transform="rotate(-18 11 14)"/><rect x="15" y="10.5" width="10" height="5" rx="2.5" transform="rotate(14 20 13)"/><rect x="11" y="15" width="10" height="5" rx="2.5" transform="rotate(-6 16 17.5)"/></g><g fill="#ffd0b8" opacity=".7"><rect x="7.5" y="12.2" width="5" height="1.2" rx=".6" transform="rotate(-18 10 12.8)"/><rect x="17" y="11.2" width="5" height="1.2" rx=".6" transform="rotate(14 19 11.8)"/></g></svg>',
     '소시지': '<svg viewBox="0 0 32 32" aria-hidden="true"><g transform="rotate(-28 16 16)"><rect x="2" y="10.5" width="28" height="11" rx="5.5" fill="#d9573a"/><rect x="4.5" y="12" width="21" height="2.4" rx="1.2" fill="#f58a6a" opacity=".85"/><g stroke="#9c2f1c" stroke-width="1.4" stroke-linecap="round"><path d="M10 15.5v5.5"/><path d="M15 15.5v5.5"/><path d="M20 15.5v5.5"/></g></g></svg>'
   };
-  const EMOJI_KEYWORDS = [['라면', '🍜'], ['볶음면', '🍜'], ['짜장', '🍜'], ['게티', '🍜'], ['치즈', '🧀'], ['커피', '☕']];
+  const EMOJI_KEYWORDS = [['라면', '🍜'], ['볶음면', '🍜'], ['짜장', '🍜'], ['게티', '🍜'], ['곰탕', '🍜'], ['칼국수', '🍜'], ['짬뽕', '🍜'], ['너구리', '🍜'], ['치즈', '🧀'], ['커피', '☕']];
   function emojiFor(name) {
     if (EMOJI[name]) return EMOJI[name];
     const hit = EMOJI_KEYWORDS.find((k) => name.includes(k[0]));
@@ -849,7 +909,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
       let list;
       if (n === 1) {
         const q = state.query.trim();
-        list = q ? all.filter((o) => o.item.includes(q)) : all.slice(0, FIRST_LIMIT);
+        list = q ? all.filter((o) => o.item.includes(q)) : (state.expanded ? all : all.slice(0, FIRST_LIMIT));
       } else {
         list = state.expanded ? all : all.slice(0, VISIBLE);
       }
@@ -858,7 +918,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
       } else {
         list.forEach((o) => optsEl.append(optionButton(o)));
       }
-      const hidden = n === 1 ? 0 : all.length - list.length;
+      const hidden = (n === 1 && state.query.trim()) ? 0 : all.length - list.length;
       if (hidden > 0) {
         moreWrap.append(h('button', {
           class: 'btn more', type: 'button',

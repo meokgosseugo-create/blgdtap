@@ -354,7 +354,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
         '공화춘 소스와 간짬뽕 소스를 투척해요.',
         '쉐킷쉐킷하고 별첨소스를 뿌리면 공화뽕 완성!'
       ],
-      tip: '공화춘 액상스프를 먼저 데워 주세요.', votes: 110, score: 85
+      tip: '공화춘 액상스프를 먼저 데워 주세요. 컵라면 버전(공화춘 컵 + 간짬뽕 컵)은 \'공간춘\'이라고도 불러요.', votes: 110, score: 85
     },
     {
       id: 'bag-getti', main: '불닭볶음면 (봉지라면)', src: 'user',
@@ -475,6 +475,51 @@ button { font: inherit; color: inherit; cursor: pointer; }
         '쉐킷쉐킷하고 별첨소스를 뿌리면 치즈불닭볶이 완성!'
       ],
       tip: '마지막에 계란 한 개를 넣어 먹으면 부드러움 최고!', votes: 120, score: 87
+    },
+    {
+      id: 'carbo-risotto', main: '까르보불닭볶음면', src: 'user',
+      name: '까르보불닭리조또',
+      items: ['까르보불닭볶음면', '참치마요 삼각김밥', '슬라이스 체다치즈'],
+      tagline: '까르보불닭에 삼각김밥과 치즈를 얹어 돌린 고소하고 감칠맛 나는 한 끼',
+      tags: ['크리미', '든든'],
+      minutes: 6,
+      steps: [
+        '까르보불닭볶음면을 조리해요.',
+        '삼각김밥은 포장을 뜯어 면 위에 숟가락으로 눌러 넣어요.',
+        '슬라이스 치즈를 면과 밥 위에 얹어요.',
+        '전자레인지에 1분 30초~2분 정도 돌려요.',
+        '꺼내서 잘 섞으면 완성!'
+      ],
+      tip: '삼각김밥은 취향껏 골라요. 슬라이스 치즈는 스트링치즈나 피자치즈로 바꿔도 돼요.', votes: 160, score: 90
+    },
+    {
+      id: 'eolbaksa', main: '얼음컵', src: 'user',
+      name: '얼박사',
+      items: ['얼음컵', '박카스', '사이다'],
+      tagline: '얼음컵에 박카스와 사이다를 섞는 무알콜 칵테일',
+      tags: ['달콤', '청량', '음료'],
+      minutes: 1,
+      steps: [
+        '얼음컵에 박카스를 부어요.',
+        '사이다를 채우고 가볍게 섞어요.'
+      ],
+      tip: '', votes: 100, score: 82
+    },
+    {
+      id: 'sari-risotto', main: '사리곰탕 컵라면', src: 'user',
+      name: '사리곰탕 리소토',
+      items: ['사리곰탕 컵라면', '즉석밥', '슬라이스 체다치즈', '우유'],
+      tagline: '부드럽고 고소한 크림 리소토 풍미를 5분 만에 재현하는 편의점 레시피',
+      tags: ['크리미', '고소'],
+      minutes: 5,
+      steps: [
+        '사리곰탕 면을 잘게 부순 뒤 컵라면(소형) 용기에 담아요.',
+        '데우지 않은 즉석밥을 함께 넣어요.',
+        '사리곰탕 분말스프를 반만 넣어요. (다 넣으면 우유와 치즈 때문에 짤 수 있어요.)',
+        '물 대신 우유 200ml(종이컵 1컵 반)를 밥과 면이 자작하게 잠길 정도로 부어요.',
+        '위에 슬라이스 치즈를 한 장 올리고 전자레인지에 2분 30초~3분 돌려요.'
+      ],
+      tip: '우유가 끓어 넘칠 수 있으니 중간중간 확인하거나 용기 아래에 접시를 받치고 돌려요.', votes: 130, score: 87
     },
     {
       id: 'carbo-bacon', main: '까르보불닭볶음면', src: 'web',
@@ -846,7 +891,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
     '치즈': '🧀', '스트링치즈': '🧀', '모짜렐라 치즈': '🧀',
     '계란 후라이': '🍳', '달걀': '🥚', '우유': '🥛', '베이컨': '🥓',
     '닭발': '🍗', '옥수수콘': '🌽', '양파': '🧅', '버터': '🧈', '후추': '🧂',
-    '헤이즐넛 커피': '☕', '얼음컵': '🧊', '더위사냥': '🍦', '만두': '🥟', '볶음김치': '🥬',
+    '헤이즐넛 커피': '☕', '얼음컵': '🧊', '즉석밥': '🍚', '박카스': '🔋', '사이다': '🥤', '더위사냥': '🍦', '만두': '🥟', '볶음김치': '🥬',
     '스파게티 컵라면': '🍝', '콕콕콕 스파게티': '🍝'
   };
   // 표준 이모티콘에 없는 재료(떡볶이, 소시지)는 직접 그린 SVG 아이콘을 써요.
@@ -854,7 +899,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
     '컵 떡볶이': '<svg viewBox="0 0 32 32" aria-hidden="true"><ellipse cx="16" cy="25" rx="12" ry="3" fill="#00000022"/><path d="M3 15h26c0 7-5.5 11-13 11S3 22 3 15z" fill="#f4efe6"/><ellipse cx="16" cy="15" rx="13" ry="4.5" fill="#c8281e"/><g fill="#f26a3d"><rect x="6" y="11.5" width="10" height="5" rx="2.5" transform="rotate(-18 11 14)"/><rect x="15" y="10.5" width="10" height="5" rx="2.5" transform="rotate(14 20 13)"/><rect x="11" y="15" width="10" height="5" rx="2.5" transform="rotate(-6 16 17.5)"/></g><g fill="#ffd0b8" opacity=".7"><rect x="7.5" y="12.2" width="5" height="1.2" rx=".6" transform="rotate(-18 10 12.8)"/><rect x="17" y="11.2" width="5" height="1.2" rx=".6" transform="rotate(14 19 11.8)"/></g></svg>',
     '소시지': '<svg viewBox="0 0 32 32" aria-hidden="true"><g transform="rotate(-28 16 16)"><rect x="2" y="10.5" width="28" height="11" rx="5.5" fill="#d9573a"/><rect x="4.5" y="12" width="21" height="2.4" rx="1.2" fill="#f58a6a" opacity=".85"/><g stroke="#9c2f1c" stroke-width="1.4" stroke-linecap="round"><path d="M10 15.5v5.5"/><path d="M15 15.5v5.5"/><path d="M20 15.5v5.5"/></g></g></svg>'
   };
-  const EMOJI_KEYWORDS = [['라면', '🍜'], ['볶음면', '🍜'], ['짜장', '🍜'], ['게티', '🍜'], ['곰탕', '🍜'], ['칼국수', '🍜'], ['짬뽕', '🍜'], ['너구리', '🍜'], ['치즈', '🧀'], ['커피', '☕']];
+  const EMOJI_KEYWORDS = [['라면', '🍜'], ['볶음면', '🍜'], ['짜장', '🍜'], ['게티', '🍜'], ['곰탕', '🍜'], ['칼국수', '🍜'], ['짬뽕', '🍜'], ['너구리', '🍜'], ['삼각김밥', '🍙'], ['치즈', '🧀'], ['커피', '☕']];
   function emojiFor(name) {
     if (EMOJI[name]) return EMOJI[name];
     const hit = EMOJI_KEYWORDS.find((k) => name.includes(k[0]));

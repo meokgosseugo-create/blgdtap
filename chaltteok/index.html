@@ -188,6 +188,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 .cat { flex: none; background: none; border: 0; border-bottom: 2.5px solid transparent; padding: 10px 0 11px; font-size: 16px; font-weight: 700; color: var(--muted); white-space: nowrap; }
 .cat.on { color: var(--ink); border-bottom-color: var(--accent, var(--brand)); }
 .cat:focus-visible { outline: 2px solid var(--accent, var(--brand)); outline-offset: 2px; }
+.opt-cat { font-size: 11px; font-weight: 700; color: var(--muted); background: var(--fill, var(--bg)); border-radius: 999px; padding: 2px 8px; }
 </style>
 </head>
 <body>
@@ -206,9 +207,9 @@ button { font: inherit; color: inherit; cursor: pointer; }
   // src: 'web' = 검색으로 확인한 조합, 'idea' = 검색 결과를 바탕으로 한 추정 조합
   const COMBOS = [
     {
-      id: 'bag-gyechi', main: '불닭볶음면 (봉지라면)', cat: '라면', src: 'user',
+      id: 'bag-gyechi', main: '불닭볶음면', cat: '라면', src: 'user',
       name: '불계치',
-      items: ['불닭볶음면 (봉지라면)', '계란 후라이', '치즈'],
+      items: ['불닭볶음면', '계란 후라이', '치즈'],
       tagline: '불닭볶음면에 계란 후라이와 치즈를 더해 고소하게',
       tags: ['매콤', '고소'],
       minutes: 7,
@@ -220,9 +221,9 @@ button { font: inherit; color: inherit; cursor: pointer; }
       tip: '', votes: 120, score: 90
     },
     {
-      id: 'bag-nukuri', main: '불닭볶음면 (봉지라면)', cat: '라면', src: 'user',
+      id: 'bag-nukuri', main: '불닭볶음면', cat: '라면', src: 'user',
       name: '불꾸리라면',
-      items: ['불닭볶음면 (봉지라면)', '너구리'],
+      items: ['불닭볶음면', '너구리'],
       tagline: '불닭 소스에 너구리를 더한 얼큰 조합',
       tags: ['매콤', '얼큰'],
       minutes: 8,
@@ -235,9 +236,9 @@ button { font: inherit; color: inherit; cursor: pointer; }
       tip: '', votes: 110, score: 85
     },
     {
-      id: 'bag-jangkal', main: '불닭볶음면 (봉지라면)', cat: '라면', src: 'user',
+      id: 'bag-jangkal', main: '불닭볶음면', cat: '라면', src: 'user',
       name: '불닭장칼국수',
-      items: ['불닭볶음면 (봉지라면)', '멸치칼국수'],
+      items: ['불닭볶음면', '멸치칼국수'],
       tagline: '불닭에 멸치칼국수를 더한 칼칼한 조합',
       tags: ['매콤', '칼칼'],
       minutes: 8,
@@ -250,9 +251,9 @@ button { font: inherit; color: inherit; cursor: pointer; }
       tip: '', votes: 85, score: 83
     },
     {
-      id: 'bag-cream', main: '불닭볶음면 (봉지라면)', cat: '라면', src: 'user',
+      id: 'bag-cream', main: '불닭볶음면', cat: '라면', src: 'user',
       name: '크림 불닭',
-      items: ['불닭볶음면 (봉지라면)', '우유', '치즈'],
+      items: ['불닭볶음면', '우유', '치즈'],
       tagline: '우유와 치즈로 크림소스 파스타처럼 만든 불닭',
       tags: ['크리미', '매콤'],
       minutes: 7,
@@ -263,9 +264,9 @@ button { font: inherit; color: inherit; cursor: pointer; }
       tip: '우유는 조금씩 넣으면서 농도를 맞춰요.', votes: 90, score: 85
     },
     {
-      id: 'cup-gyechi', main: '불닭볶음면 (컵라면)', cat: '컵라면', src: 'user',
+      id: 'cup-gyechi', main: '불닭볶음면', cat: '컵라면', src: 'user',
       name: '불계치',
-      items: ['불닭볶음면 (컵라면)', '계란 후라이', '치즈'],
+      items: ['불닭볶음면', '계란 후라이', '치즈'],
       tagline: '불닭볶음면에 계란 후라이와 치즈를 더해 고소하게',
       tags: ['매콤', '고소'],
       minutes: 7,
@@ -277,9 +278,9 @@ button { font: inherit; color: inherit; cursor: pointer; }
       tip: '', votes: 110, score: 89
     },
     {
-      id: 'cup-triangle', main: '불닭볶음면 (컵라면)', cat: '컵라면', src: 'user',
+      id: 'cup-triangle', main: '불닭볶음면', cat: '컵라면', src: 'user',
       name: '불닭 치즈 볶음밥',
-      items: ['불닭볶음면 (컵라면)', '참치 삼각김밥', '스트링치즈'],
+      items: ['불닭볶음면', '참치 삼각김밥', '스트링치즈'],
       tagline: '매운 컵라면에 삼각김밥과 스트링치즈를 더한 편의점 단골 조합',
       tags: ['매콤', '든든'],
       minutes: 7,
@@ -291,9 +292,9 @@ button { font: inherit; color: inherit; cursor: pointer; }
       tip: '삼각김밥은 참치마요가 잘 어울린다고 해요.', votes: 180, score: 91
     },
     {
-      id: 'cup-jinse', main: '불닭볶음면 (컵라면)', cat: '컵라면', src: 'user',
+      id: 'cup-jinse', main: '불닭볶음면', cat: '컵라면', src: 'user',
       name: '조진세 불닭조합',
-      items: ['불닭볶음면 (컵라면)', '콕콕콕 라면볶이'],
+      items: ['불닭볶음면', '콕콕콕 라면볶이'],
       tagline: '불닭볶음면 용기에 라면볶이를 섞어 먹는 조합',
       tags: ['매콤', '꿀조합'],
       minutes: 7,
@@ -307,9 +308,9 @@ button { font: inherit; color: inherit; cursor: pointer; }
       tip: '포인트는 불닭볶음면 용기 안에 라면볶이를 넣는 것! 진짜 매운데 살짝 단맛도 나서 중독성 갑이에요. 라면볶이 건더기까지 탈탈 털어 섞고 불닭 김가루를 뿌려요.', votes: 100, score: 85
     },
     {
-      id: 'cup-gomtang', main: '불닭볶음면 (컵라면)', cat: '컵라면', src: 'user',
+      id: 'cup-gomtang', main: '불닭볶음면', cat: '컵라면', src: 'user',
       name: '불닭곰탕',
-      items: ['불닭볶음면 (컵라면)', '사리곰탕 컵라면'],
+      items: ['불닭볶음면', '사리곰탕 컵라면'],
       tagline: '불닭과 사리곰탕을 섞은 얼큰 고소한 조합',
       tags: ['매콤', '든든'],
       minutes: 6,
@@ -321,9 +322,9 @@ button { font: inherit; color: inherit; cursor: pointer; }
       tip: '', votes: 130, score: 86
     },
     {
-      id: 'cup-cheesebokki', main: '불닭볶음면 (컵라면)', cat: '컵라면', src: 'user',
+      id: 'cup-cheesebokki', main: '불닭볶음면', cat: '컵라면', src: 'user',
       name: '불닭치즈볶이',
-      items: ['불닭볶음면 (컵라면)', '콕콕콕 치즈볶이'],
+      items: ['불닭볶음면', '콕콕콕 치즈볶이'],
       tagline: '불닭과 치즈볶이 컵을 섞은 매콤 치즈 조합',
       tags: ['매콤', '치즈'],
       minutes: 7,
@@ -336,9 +337,9 @@ button { font: inherit; color: inherit; cursor: pointer; }
       tip: '매운데 치즈볶이가 부드러워서 맛있어요.', votes: 120, score: 87
     },
     {
-      id: 'cup-spaghetti', main: '불닭볶음면 (컵라면)', cat: '컵라면', src: 'user',
+      id: 'cup-spaghetti', main: '불닭볶음면', cat: '컵라면', src: 'user',
       name: '불닭스파게티',
-      items: ['불닭볶음면 (컵라면)', '콕콕콕 스파게티'],
+      items: ['불닭볶음면', '콕콕콕 스파게티'],
       tagline: '불닭 소스에 스파게티 컵라면을 섞은 조합',
       tags: ['매콤'],
       minutes: 7,
@@ -351,9 +352,9 @@ button { font: inherit; color: inherit; cursor: pointer; }
       tip: '', votes: 100, score: 84
     },
     {
-      id: 'cup-cream', main: '불닭볶음면 (컵라면)', cat: '컵라면', src: 'user',
+      id: 'cup-cream', main: '불닭볶음면', cat: '컵라면', src: 'user',
       name: '크림 불닭',
-      items: ['불닭볶음면 (컵라면)', '우유', '치즈'],
+      items: ['불닭볶음면', '우유', '치즈'],
       tagline: '우유와 치즈로 크림소스 파스타처럼 만든 불닭',
       tags: ['크리미', '매콤'],
       minutes: 7,
@@ -379,9 +380,9 @@ button { font: inherit; color: inherit; cursor: pointer; }
       tip: '공화춘 액상스프를 먼저 데워 주세요. 컵라면 버전(공화춘 컵 + 간짬뽕 컵)은 \'공간춘\'이라고도 불러요.', votes: 110, score: 85
     },
     {
-      id: 'bag-getti', main: '불닭볶음면 (봉지라면)', cat: '라면', src: 'user',
+      id: 'bag-getti', main: '불닭볶음면', cat: '라면', src: 'user',
       name: '불닭게티',
-      items: ['불닭볶음면 (봉지라면)', '짜파게티'],
+      items: ['불닭볶음면', '짜파게티'],
       tagline: '불닭볶음면과 짜파게티 소스를 섞은 매콤 짜장',
       tags: ['매콤', '짜장'],
       minutes: 8,
@@ -394,9 +395,9 @@ button { font: inherit; color: inherit; cursor: pointer; }
       tip: '짜파게티 대신 짜장 공화춘이나 사천짜파게티도 좋아요. 마지막에 피자치즈를 올리면 환상!', votes: 150, score: 88
     },
     {
-      id: 'bag-bulsae', main: '불닭볶음면 (봉지라면)', cat: '라면', src: 'user',
+      id: 'bag-bulsae', main: '불닭볶음면', cat: '라면', src: 'user',
       name: '불새라면',
-      items: ['불닭볶음면 (봉지라면)', '틈새라면'],
+      items: ['불닭볶음면', '틈새라면'],
       tagline: '불닭볶음면과 틈새라면을 졸여 만든 매운 라면',
       tags: ['매콤', '얼큰'],
       minutes: 10,
@@ -484,9 +485,9 @@ button { font: inherit; color: inherit; cursor: pointer; }
       tip: '면은 약간 덜 익혀서 꼬들하게 먹어요.', votes: 100, score: 85
     },
     {
-      id: 'bag-cheese-bulbokki', main: '불닭볶음면 (봉지라면)', cat: '라면', src: 'user',
+      id: 'bag-cheese-bulbokki', main: '불닭볶음면', cat: '라면', src: 'user',
       name: '치즈불닭볶이',
-      items: ['불닭볶음면 (봉지라면)', '콕콕콕 치즈볶이'],
+      items: ['불닭볶음면', '콕콕콕 치즈볶이'],
       tagline: '불닭볶음면과 치즈볶이를 섞은 매콤 치즈 조합',
       tags: ['매콤', '치즈'],
       minutes: 8,
@@ -787,8 +788,9 @@ button { font: inherit; color: inherit; cursor: pointer; }
   }
 
   // chosen[0]이 메인 재료인 조합 중, chosen 재료를 모두 포함하는 조합들
-  function matching(combos, chosen) {
+  function matching(combos, chosen, cat) {
     return combos.filter(function (c) {
+      if (cat && c.cat !== cat) return false;
       if (chosen.length && c.main !== chosen[0]) return false;
       return chosen.every(function (x) { return c.items.indexOf(x) !== -1; });
     });
@@ -800,21 +802,22 @@ button { font: inherit; color: inherit; cursor: pointer; }
     var map = {};
     var order = [];
     combos.forEach(function (c) {
-      if (!map[c.main]) { map[c.main] = { item: c.main, cat: c.cat, votes: 0, combos: 0 }; order.push(c.main); }
-      map[c.main].votes += c.votes;
-      map[c.main].combos += 1;
+      var key = c.cat + '|' + c.main;
+      if (!map[key]) { map[key] = { item: c.main, cat: c.cat, votes: 0, combos: 0 }; order.push(key); }
+      map[key].votes += c.votes;
+      map[key].combos += 1;
     });
     return order.map(function (k) {
-      return { item: k, cat: map[k].cat, combos: map[k].combos, percent: total ? Math.round((map[k].votes / total) * 100) : 0 };
+      return { item: map[k].item, cat: map[k].cat, combos: map[k].combos, percent: total ? Math.round((map[k].votes / total) * 100) : 0 };
     }).sort(function (a, b) {
       return b.percent - a.percent || b.combos - a.combos || a.item.localeCompare(b.item, 'ko');
     });
   }
 
   // 다음에 고를 수 있는 재료 목록 (인기순). limit이 0이면 전부.
-  function nextOptions(combos, chosen, limit) {
+  function nextOptions(combos, chosen, limit, cat) {
     if (!chosen.length) { var mains = mainOptions(combos); return limit ? mains.slice(0, limit) : mains; }
-    var pool = matching(combos, chosen);
+    var pool = matching(combos, chosen, cat);
     var total = sumVotes(pool);
     var map = {};
     var order = [];
@@ -841,9 +844,10 @@ button { font: inherit; color: inherit; cursor: pointer; }
   }
 
   // 고른 재료가 정확히 하나의 조합과 같으면 그 조합, 아니면 null
-  function findComplete(combos, chosen) {
+  function findComplete(combos, chosen, cat) {
     for (var i = 0; i < combos.length; i++) {
       var c = combos[i];
+      if (cat && c.cat !== cat) continue;
       if (c.items.length === chosen.length &&
           chosen.every(function (x) { return c.items.indexOf(x) !== -1; })) {
         return c;
@@ -854,7 +858,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
 
   // 같은 메인 재료의 조합들 중, 이 조합을 고른 사람의 비율(%)
   function pickRate(combos, combo) {
-    var pool = matching(combos, [combo.main]);
+    var pool = matching(combos, [combo.main], combo.cat);
     var total = sumVotes(pool);
     return total ? Math.round((combo.votes / total) * 100) : 0;
   }
@@ -923,12 +927,13 @@ button { font: inherit; color: inherit; cursor: pointer; }
   }
 
   /* ---------- 동작 ---------- */
-  function choose(item) {
+  function choose(item, cat) {
+    if (state.chosen.length === 0 && cat) state.cat = cat;
     state.chosen.push(item);
     state.query = '';
     state.expanded = false;
-    const done = L.findComplete(COMBOS, state.chosen);
-    const more = L.nextOptions(COMBOS, state.chosen, 0);
+    const done = L.findComplete(COMBOS, state.chosen, state.cat);
+    const more = L.nextOptions(COMBOS, state.chosen, 0, state.cat);
     if (done && (more.length === 0 || state.chosen.length >= MAX_STEPS)) {
       state.combo = done;
       state.auto = true;
@@ -937,7 +942,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
   }
 
   function finish() {
-    const done = L.findComplete(COMBOS, state.chosen);
+    const done = L.findComplete(COMBOS, state.chosen, state.cat);
     if (done) { state.combo = done; state.auto = false; render(); }
   }
 
@@ -990,6 +995,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
   function openCombo(c) {
     state.view = 'list';
     state.fromList = true;
+    state.cat = c.cat;
     state.combo = c;
     state.chosen = [c.main].concat(c.items.filter((i) => i !== c.main));
     state.auto = false;
@@ -1076,9 +1082,10 @@ button { font: inherit; color: inherit; cursor: pointer; }
     return h('section', { class: 'tray', 'aria-label': '고른 재료' }, slots);
   }
 
-  function optionButton(o) {
-    return h('button', { class: 'opt', type: 'button', onclick: () => choose(o.item) },
-      h('span', { class: 'opt-name' }, iconEl(o.item), o.item),
+  function optionButton(o, showCat) {
+    return h('button', { class: 'opt', type: 'button', onclick: () => choose(o.item, o.cat) },
+      h('span', { class: 'opt-name' }, iconEl(o.item), o.item,
+        showCat ? h('span', { class: 'opt-cat' }, o.cat) : null),
       h('span', { class: 'opt-pct' }, o.percent + '%'),
       h('span', { class: 'bar' }, h('span', { class: 'fill', style: 'width:' + o.percent + '%' })));
   }
@@ -1098,7 +1105,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
   /* ---------- 재료 고르기 화면 ---------- */
   function pickView() {
     const n = state.chosen.length + 1;
-    const all = L.nextOptions(COMBOS, state.chosen, 0);
+    const all = L.nextOptions(COMBOS, state.chosen, 0, state.cat);
     const optsEl = h('div', { class: 'opts' });
     const moreWrap = h('div', {});
 
@@ -1106,8 +1113,8 @@ button { font: inherit; color: inherit; cursor: pointer; }
       optsEl.replaceChildren();
       moreWrap.replaceChildren();
       let list;
+      const q = n === 1 ? state.query.trim() : '';
       if (n === 1) {
-        const q = state.query.trim();
         list = q ? all.filter((o) => o.item.includes(q)) : all.filter((o) => o.cat === state.cat);
       } else {
         list = state.expanded ? all : all.slice(0, VISIBLE);
@@ -1115,7 +1122,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
       if (list.length === 0) {
         optsEl.append(h('p', { class: 'empty' }, '찾는 재료가 아직 없어요.'));
       } else {
-        list.forEach((o) => optsEl.append(optionButton(o)));
+        list.forEach((o) => optsEl.append(optionButton(o, !!q)));
       }
       const hidden = n === 1 ? 0 : all.length - list.length;
       if (hidden > 0) {
@@ -1126,7 +1133,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
       }
     }
 
-    const done = L.findComplete(COMBOS, state.chosen);
+    const done = L.findComplete(COMBOS, state.chosen, state.cat);
 
     const view = h('section', {},
       h('h1', { class: 'step-title' }, n === 1 ? '메인 재료부터 골라요' : n + '번째 재료를 골라요'),
@@ -1162,7 +1169,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
   /* ---------- 전체 조합 화면 ---------- */
   function listView() {
     const listEl = h('div', { class: 'all-list' });
-    const mains = L.nextOptions(COMBOS, [], 0).map((o) => o.item);
+    const mains = L.nextOptions(COMBOS, [], 0);
 
     function fill() {
       const q = state.listQuery.trim();
@@ -1172,10 +1179,11 @@ button { font: inherit; color: inherit; cursor: pointer; }
         listEl.append(h('p', { class: 'empty' }, '찾는 조합이 없어요.'));
         return;
       }
-      mains.forEach((m) => {
-        const group = hit.filter((c) => c.main === m);
+      mains.forEach((mo) => {
+        const m = mo.item;
+        const group = hit.filter((c) => c.main === m && c.cat === mo.cat);
         if (group.length === 0) return;
-        listEl.append(h('h3', { class: 'group-title' }, iconEl(m), m, h('span', { class: 'group-count' }, group.length + '개')));
+        listEl.append(h('h3', { class: 'group-title' }, iconEl(m), m, h('span', { class: 'opt-cat' }, mo.cat), h('span', { class: 'group-count' }, group.length + '개')));
         group.forEach((c) => listEl.append(h('button', { class: 'combo-card', type: 'button', onclick: () => openCombo(c) },
           h('span', { class: 'cc-name' }, c.name),
           h('span', { class: 'cc-items' }, c.items.filter((i) => i !== m).join(' + ')))));

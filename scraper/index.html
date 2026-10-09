@@ -58,8 +58,8 @@
     <div class="opts">
       <label>정확도
         <select id="model">
-          <option value="small">빠름</option>
-          <option value="medium" selected>정확 (추천)</option>
+          <option value="small" selected>빠름 (추천)</option>
+          <option value="medium">정확</option>
           <option value="large-v3">가장 정확 (느림)</option>
         </select>
       </label>
@@ -101,7 +101,7 @@ const store = {
 };
 let api = null, current = null, polling = false;
 
-$('model').value = store.get('model', 'medium');
+$('model').value = store.get('model', 'small');
 $('browser').value = store.get('browser', 'chrome');
 $('model').onchange = () => store.set('model', $('model').value);
 $('browser').onchange = () => store.set('browser', $('browser').value);
@@ -167,7 +167,8 @@ $('url').addEventListener('keydown', e => { if (e.key === 'Enter') go(); });
 $('copy').onclick = async () => {
   let ok = false;
   try { ok = await api.copy(current.text); } catch (e) {}
-  if (!ok) { $('text').select(); ok = document.execCommand('copy'); }
+  if (!ok) { try { await navigator.clipboard.writeText(current.text); ok = true; } catch (e) {} }
+  if (!ok) { $('text').select(); try { ok = document.execCommand('copy'); } catch (e) {} }
   $('copy').textContent = ok ? '복사됨 ✓' : '⌘C로 복사해 주세요';
   setTimeout(() => $('copy').textContent = '대본 복사', 1800);
 };

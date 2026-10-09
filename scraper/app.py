@@ -43,8 +43,13 @@ class Api:
         """클립보드에 복사한다. 성공하면 True."""
         if sys.platform != "darwin":
             return False
-        subprocess.run(["pbcopy"], input=text.encode("utf-8"), check=True)
-        return True
+        # 앱으로 실행하면 언어 설정이 비어 있어 pbcopy가 한글을 못 다룰 수 있어서 직접 지정한다.
+        env = {**os.environ, "LANG": "en_US.UTF-8", "LC_ALL": "en_US.UTF-8"}
+        try:
+            subprocess.run(["/usr/bin/pbcopy"], input=text.encode("utf-8"), check=True, env=env, timeout=10)
+            return True
+        except Exception:
+            return False
 
     def save(self, filename, text):
         """저장 위치를 물어보고 .txt로 저장한다."""

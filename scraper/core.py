@@ -10,7 +10,7 @@ from pathlib import Path
 import yt_dlp
 
 MODELS = {"small": "빠름", "medium": "정확", "large-v3": "가장 정확"}
-DEFAULT_MODEL = "medium"
+DEFAULT_MODEL = "small"
 
 if sys.platform == "darwin":
     DATA_DIR = Path.home() / "Library" / "Application Support" / "ScriptGrabber"

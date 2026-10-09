@@ -958,6 +958,22 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
       tip: '커피를 마지막에 천천히 부으면 층이 예쁘게 나뉘어요.', votes: 100, score: 88
     },
     {
+      id: 'kimchi-budae-cheese', main: '김치 사발면', cat: '컵라면', src: 'user',
+      name: '부대치즈 김치라면',
+      items: ['김치 사발면', '치즈소시지', '볶음김치', '체다치즈'],
+      tagline: '김치 사발면에 치즈소시지와 볶음김치, 체다치즈를 올려 돌린 부대찌개 맛 조합',
+      tags: ['얼큰', '치즈', '부대찌개맛'],
+      minutes: 5,
+      steps: [
+        '김치 사발면에 물을 붓고 1분 기다려요.',
+        '치즈소시지를 잘라 넣어요.',
+        '분말스프는 반만 넣어요.',
+        '볶음김치와 체다치즈를 올려요.',
+        '전자레인지에 1분 돌리면 완성!'
+      ],
+      tip: '분말스프를 반만 넣는 게 포인트예요. 먹어 보면 냄새부터 대박이라고 해요.', votes: 130, score: 88
+    },
+    {
       id: 'carbo-bacon', main: '까르보불닭볶음면', cat: '컵라면', src: 'web',
       name: '까르보불닭 베이컨',
       items: ['까르보불닭볶음면', '모짜렐라 치즈', '베이컨'],
@@ -1393,6 +1409,7 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
     '소시지': '<svg viewBox="0 0 32 32" aria-hidden="true"><g transform="rotate(-28 16 16)"><rect x="2" y="10.5" width="28" height="11" rx="5.5" fill="#d9573a"/><rect x="4.5" y="12" width="21" height="2.4" rx="1.2" fill="#f58a6a" opacity=".85"/><g stroke="#9c2f1c" stroke-width="1.4" stroke-linecap="round"><path d="M10 15.5v5.5"/><path d="M15 15.5v5.5"/><path d="M20 15.5v5.5"/></g></g></svg>'
   };
   SVG_ICONS['핫바'] = SVG_ICONS['소시지'];
+  SVG_ICONS['치즈소시지'] = SVG_ICONS['소시지'];
   SVG_ICONS['비엔나소시지'] = SVG_ICONS['소시지'];
   const EMOJI_KEYWORDS = [['라면', '🍜'], ['볶음면', '🍜'], ['짜장', '🍜'], ['게티', '🍜'], ['곰탕', '🍜'], ['당면', '🍜'], ['누들', '🍜'], ['우동', '🍜'], ['사발면', '🍜'], ['누드면', '🍜'], ['칼국수', '🍜'], ['짬뽕', '🍜'], ['구리', '🍜'], ['삼각김밥', '🍙'], ['치즈', '🧀'], ['커피', '☕']];
   function emojiFor(name) {

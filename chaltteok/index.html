@@ -590,7 +590,7 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
       tip: '삼각김밥은 취향껏 골라요. 슬라이스 치즈는 스트링치즈나 피자치즈로 바꿔도 돼요.', votes: 160, score: 90
     },
     {
-      id: 'eolbaksa', main: '얼음컵', cat: '음료·커피', src: 'user',
+      id: 'eolbaksa', main: '얼음컵', cat: '음료', src: 'user',
       name: '얼박사',
       items: ['얼음컵', '박카스', '사이다'],
       tagline: '얼음컵에 박카스와 사이다를 섞는 무알콜 칵테일',
@@ -907,6 +907,67 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
       tip: '매콤 단짠한 맛에 스파게티의 새콤함이 더해져 입 안에서 터지는 맛이래요. 콕콕콕 조합의 끝판왕!', votes: 140, score: 88
     },
     {
+      id: 'drink-power-cider', main: '파워에이드', cat: '음료', src: 'user',
+      name: '파워 사이다',
+      items: ['파워에이드', '사이다'],
+      tagline: '파워에이드와 사이다를 1:1로 섞은 시원한 수분 보충 음료',
+      tags: ['시원', '청량'],
+      minutes: 1,
+      steps: [
+        '파워에이드와 사이다를 1:1 비율로 섞어요.'
+      ],
+      tip: '수분 보충에 좋은 시원한 맛이에요.', votes: 120, score: 84
+    },
+    {
+      id: 'drink-power-bacchus', main: '파워에이드', cat: '음료', src: 'user',
+      name: '파워 박카스',
+      items: ['파워에이드', '박카스'],
+      tagline: '파워에이드와 박카스를 1:1로 섞으면 색이 그라데이션으로 예쁜 음료',
+      tags: ['청량', '피로회복'],
+      minutes: 1,
+      steps: [
+        '파워에이드와 박카스를 1:1 비율로 넣어요.'
+      ],
+      tip: '색감이 그라데이션으로 예쁘고, 초록빛이라 피로 회복에 좋다고 해요.', votes: 100, score: 83
+    },
+    {
+      id: 'drink-grape-sol', main: '포도봉봉', cat: '음료', src: 'user',
+      name: '솔포도',
+      items: ['포도봉봉', '솔의눈'],
+      tagline: '포도봉봉과 솔의눈을 1:1로 섞은 상쾌한 조합',
+      tags: ['시원', '상쾌'],
+      minutes: 1,
+      steps: [
+        '포도봉봉과 솔의눈을 1:1 비율로 섞어요.'
+      ],
+      tip: '탄산부터 엄청 시원하고 양치한 느낌이 난다고 해요.', votes: 90, score: 82
+    },
+    {
+      id: 'drink-choco-banana', main: '바나나우유', cat: '음료', src: 'user',
+      name: '초코바나나우유',
+      items: ['바나나우유', '허쉬 초코'],
+      tagline: '허쉬와 바나나우유를 반반 섞은 초코바나나 아이스크림 맛',
+      tags: ['달콤', '디저트맛'],
+      minutes: 1,
+      steps: [
+        '바나나우유와 허쉬 초코를 반반 섞어요.'
+      ],
+      tip: '어디서 먹어본 맛인데 초코바나나 아이스크림 맛이래요.', votes: 110, score: 85
+    },
+    {
+      id: 'coffee-banana-hazelnut', main: '헤이즐넛 커피', cat: '커피', src: 'user',
+      name: '헤이즐넛 바나나라떼',
+      items: ['헤이즐넛 커피', '바나나우유', '얼음컵'],
+      tagline: '바나나우유와 헤이즐넛 커피를 층으로 부은 편의점 라떼',
+      tags: ['달콤', '고소'],
+      minutes: 3,
+      steps: [
+        '얼음컵에 바나나우유를 먼저 부어요.',
+        '헤이즐넛 커피를 천천히 돌려가며 부어요.'
+      ],
+      tip: '커피를 마지막에 천천히 부으면 층이 예쁘게 나뉘어요.', votes: 100, score: 88
+    },
+    {
       id: 'carbo-bacon', main: '까르보불닭볶음면', cat: '컵라면', src: 'web',
       name: '까르보불닭 베이컨',
       items: ['까르보불닭볶음면', '모짜렐라 치즈', '베이컨'],
@@ -989,7 +1050,7 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
       tip: '불닭 소스는 조금씩 넣으며 맛을 봐요.', votes: 80, score: 78
     },
     {
-      id: 'banana-hazelnut', main: '바나나우유', cat: '음료·커피', src: 'web',
+      id: 'banana-hazelnut', main: '바나나우유', cat: '음료', src: 'web',
       name: '헤이즐넛 바나나라떼',
       items: ['바나나우유', '헤이즐넛 커피', '얼음컵'],
       tagline: '바나나우유와 헤이즐넛 커피를 층으로 부은 편의점 라떼',
@@ -1002,7 +1063,7 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
       tip: '커피를 마지막에 천천히 부으면 층이 예쁘게 나뉘어요.', votes: 220, score: 90
     },
     {
-      id: 'banana-bar', main: '바나나우유', cat: '음료·커피', src: 'web',
+      id: 'banana-bar', main: '바나나우유', cat: '음료', src: 'web',
       name: '뚱바 더위사냥',
       items: ['바나나우유', '더위사냥'],
       tagline: '커피맛 아이스바를 부숴 넣어 차갑게 즐기는 조합',
@@ -1177,7 +1238,7 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
   const COMBOS = window.CHALTTEOK_COMBOS;
   const L = window.ChaltteokLogic;
   const MAX_STEPS = 4;     // 한 조합에 들어가는 재료 최대 개수
-  const CATEGORIES = ['컵라면', '라면', '김밥·밥', '분식', '디저트', '음료·커피'];  // 대분류 탭 순서
+  const CATEGORIES = ['컵라면', '라면', '김밥·밥', '분식', '디저트', '음료', '커피'];  // 대분류 탭 순서
   const VISIBLE = 6;       // 다음 단계에서 먼저 보여줄 후보 수
 
   const KEY_TRIED = 'chaltteok:tried';
@@ -1204,6 +1265,7 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
   function loadMine() {
     lsGet(KEY_MINE, []).forEach((c) => {
       if (c && c.main && Array.isArray(c.items) && Array.isArray(c.steps)) {
+        if (c.cat === '음료·커피') c.cat = '음료';
         COMBOS.push(c);
         Object.assign(CUSTOM_ICON, c.icons || {});
       }
@@ -1332,7 +1394,7 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
     '치즈': '🧀', '스트링치즈': '🧀', '모짜렐라 치즈': '🧀',
     '계란 후라이': '🍳', '달걀': '🥚', '우유': '🥛', '베이컨': '🥓',
     '닭발': '🍗', '옥수수콘': '🌽', '양파': '🧅', '버터': '🧈', '후추': '🧂',
-    '헤이즐넛 커피': '☕', '얼음컵': '🧊', '그릭 요거트': '🥣', '빠다코코낫': '🍪', '쌈무': '🍥', '참치': '🐟', '김치': '🥬', '비빔장': '🌶️', '누룽지': '🍚', '고추참치': '🐟', '계란': '🥚', '오뎅한그릇': '🍢', '감동란': '🥚', '닭가슴살': '🍗', '즉석밥': '🍚', '박카스': '🔋', '사이다': '🥤', '더위사냥': '🍦', '만두': '🥟', '볶음김치': '🥬',
+    '헤이즐넛 커피': '☕', '얼음컵': '🧊', '그릭 요거트': '🥣', '빠다코코낫': '🍪', '쌈무': '🍥', '참치': '🥫', '고추참치': '🥫', '파워에이드': '🧃', '포도봉봉': '🍇', '솔의눈': '🌲', '허쉬 초코': '🍫', '김치': '🥬', '비빔장': '🌶️', '누룽지': '🍚', '계란': '🥚', '오뎅한그릇': '🍢', '감동란': '🥚', '닭가슴살': '🍗', '즉석밥': '🍚', '박카스': '🔋', '사이다': '🥤', '더위사냥': '🍦', '만두': '🥟', '볶음김치': '🥬',
     '스파게티 컵라면': '🍝', '콕콕콕 스파게티': '🍝'
   };
   // 표준 이모티콘에 없는 재료(떡볶이, 소시지)는 직접 그린 SVG 아이콘을 써요.

@@ -166,6 +166,21 @@ button { font: inherit; color: inherit; cursor: pointer; }
   .slot.filled, .result { animation: none; }
   .opt, .slot.filled { transition: none; }
 }
+
+/* 전체 조합 보기 */
+.top-right { display: flex; align-items: center; gap: 6px; }
+.dex.listbtn { cursor: pointer; color: var(--ink); }
+.dex.listbtn:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+.group-title { display: flex; align-items: center; gap: 8px; font-size: 15px; font-weight: 800; margin: 22px 0 8px; }
+.group-count { margin-left: auto; font-size: 12px; font-weight: 600; color: var(--muted); }
+.combo-card {
+  display: grid; gap: 2px; width: 100%; text-align: left; padding: 14px 16px; margin-bottom: 8px;
+  border: 1.5px solid var(--line); border-radius: 18px; background: var(--card);
+}
+.combo-card:hover { border-color: var(--accent, var(--brand)); }
+.combo-card:focus-visible { outline: 2px solid var(--accent, var(--brand)); outline-offset: 2px; }
+.cc-name { font-weight: 800; font-size: 16px; letter-spacing: -0.02em; }
+.cc-items { font-size: 12px; color: var(--muted); }
 </style>
 </head>
 <body>
@@ -522,6 +537,36 @@ button { font: inherit; color: inherit; cursor: pointer; }
       tip: '우유가 끓어 넘칠 수 있으니 중간중간 확인하거나 용기 아래에 접시를 받치고 돌려요.', votes: 130, score: 87
     },
     {
+      id: 'ramenbokki-combo', main: '불닭납작당면', src: 'user',
+      name: '라면볶이 콤보',
+      items: ['불닭납작당면', '라면볶이', '스트링치즈', '감동란'],
+      tagline: '불닭납작당면과 라면볶이를 섞고 치즈를 녹인 강한 매운맛 조합',
+      tags: ['매콤', '쫄깃', '고소'],
+      minutes: 8,
+      steps: [
+        '불닭납작당면과 라면볶이를 각각 조리해요.',
+        '조리된 두 가지를 큰 용기에 함께 담고 잘 섞어요.',
+        '스트링치즈를 찢어서 위에 올려요.',
+        '전자레인지에 치즈가 녹을 때까지 약 30초간 추가로 조리해요.',
+        '원한다면 감동란을 반으로 잘라 토핑으로 올려 마무리해요.'
+      ],
+      tip: '', votes: 120, score: 88
+    },
+    {
+      id: 'cupnoodle-jjimdak', main: '컵누들', src: 'user',
+      name: '컵누들찜닭',
+      items: ['컵누들', '닭가슴살'],
+      tagline: '컵누들 매콤찜닭맛에 닭가슴살을 찢어 올린 다이어트 조합',
+      tags: ['다이어트', '담백'],
+      minutes: 5,
+      steps: [
+        '따로 면과 건더기 스프에 물을 부어요.',
+        '물을 버리고 컵누들 액상스프를 넣어 저어요.',
+        '컵누들에 닭가슴살을 찢어 올리면 완성!'
+      ],
+      tip: '다이어터 친구에게 추천해요.', votes: 70, score: 80
+    },
+    {
       id: 'carbo-bacon', main: '까르보불닭볶음면', src: 'web',
       name: '까르보불닭 베이컨',
       items: ['까르보불닭볶음면', '모짜렐라 치즈', '베이컨'],
@@ -794,7 +839,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
   const KEY_TRIED = 'chaltteok:tried';
   const KEY_COMMENTS = 'chaltteok:comments:';
 
-  const state = { chosen: [], combo: null, auto: false, query: '', expanded: false };
+  const state = { chosen: [], combo: null, auto: false, query: '', expanded: false, view: 'pick', fromList: false, listQuery: '' };
   const app = document.getElementById('app');
 
   /* ---------- 저장소 (프로토타입: 브라우저 localStorage) ---------- */
@@ -846,6 +891,14 @@ button { font: inherit; color: inherit; cursor: pointer; }
   }
 
   function back() {
+    if (state.combo && state.fromList) {
+      state.combo = null;
+      state.chosen = [];
+      state.fromList = false;
+      state.view = 'list';
+      render();
+      return;
+    }
     if (state.combo) {
       state.combo = null;
       if (state.auto) state.chosen.pop();
@@ -861,6 +914,8 @@ button { font: inherit; color: inherit; cursor: pointer; }
   function removeAt(i) {
     if (i === 0) { reset(); return; }
     state.chosen.splice(i, 1);
+    state.view = 'pick';
+    state.fromList = false;
     state.combo = null;
     state.auto = false;
     state.query = '';
@@ -868,7 +923,31 @@ button { font: inherit; color: inherit; cursor: pointer; }
     render();
   }
 
+  // 전체 조합 화면 열기 / 목록에서 조합 열기
+  function openList() {
+    state.chosen = [];
+    state.combo = null;
+    state.auto = false;
+    state.query = '';
+    state.listQuery = '';
+    state.expanded = false;
+    state.fromList = false;
+    state.view = 'list';
+    render();
+  }
+
+  function openCombo(c) {
+    state.view = 'list';
+    state.fromList = true;
+    state.combo = c;
+    state.chosen = [c.main].concat(c.items.filter((i) => i !== c.main));
+    state.auto = false;
+    render();
+  }
+
   function reset() {
+    state.view = 'pick';
+    state.fromList = false;
     state.chosen = [];
     state.combo = null;
     state.auto = false;
@@ -891,7 +970,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
     '치즈': '🧀', '스트링치즈': '🧀', '모짜렐라 치즈': '🧀',
     '계란 후라이': '🍳', '달걀': '🥚', '우유': '🥛', '베이컨': '🥓',
     '닭발': '🍗', '옥수수콘': '🌽', '양파': '🧅', '버터': '🧈', '후추': '🧂',
-    '헤이즐넛 커피': '☕', '얼음컵': '🧊', '즉석밥': '🍚', '박카스': '🔋', '사이다': '🥤', '더위사냥': '🍦', '만두': '🥟', '볶음김치': '🥬',
+    '헤이즐넛 커피': '☕', '얼음컵': '🧊', '감동란': '🥚', '닭가슴살': '🍗', '즉석밥': '🍚', '박카스': '🔋', '사이다': '🥤', '더위사냥': '🍦', '만두': '🥟', '볶음김치': '🥬',
     '스파게티 컵라면': '🍝', '콕콕콕 스파게티': '🍝'
   };
   // 표준 이모티콘에 없는 재료(떡볶이, 소시지)는 직접 그린 SVG 아이콘을 써요.
@@ -899,7 +978,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
     '컵 떡볶이': '<svg viewBox="0 0 32 32" aria-hidden="true"><ellipse cx="16" cy="25" rx="12" ry="3" fill="#00000022"/><path d="M3 15h26c0 7-5.5 11-13 11S3 22 3 15z" fill="#f4efe6"/><ellipse cx="16" cy="15" rx="13" ry="4.5" fill="#c8281e"/><g fill="#f26a3d"><rect x="6" y="11.5" width="10" height="5" rx="2.5" transform="rotate(-18 11 14)"/><rect x="15" y="10.5" width="10" height="5" rx="2.5" transform="rotate(14 20 13)"/><rect x="11" y="15" width="10" height="5" rx="2.5" transform="rotate(-6 16 17.5)"/></g><g fill="#ffd0b8" opacity=".7"><rect x="7.5" y="12.2" width="5" height="1.2" rx=".6" transform="rotate(-18 10 12.8)"/><rect x="17" y="11.2" width="5" height="1.2" rx=".6" transform="rotate(14 19 11.8)"/></g></svg>',
     '소시지': '<svg viewBox="0 0 32 32" aria-hidden="true"><g transform="rotate(-28 16 16)"><rect x="2" y="10.5" width="28" height="11" rx="5.5" fill="#d9573a"/><rect x="4.5" y="12" width="21" height="2.4" rx="1.2" fill="#f58a6a" opacity=".85"/><g stroke="#9c2f1c" stroke-width="1.4" stroke-linecap="round"><path d="M10 15.5v5.5"/><path d="M15 15.5v5.5"/><path d="M20 15.5v5.5"/></g></g></svg>'
   };
-  const EMOJI_KEYWORDS = [['라면', '🍜'], ['볶음면', '🍜'], ['짜장', '🍜'], ['게티', '🍜'], ['곰탕', '🍜'], ['칼국수', '🍜'], ['짬뽕', '🍜'], ['너구리', '🍜'], ['삼각김밥', '🍙'], ['치즈', '🧀'], ['커피', '☕']];
+  const EMOJI_KEYWORDS = [['라면', '🍜'], ['볶음면', '🍜'], ['짜장', '🍜'], ['게티', '🍜'], ['곰탕', '🍜'], ['당면', '🍜'], ['누들', '🍜'], ['칼국수', '🍜'], ['짬뽕', '🍜'], ['너구리', '🍜'], ['삼각김밥', '🍙'], ['치즈', '🧀'], ['커피', '☕']];
   function emojiFor(name) {
     if (EMOJI[name]) return EMOJI[name];
     const hit = EMOJI_KEYWORDS.find((k) => name.includes(k[0]));
@@ -922,7 +1001,9 @@ button { font: inherit; color: inherit; cursor: pointer; }
       h('div', { class: 'brand' },
         h('span', { class: 'logo' }, '찰떡'),
         h('span', { class: 'sub' }, '세상 모든 꿀조합')),
-      h('div', { class: 'dex', title: '먹어본 조합' }, '도감 ' + tried.length + '/' + COMBOS.length));
+      h('div', { class: 'top-right' },
+        h('button', { class: 'dex listbtn', type: 'button', onclick: openList }, '전체 조합 ' + COMBOS.length),
+        h('div', { class: 'dex', title: '먹어본 조합' }, '도감 ' + tried.length + '/' + COMBOS.length)));
   }
 
   function tray() {
@@ -1015,6 +1096,44 @@ button { font: inherit; color: inherit; cursor: pointer; }
     return view;
   }
 
+  /* ---------- 전체 조합 화면 ---------- */
+  function listView() {
+    const listEl = h('div', { class: 'all-list' });
+    const mains = L.nextOptions(COMBOS, [], 0).map((o) => o.item);
+
+    function fill() {
+      const q = state.listQuery.trim();
+      const hit = COMBOS.filter((c) => !q || c.name.includes(q) || c.items.some((i) => i.includes(q)));
+      listEl.replaceChildren();
+      if (hit.length === 0) {
+        listEl.append(h('p', { class: 'empty' }, '찾는 조합이 없어요.'));
+        return;
+      }
+      mains.forEach((m) => {
+        const group = hit.filter((c) => c.main === m);
+        if (group.length === 0) return;
+        listEl.append(h('h3', { class: 'group-title' }, iconEl(m), m, h('span', { class: 'group-count' }, group.length + '개')));
+        group.forEach((c) => listEl.append(h('button', { class: 'combo-card', type: 'button', onclick: () => openCombo(c) },
+          h('span', { class: 'cc-name' }, c.name),
+          h('span', { class: 'cc-items' }, c.items.filter((i) => i !== m).join(' + ')))));
+      });
+    }
+
+    const view = h('section', {},
+      h('h1', { class: 'step-title' }, '전체 조합'),
+      h('p', { class: 'step-hint' }, '지금까지 등록된 ' + COMBOS.length + '개 조합이에요. 눌러서 만드는 법을 볼 수 있어요.'),
+      h('input', {
+        class: 'search', type: 'search', placeholder: '조합·재료 검색 (예: 치즈, 불계치)',
+        'aria-label': '조합 검색', value: state.listQuery,
+        oninput: (e) => { state.listQuery = e.target.value; fill(); }
+      }),
+      listEl,
+      h('div', { class: 'actions' },
+        h('button', { class: 'btn primary', type: 'button', onclick: reset }, '재료 골라서 찾기')));
+    fill();
+    return view;
+  }
+
   /* ---------- 결과 화면 ---------- */
   function statRow(label, value, note) {
     return h('div', { class: 'stat-row' },
@@ -1100,11 +1219,12 @@ button { font: inherit; color: inherit; cursor: pointer; }
   function render(keepScroll) {
     // 같은 화면을 다시 그릴 때(먹어봤어요 등)는 등장 애니메이션을 다시 재생하지 않아요.
     app.classList.toggle('still', !!keepScroll);
-    app.replaceChildren(
+    const inList = state.view === 'list' && !state.combo;
+    app.replaceChildren(...[
       header(),
-      tray(),
-      state.combo ? resultView() : pickView(),
-      h('p', { class: 'footer-note' }, '프로토타입 · 퍼센트와 점수는 임시 값이고, 코멘트와 도감은 이 브라우저에만 저장돼요.'));
+      inList ? null : tray(),
+      state.combo ? resultView() : (inList ? listView() : pickView()),
+      h('p', { class: 'footer-note' }, '프로토타입 · 퍼센트와 점수는 임시 값이고, 코멘트와 도감은 이 브라우저에만 저장돼요.')].filter(Boolean));
     if (!keepScroll) window.scrollTo(0, 0);
   }
 

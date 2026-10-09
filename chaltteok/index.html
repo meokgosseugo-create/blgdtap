@@ -1164,12 +1164,16 @@ button { font: inherit; color: inherit; cursor: pointer; }
     return hit ? hit[1] : '🍴';
   }
   // 재료 아이콘 요소 (SVG가 있으면 SVG, 없으면 이모티콘 글자)
-  function iconEl(name) {
+  // 컵라면 분류에서는 라면·면 이모티콘 대신 직접 그린 컵라면 아이콘을 써요.
+  const CUP_SVG = '<svg viewBox="0 0 32 32" aria-hidden="true"><ellipse cx="16" cy="29" rx="10" ry="1.6" fill="#00000018"/><path d="M7 11.6c1.7-4.2 3.4-4.2 5 0s3.4 4.2 5 0 3.4-4.2 5 0" fill="none" stroke="#f1c85f" stroke-width="2.4" stroke-linecap="round"/><path d="M9.2 8.6c1.4-3 2.8-3 4.2 0s2.8 3 4.2 0 2.8-3 4.2 0" fill="none" stroke="#f7dc8a" stroke-width="2.2" stroke-linecap="round"/><path d="M5 13h22l-2.6 13.4a1.8 1.8 0 0 1-1.8 1.5H9.4a1.8 1.8 0 0 1-1.8-1.5z" fill="#ee4b3c"/><path d="M5.9 17.6h20.2l-.7 3.8H6.6z" fill="#ffd24a"/><circle cx="16" cy="19.5" r="1.5" fill="#ee4b3c"/><ellipse cx="16" cy="13" rx="11.2" ry="2.4" fill="#fff" stroke="#d9d9df" stroke-width=".9"/><path d="M25.4 12.4c2.6-.7 4-3 3.1-5.6" fill="none" stroke="#d9d9df" stroke-width="1.3" stroke-linecap="round"/><g fill="none" stroke="#c4c4cc" stroke-width="1" stroke-linecap="round"><path d="M12 4.6c-.9-1 .9-1.7 0-2.8"/><path d="M16.5 4c-.9-1 .9-1.7 0-2.8"/></g></svg>';
+  function iconEl(name, cat) {
     const el = document.createElement('span');
     el.className = 'ico';
     el.setAttribute('aria-hidden', 'true');
+    const emoji = emojiFor(name);
     if (SVG_ICONS[name]) el.innerHTML = SVG_ICONS[name];
-    else el.textContent = emojiFor(name);
+    else if ((cat || state.cat) === '컵라면' && (emoji === '🍜' || emoji === '🍝')) el.innerHTML = CUP_SVG;
+    else el.textContent = emoji;
     return el;
   }
 
@@ -1212,14 +1216,14 @@ button { font: inherit; color: inherit; cursor: pointer; }
     const pct = h('span', { class: 'pct pct-' + tier }, o.percent + '%');
     if (hero) {
       return h('button', { class: 'tile top', type: 'button', onclick: () => choose(o.item, o.cat) },
-        h('span', { class: 'tile-ico' }, iconEl(o.item)),
+        h('span', { class: 'tile-ico' }, iconEl(o.item, o.cat)),
         h('span', { class: 'tile-info' },
           h('span', { class: 'tile-name' }, h('span', {}, softBreak(o.item))),
           h('span', { class: 'tile-sub' }, '가장 많이 고르는 메인')),
         pct);
     }
     return h('button', { class: 'tile', type: 'button', onclick: () => choose(o.item, o.cat) },
-      h('span', { class: 'tile-ico' }, iconEl(o.item)),
+      h('span', { class: 'tile-ico' }, iconEl(o.item, o.cat)),
       h('span', { class: 'tile-name' }, h('span', {}, softBreak(o.item))),
       showCat ? h('span', { class: 'opt-cat' }, o.cat) : pct);
   }
@@ -1334,7 +1338,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
         const m = mo.item;
         const group = hit.filter((c) => c.main === m && c.cat === mo.cat);
         if (group.length === 0) return;
-        listEl.append(h('h3', { class: 'group-title' }, iconEl(m), m, h('span', { class: 'opt-cat' }, mo.cat), h('span', { class: 'group-count' }, group.length + '개')));
+        listEl.append(h('h3', { class: 'group-title' }, iconEl(m, mo.cat), m, h('span', { class: 'opt-cat' }, mo.cat), h('span', { class: 'group-count' }, group.length + '개')));
         group.forEach((c) => listEl.append(h('button', { class: 'combo-card', type: 'button', onclick: () => openCombo(c) },
           h('span', { class: 'cc-name' }, c.name),
           h('span', { class: 'cc-items' }, c.items.filter((i) => i !== m).join(' + ')))));

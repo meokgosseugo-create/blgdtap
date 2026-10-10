@@ -376,6 +376,24 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
 .like { background: none; border: 0; padding: 4px 2px; font-size: 14px; font-weight: 700; color: var(--muted); }
 .like.on { color: #ef4b4b; }
 .like:focus-visible, .post-combo:focus-visible, .post-del:focus-visible { outline: 2px solid var(--accent, var(--brand)); outline-offset: 2px; border-radius: 10px; }
+
+/* 게시글 사진 */
+.photo-prev { position: relative; width: 100%; max-width: 220px; }
+.photo-prev img { width: 100%; max-height: 220px; object-fit: cover; border-radius: 14px; display: block; }
+.photo-prev button { position: absolute; top: 6px; right: 6px; width: 26px; height: 26px; padding: 0; border: 0; border-radius: 50%; background: rgba(20, 20, 30, .7); color: #fff; font-size: 15px; line-height: 26px; }
+.composer-actions { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.post-img { width: 100%; max-height: 380px; object-fit: cover; border-radius: 16px; display: block; background: var(--fill, #f3f3f5); }
+.sample-photo { position: relative; aspect-ratio: 4 / 3; display: flex; align-items: center; justify-content: center; gap: 10px; border-radius: 16px; background: linear-gradient(135deg, #ffe9d6, #ffc9a8); font-size: 54px; line-height: 1; }
+.sample-photo .ico svg { width: 1.1em; height: 1.1em; display: block; }
+.sample-photo .opt-cat { position: absolute; top: 10px; left: 10px; font-size: 11px; background: rgba(255, 255, 255, .85); }
+.gallery { display: flex; gap: 8px; overflow-x: auto; margin: 0 -16px; padding: 2px 16px 6px; scrollbar-width: none; }
+.gallery::-webkit-scrollbar { display: none; }
+.gal-item { flex: none; position: relative; width: 132px; height: 132px; border-radius: 16px; overflow: hidden; background: var(--fill, #f3f3f5); }
+.gal-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.gal-item.sample { display: flex; align-items: center; justify-content: center; gap: 4px; background: linear-gradient(135deg, #ffe9d6, #ffc9a8); font-size: 30px; }
+.gal-item.sample .ico svg { width: 1.1em; height: 1.1em; display: block; }
+.gal-item .opt-cat { position: absolute; top: 6px; left: 6px; font-size: 10px; background: rgba(255, 255, 255, .85); }
+.gallery-empty { margin: 0; padding: 14px 16px; border-radius: 16px; background: var(--fill, var(--bg)); font-size: 13px; color: var(--muted); }
 </style>
 </head>
 <body>
@@ -1402,7 +1420,7 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
   const KEY_MINE = 'chaltteok:mine';
   const KEY_RATING = 'chaltteok:rating:';
 
-  const state = { chosen: [], combo: null, auto: false, query: '', expanded: false, cat: '컵라면', view: 'home', feedSort: 'new', postDraft: { text: '', combo: '', err: '' }, fromList: '', listQuery: '', draft: null, confirmDel: null };
+  const state = { chosen: [], combo: null, auto: false, query: '', expanded: false, cat: '컵라면', view: 'home', feedSort: 'new', postDraft: { text: '', combo: '', err: '', img: '' }, fromList: '', listQuery: '', draft: null, confirmDel: null };
   const CUSTOM_ICON = {};  // 내 조합에서 새로 만든 재료의 아이콘
   const app = document.getElementById('app');
 
@@ -1414,7 +1432,7 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
     } catch (e) { return fallback; }
   }
   function lsSet(key, val) {
-    try { localStorage.setItem(key, JSON.stringify(val)); } catch (e) { /* 저장 실패해도 화면은 동작 */ }
+    try { localStorage.setItem(key, JSON.stringify(val)); return true; } catch (e) { return false; /* 저장 실패해도 화면은 동작 */ }
   }
 
   // 내 조합: 저장된 것을 불러와 기본 조합 목록 뒤에 붙여요. (나중에 서버 저장으로 바꿀 때는 이 두 함수만 바꾸면 돼요.)
@@ -2063,6 +2081,7 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
         h('button', { class: 'btn primary', type: 'button', onclick: reset }, '다른 조합 찾기'),
         c.mine ? h('button', { class: 'btn', type: 'button', onclick: () => delMine(c) },
           state.confirmDel === c.id ? '한 번 더 누르면 삭제' : '삭제') : null),
+      photosSection(c),
       ratingSection(c),
       commentsSection(c));
   }
@@ -2268,18 +2287,59 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
   const KEY_LIKES = 'chaltteok:likes';
   // 모양을 보여 주기 위한 예시 글이에요. 실제 사용자가 쓴 글이 아니에요.
   const SAMPLE_POSTS = [
-    { id: 's1', nick: '매운맛러버', combo: '불닭 공화춘', text: '짜장이 불닭 매운맛을 딱 잡아줘요. 처음엔 달다가 뒤에 탁 치고 들어와서 계속 먹게 돼요.', likes: 128, comments: 14, ageMin: 1 },
+    { id: 's1', photo: true, nick: '매운맛러버', combo: '불닭 공화춘', text: '짜장이 불닭 매운맛을 딱 잡아줘요. 처음엔 달다가 뒤에 탁 치고 들어와서 계속 먹게 돼요.', likes: 128, comments: 14, ageMin: 1 },
     { id: 's2', nick: '퇴근길라면', combo: '우유 오모리 김치찌개', text: '물 대신 우유 넣고 치즈 올려서 돌렸는데 까르보 느낌이에요. 스프랑 김치는 반만 넣는 거 꼭 지키세요!', likes: 96, comments: 9, ageMin: 12 },
-    { id: 's3', nick: '군필러', combo: '공간춘', text: '참치 넣으니까 진짜 국룰이네요. 군대 PX 생각나는 맛입니다.', likes: 74, comments: 11, ageMin: 40 },
+    { id: 's3', photo: true, nick: '군필러', combo: '공간춘', text: '참치 넣으니까 진짜 국룰이네요. 군대 PX 생각나는 맛입니다.', likes: 74, comments: 11, ageMin: 40 },
     { id: 's4', nick: '편의점탐험가', combo: '파워 박카스', text: '섞으면 색이 그라데이션으로 예쁘게 나와요. 맛은 은근 상큼해서 더울 때 좋아요.', likes: 52, comments: 4, ageMin: 65 },
     { id: 's5', nick: '시원한면', combo: '치치면', text: '찬물에 헹궈서 참치랑 김치 올려 먹으니까 더운 날 딱이에요. 비빔장은 넉넉히!', likes: 41, comments: 6, ageMin: 120 },
-    { id: 's6', nick: '디저트왕', combo: '요거트 치즈케이크', text: '빠다코코낫 부숴서 올리니까 식감이 대박이에요. 편의점 디저트 중에 제일 맛있었어요.', likes: 63, comments: 8, ageMin: 180 },
+    { id: 's6', photo: true, nick: '디저트왕', combo: '요거트 치즈케이크', text: '빠다코코낫 부숴서 올리니까 식감이 대박이에요. 편의점 디저트 중에 제일 맛있었어요.', likes: 63, comments: 8, ageMin: 180 },
     { id: 's7', nick: '달콤매콤', combo: '콕콕콕 조합', text: '스파게티의 새콤함이랑 라면볶이 매콤함이 의외로 잘 어울려요. 각각 조리하고 섞는 게 포인트!', likes: 38, comments: 3, ageMin: 300 },
     { id: 's8', nick: '쌈무사랑', combo: '불닭 핫바 쌈무', text: '쌈무에 싸 먹으니까 불닭이 덜 매워요. 핫바가 신의 한 수였습니다.', likes: 29, comments: 2, ageMin: 1500 },
-    { id: 's9', nick: '야식러', combo: '윤남노 누룽지라면', text: '라면 국물 부은 누룽지에 고추참치 올리니까 해장 그 자체였어요.', likes: 45, comments: 7, ageMin: 1700 },
+    { id: 's9', photo: true, nick: '야식러', combo: '윤남노 누룽지라면', text: '라면 국물 부은 누룽지에 고추참치 올리니까 해장 그 자체였어요.', likes: 45, comments: 7, ageMin: 1700 },
     { id: 's10', nick: '달달이', combo: '초코바나나우유', text: '허쉬랑 바나나우유 반반 섞었는데 진짜 초코바나나 아이스크림 맛이에요.', likes: 33, comments: 5, ageMin: 2900 }
   ];
   const AVATARS = ['🍜', '🍙', '🧀', '🥤', '🌶️', '🍢', '☕', '🍰'];
+
+  /* ---------- 사진 (작게 줄여서 이 브라우저에 저장) ---------- */
+  function readPhoto(file, done) {
+    const fr = new FileReader();
+    fr.onerror = () => done(null);
+    fr.onload = () => {
+      const img = new Image();
+      img.onerror = () => done(null);
+      img.onload = () => {
+        const sc = Math.min(1, 720 / Math.max(img.width, img.height));
+        const w = Math.max(1, Math.round(img.width * sc));
+        const hgt = Math.max(1, Math.round(img.height * sc));
+        const cv = document.createElement('canvas');
+        cv.width = w;
+        cv.height = hgt;
+        cv.getContext('2d').drawImage(img, 0, 0, w, hgt);
+        try { done(cv.toDataURL('image/jpeg', 0.72)); } catch (e) { done(null); }
+      };
+      img.src = fr.result;
+    };
+    fr.readAsDataURL(file);
+  }
+
+  // 조합 이름에 맞는 사진들 (내가 올린 사진 + 예시 사진)
+  function photosFor(c) {
+    const out = [];
+    lsGet(KEY_POSTS, []).forEach((p) => { if (p.img && p.combo === c.name) out.push({ img: p.img }); });
+    SAMPLE_POSTS.forEach((p) => { if (p.photo && p.combo === c.name) out.push({ sample: true }); });
+    return out;
+  }
+
+  function photosSection(c) {
+    const list = photosFor(c);
+    return h('section', { class: 'rating' },
+      h('h3', { class: 'section-title' }, '올라온 사진'),
+      list.length
+        ? h('div', { class: 'gallery' }, list.map((ph) => ph.img
+          ? h('div', { class: 'gal-item' }, h('img', { src: ph.img, alt: c.name + ' 사진', loading: 'lazy' }))
+          : h('div', { class: 'gal-item sample' }, itemIcons(c, 2, 'mini-icons'), h('span', { class: 'opt-cat' }, '예시 사진'))))
+        : h('p', { class: 'gallery-empty' }, '아직 올라온 사진이 없어요. 커뮤니티에서 사진과 함께 글을 올려 보세요.'));
+  }
 
   function relTime(min) {
     if (min < 2) return '방금';
@@ -2329,9 +2389,13 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
     if (!text) { d.err = '한마디를 적어 주세요.'; render(true); return; }
     const list = lsGet(KEY_POSTS, []);
     const ts = Date.now();
-    list.push({ id: 'p-' + ts, nick: '나', text: text.slice(0, 100), combo: d.combo, ts: ts });
-    lsSet(KEY_POSTS, list);
-    state.postDraft = { text: '', combo: '', err: '' };
+    list.push({ id: 'p-' + ts, nick: '나', text: text.slice(0, 100), combo: d.combo, ts: ts, img: d.img || '' });
+    if (!lsSet(KEY_POSTS, list)) {
+      d.err = '저장 공간이 부족해요. 사진을 빼거나 예전 글을 지운 뒤 다시 올려 주세요.';
+      render(true);
+      return;
+    }
+    state.postDraft = { text: '', combo: '', err: '', img: '' };
     state.feedSort = 'new';
     render(true);
   }
@@ -2351,6 +2415,8 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
         p.mine ? h('span', { class: 'opt-cat mine-tag' }, '내 글') : null,
         p.mine ? h('button', { class: 'post-del', type: 'button', onclick: () => deletePost(p.id) }, state.confirmDel === p.id ? '한 번 더 누르면 삭제' : '삭제') : null),
       h('p', { class: 'post-text' }, p.text),
+      p.img ? h('img', { class: 'post-img', src: p.img, alt: '올린 사진', loading: 'lazy' }) : null,
+      (p.photo && c) ? h('div', { class: 'sample-photo', 'aria-hidden': 'true' }, itemIcons(c, 3, 'mini-icons'), h('span', { class: 'opt-cat' }, '예시 사진')) : null,
       c ? h('button', { class: 'post-combo', type: 'button', onclick: () => openCombo(c) },
         itemIcons(c, 3, 'post-icons'), h('span', { class: 'post-combo-name' }, c.name), h('span', { class: 'more-arrow', 'aria-hidden': 'true' }, '›')) : null,
       h('footer', { class: 'post-foot' },
@@ -2373,15 +2439,31 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
           id: 'post-text', class: 'field', rows: '2', maxlength: '100', placeholder: '오늘 먹은 조합은 어땠나요?', 'aria-label': '한마디 쓰기',
           oninput: (e) => { d.text = e.target.value; }
         }, d.text),
-        h('div', { class: 'row-add' },
-          h('select', {
-            id: 'post-combo', class: 'field', 'aria-label': '조합 고르기',
-            onchange: (e) => { d.combo = e.target.value; }
-          }, [h('option', { value: '' }, '조합 선택 안 함')].concat(names.map((n) => {
-            const o = h('option', { value: n }, n);
-            if (d.combo === n) o.selected = true;
-            return o;
-          }))),
+        d.img ? h('div', { class: 'photo-prev' },
+          h('img', { src: d.img, alt: '첨부한 사진 미리보기' }),
+          h('button', { type: 'button', 'aria-label': '사진 빼기', onclick: () => { d.img = ''; render(true); } }, '×')) : null,
+        h('select', {
+          id: 'post-combo', class: 'field', 'aria-label': '조합 고르기',
+          onchange: (e) => { d.combo = e.target.value; }
+        }, [h('option', { value: '' }, '조합 선택 안 함')].concat(names.map((n) => {
+          const o = h('option', { value: n }, n);
+          if (d.combo === n) o.selected = true;
+          return o;
+        }))),
+        h('input', {
+          id: 'post-photo', type: 'file', accept: 'image/*', hidden: true, 'aria-label': '사진 고르기',
+          onchange: (e) => {
+            const file = e.target.files && e.target.files[0];
+            if (!file) return;
+            readPhoto(file, (url) => {
+              if (!url) d.err = '이 사진은 불러올 수 없어요. 다른 사진으로 해 보세요.';
+              else { d.img = url; d.err = ''; }
+              render(true);
+            });
+          }
+        }),
+        h('div', { class: 'composer-actions' },
+          h('button', { class: 'btn', type: 'button', onclick: () => document.getElementById('post-photo').click() }, d.img ? '📷 사진 바꾸기' : '📷 사진 추가'),
           h('button', { class: 'btn primary', type: 'button', onclick: submitPost }, '올리기')),
         h('p', { class: 'err', role: 'alert' }, d.err || '')),
       h('div', { class: 'edit-chips', style: 'margin:14px 0 6px' },

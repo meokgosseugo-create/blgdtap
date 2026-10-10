@@ -1520,7 +1520,7 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
   const L = window.ChaltteokLogic;
   const MAX_STEPS = 4;     // 한 조합에 들어가는 재료 최대 개수
   const CATEGORIES = ['컵라면', '라면', '김밥·밥', '분식', '디저트', '음료', '커피'];  // 대분류 탭 순서
-  const VISIBLE = 6;       // 다음 단계에서 먼저 보여줄 후보 수
+  const VISIBLE = 9;       // 다음 단계에서 먼저 보여줄 후보 수 (3칸 × 3줄)
 
   const KEY_TRIED = 'chaltteok:tried';
   const KEY_COMMENTS = 'chaltteok:comments:';
@@ -1788,7 +1788,7 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
   function pickView() {
     const n = state.chosen.length + 1;
     const all = L.nextOptions(COMBOS, state.chosen, 0, state.cat);
-    const optsEl = h('div', { class: 'opts' + (n === 1 ? ' grid3' : '') });
+    const optsEl = h('div', { class: 'opts grid3' });
     const heroEl = h('div', { class: 'hero-wrap' });
     const moreWrap = h('div', {});
 
@@ -1810,9 +1810,7 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
         list.forEach((o, i) => {
           const r = maxPct ? o.percent / maxPct : 0;
           const hero = n === 1 && !q && i === 0;
-          (hero ? heroEl : optsEl).append(n === 1
-            ? mainTile(o, !!q, r >= 0.6 ? 'hi' : r >= 0.3 ? 'mid' : 'low', hero)
-            : optionButton(o));
+          (hero ? heroEl : optsEl).append(mainTile(o, !!q, r >= 0.6 ? 'hi' : r >= 0.3 ? 'mid' : 'low', hero));
         });
       }
       const hidden = n === 1 ? 0 : all.length - list.length;

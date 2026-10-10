@@ -1578,7 +1578,9 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
 
   const COMBOS = window.CHALTTEOK_COMBOS;
   const L = window.ChaltteokLogic;
-  const MAX_STEPS = 4;     // 한 조합에 들어가는 재료 최대 개수
+  const MAX_STEPS = 4;     // 한 줄에 보이는 재료 칸 수 (칸이 모자라면 다음 줄이 생겨요)
+  const MAX_BY_CAT = { '라면': 8 };  // 분류별 재료 최대 개수 (적지 않은 분류는 MAX_STEPS)
+  function maxFor(cat) { return MAX_BY_CAT[cat] || MAX_STEPS; }
   const CATEGORIES = ['컵라면', '라면', '김밥·밥', '분식', '디저트', '음료', '커피'];  // 대분류 탭 순서
   const VISIBLE = 9;       // 다음 단계에서 먼저 보여줄 후보 수 (3칸 × 3줄)
 
@@ -1640,7 +1642,7 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
     state.expanded = false;
     const done = L.findComplete(COMBOS, state.chosen, state.cat);
     const more = L.nextOptions(COMBOS, state.chosen, 0, state.cat);
-    if (done && (more.length === 0 || state.chosen.length >= MAX_STEPS)) {
+    if (done && (more.length === 0 || state.chosen.length >= maxFor(state.cat))) {
       state.combo = done;
       state.auto = true;
     }
@@ -1738,7 +1740,7 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
     '치즈': '🧀', '스트링치즈': '🧀', '모짜렐라 치즈': '🧀',
     '계란 후라이': '🍳', '달걀': '🥚', '우유': '🥛', '베이컨': '🥓',
     '닭발': '🍗', '옥수수콘': '🌽', '양파': '🧅', '버터': '🧈', '후추': '🧂',
-    '헤이즐넛 커피': '☕', '얼음컵': '🧊', '마요네즈': '🧴', '불닭소스': '🌶️', '그릭 요거트': '🥣', '빠다코코낫': '🍪', '쌈무': '🍥', '참치': '🥫', '고추참치': '🥫', '파워에이드': '🧃', '포도봉봉': '🍇', '솔의눈': '🌲', '허쉬 초코': '🍫', '김치': '🥬', '비빔장': '🌶️', '누룽지': '🍚', '계란': '🥚', '오뎅한그릇': '🍢', '감동란': '🥚', '닭가슴살': '🍗', '즉석밥': '🍚', '박카스': '🔋', '사이다': '🥤', '더위사냥': '🍦', '만두': '🥟', '볶음김치': '🥬',
+    '헤이즐넛 커피': '☕', '얼음컵': '🧊', '다진마늘': '🧄', '고춧가루': '🌶️', '대파': '🌿', '청양고추': '🌶️', '참기름': '🍶', '설탕': '🍬', '마요네즈': '🧴', '불닭소스': '🌶️', '그릭 요거트': '🥣', '빠다코코낫': '🍪', '쌈무': '🍥', '참치': '🥫', '고추참치': '🥫', '파워에이드': '🧃', '포도봉봉': '🍇', '솔의눈': '🌲', '허쉬 초코': '🍫', '김치': '🥬', '비빔장': '🌶️', '누룽지': '🍚', '계란': '🥚', '오뎅한그릇': '🍢', '감동란': '🥚', '닭가슴살': '🍗', '즉석밥': '🍚', '박카스': '🔋', '사이다': '🥤', '더위사냥': '🍦', '만두': '🥟', '볶음김치': '🥬',
     '스파게티 컵라면': '🍝', '콕콕콕 스파게티': '🍝'
   };
   // 표준 이모티콘에 없는 재료(떡볶이, 소시지)는 직접 그린 SVG 아이콘을 써요.
@@ -1820,7 +1822,11 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
 
   function tray() {
     const slots = [];
-    for (let i = 0; i < MAX_STEPS; i++) {
+    // 칸은 한 줄(4칸)씩 늘어나요. 고른 재료 + 다음 한 칸이 들어갈 만큼만 보여요.
+    const cap = maxFor(state.cat);
+    const need = state.chosen.length + (state.combo ? 0 : 1);
+    const total = Math.min(cap, Math.max(MAX_STEPS, Math.ceil(need / MAX_STEPS) * MAX_STEPS));
+    for (let i = 0; i < total; i++) {
       const it = state.chosen[i];
       slots.push(it
         ? h('button', {
@@ -2011,7 +2017,7 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
 
   // 새로 쓴 재료인지(= 아이콘을 직접 골라야 하는지)
   function isNewItem(name) {
-    return !CUSTOM_ICON[name] && !COMBOS.some((c) => c.items.indexOf(name) !== -1);
+    return !CUSTOM_ICON[name] && !EMOJI[name] && !SVG_ICONS[name] && !COMBOS.some((c) => c.items.indexOf(name) !== -1);
   }
 
   function delMine(c) {
@@ -2045,7 +2051,7 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
       if (!name) return;
       if (!main) return fail('먼저 메인 재료를 골라 주세요.');
       if (name === main || d.items.indexOf(name) !== -1) return fail('이미 들어 있는 재료예요.');
-      if (d.items.length >= 3) return fail('재료는 메인을 포함해 4개까지예요.');
+      if (d.items.length >= maxFor(curCat()) - 1) return fail('재료는 메인을 포함해 ' + maxFor(curCat()) + '개까지예요.');
       d.items.push(name);
       if (isNewItem(name) && !d.icons[name]) d.icons[name] = '🍴';
       d.input = '';
@@ -2130,7 +2136,7 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
           oninput: (e) => { d.name = e.target.value; }
         })),
       h('div', { class: 'form-block' },
-        h('span', { class: 'form-label' }, '재료 (메인 포함 최대 4개)'),
+        h('span', { class: 'form-label' }, '재료 (메인 포함 최대 ' + maxFor(curCat()) + '개)'),
         h('div', { class: 'edit-chips' },
           main0 ? h('span', { class: 'edit-chip fixed' }, iconEl(main0, curCat()), main0) : h('span', { class: 'form-hint' }, '메인 재료를 먼저 골라 주세요.'),
           d.items.map((it) => h('button', {

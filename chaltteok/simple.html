@@ -339,6 +339,33 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
 .nav-fab svg { width: 26px; height: 26px; stroke-width: 2.4; }
 .nav-fab-wrap:active .nav-fab { transform: scale(.94); }
 .nav-fab-wrap:focus-visible { outline: 2px solid var(--accent, var(--brand)); outline-offset: -2px; border-radius: 16px; }
+
+/* 커뮤니티 */
+.feed-note { margin: 0 0 14px; padding: 12px 14px; border-radius: 14px; background: var(--fill, var(--bg)); font-size: 12px; line-height: 1.5; color: var(--muted); }
+.composer { display: grid; gap: 8px; padding: 14px; border-radius: 20px; border: 1.5px solid var(--line); background: var(--card); }
+.composer .field { border-radius: 14px; }
+.composer textarea.field { min-height: 66px; }
+.composer .err { margin: 0; min-height: 0; }
+.composer .err:empty { display: none; }
+.row-add select.field { appearance: auto; }
+.posts { display: grid; gap: 10px; margin-top: 8px; }
+.post { display: grid; gap: 10px; padding: 16px; border-radius: 22px; border: 1.5px solid var(--line); background: var(--card); }
+.post-head { display: flex; align-items: center; gap: 10px; }
+.avatar { width: 38px; height: 38px; flex: none; display: flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 20px; }
+.post-who { display: grid; gap: 0; flex: 1; min-width: 0; }
+.post-who b { font-size: 14px; letter-spacing: -0.02em; }
+.post-time { font-size: 12px; color: var(--muted); }
+.post-del { background: none; border: 0; padding: 4px 6px; font-size: 12px; font-weight: 700; color: var(--muted); }
+.post-text { margin: 0; font-size: 15px; line-height: 1.55; overflow-wrap: anywhere; }
+.post-combo { display: flex; align-items: center; gap: 8px; width: 100%; padding: 10px 12px; border: 0; border-radius: 14px; background: var(--fill, var(--bg)); text-align: left; }
+.post-combo:hover { background: var(--accent-soft, var(--fill)); }
+.post-icons { display: flex; gap: 2px; font-size: 20px; line-height: 1; }
+.post-icons .ico svg { width: 1.2em; height: 1.2em; display: block; }
+.post-combo-name { flex: 1; min-width: 0; font-size: 14px; font-weight: 800; letter-spacing: -0.02em; }
+.post-foot { display: flex; align-items: center; gap: 14px; font-size: 13px; color: var(--muted); }
+.like { background: none; border: 0; padding: 4px 2px; font-size: 14px; font-weight: 700; color: var(--muted); }
+.like.on { color: #ef4b4b; }
+.like:focus-visible, .post-combo:focus-visible, .post-del:focus-visible { outline: 2px solid var(--accent, var(--brand)); outline-offset: 2px; border-radius: 10px; }
 </style>
 </head>
 <body>
@@ -1365,7 +1392,7 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
   const KEY_MINE = 'chaltteok:mine';
   const KEY_RATING = 'chaltteok:rating:';
 
-  const state = { chosen: [], combo: null, auto: false, query: '', expanded: false, cat: '컵라면', view: 'home', fromList: '', listQuery: '', draft: null, confirmDel: null };
+  const state = { chosen: [], combo: null, auto: false, query: '', expanded: false, cat: '컵라면', view: 'home', feedSort: 'new', postDraft: { text: '', combo: '', err: '' }, fromList: '', listQuery: '', draft: null, confirmDel: null };
   const CUSTOM_ICON = {};  // 내 조합에서 새로 만든 재료의 아이콘
   const app = document.getElementById('app');
 
@@ -2034,7 +2061,7 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
   const NAV_SVG = (inner) => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + inner + '</svg>';
   const NAV = [
     { key: 'home', label: '홈', views: ['home', 'pick'], icon: NAV_SVG('<path d="M3.5 10.5 12 3l8.5 7.5"/><path d="M5.5 9.5V20h13V9.5"/><path d="M10 20v-5.5h4V20"/>') },
-    { key: 'list', label: '조합', views: ['list'], icon: NAV_SVG('<rect x="4" y="4" width="6.5" height="6.5" rx="1.6"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.6"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.6"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.6"/>') },
+    { key: 'feed', label: '커뮤니티', views: ['feed'], icon: NAV_SVG('<path d="M5 5.5h14a1.5 1.5 0 0 1 1.5 1.5v8A1.5 1.5 0 0 1 19 16.5h-7l-4.5 3.5v-3.5H5A1.5 1.5 0 0 1 3.5 15V7A1.5 1.5 0 0 1 5 5.5z"/><path d="M8 10h8M8 13h5"/>') },
     { key: 'make', label: '조합 만들기', views: ['add'], fab: true, icon: NAV_SVG('<path d="M12 5v14M5 12h14"/>') },
     { key: 'my', label: '마이', views: ['my'], icon: NAV_SVG('<circle cx="12" cy="8" r="3.6"/><path d="M4.5 20c.8-4 3.8-6 7.5-6s6.7 2 7.5 6"/>') },
     { key: 'more', label: '더보기', views: ['more'], icon: NAV_SVG('<path d="M4 7h16M4 12h16M4 17h16"/>') }
@@ -2226,6 +2253,136 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
       h('p', { class: 'about' }, '찰떡은 편의점 꿀조합을 모아 두고, 재료를 하나씩 골라 찾는 앱이에요. 조합은 영상과 글을 참고해 정리했고, 일부 이름과 시간은 임시예요. 내 조합과 별점은 이 브라우저에만 저장돼요.'));
   }
 
+  /* ---------- 커뮤니티 (서버 연결 전 미리보기: 예시 글 + 내가 쓴 글) ---------- */
+  const KEY_POSTS = 'chaltteok:posts';
+  const KEY_LIKES = 'chaltteok:likes';
+  // 모양을 보여 주기 위한 예시 글이에요. 실제 사용자가 쓴 글이 아니에요.
+  const SAMPLE_POSTS = [
+    { id: 's1', nick: '매운맛러버', combo: '불닭 공화춘', text: '짜장이 불닭 매운맛을 딱 잡아줘요. 처음엔 달다가 뒤에 탁 치고 들어와서 계속 먹게 돼요.', likes: 128, comments: 14, ageMin: 1 },
+    { id: 's2', nick: '퇴근길라면', combo: '우유 오모리 김치찌개', text: '물 대신 우유 넣고 치즈 올려서 돌렸는데 까르보 느낌이에요. 스프랑 김치는 반만 넣는 거 꼭 지키세요!', likes: 96, comments: 9, ageMin: 12 },
+    { id: 's3', nick: '군필러', combo: '공간춘', text: '참치 넣으니까 진짜 국룰이네요. 군대 PX 생각나는 맛입니다.', likes: 74, comments: 11, ageMin: 40 },
+    { id: 's4', nick: '편의점탐험가', combo: '파워 박카스', text: '섞으면 색이 그라데이션으로 예쁘게 나와요. 맛은 은근 상큼해서 더울 때 좋아요.', likes: 52, comments: 4, ageMin: 65 },
+    { id: 's5', nick: '시원한면', combo: '치치면', text: '찬물에 헹궈서 참치랑 김치 올려 먹으니까 더운 날 딱이에요. 비빔장은 넉넉히!', likes: 41, comments: 6, ageMin: 120 },
+    { id: 's6', nick: '디저트왕', combo: '요거트 치즈케이크', text: '빠다코코낫 부숴서 올리니까 식감이 대박이에요. 편의점 디저트 중에 제일 맛있었어요.', likes: 63, comments: 8, ageMin: 180 },
+    { id: 's7', nick: '달콤매콤', combo: '콕콕콕 조합', text: '스파게티의 새콤함이랑 라면볶이 매콤함이 의외로 잘 어울려요. 각각 조리하고 섞는 게 포인트!', likes: 38, comments: 3, ageMin: 300 },
+    { id: 's8', nick: '쌈무사랑', combo: '불닭 핫바 쌈무', text: '쌈무에 싸 먹으니까 불닭이 덜 매워요. 핫바가 신의 한 수였습니다.', likes: 29, comments: 2, ageMin: 1500 },
+    { id: 's9', nick: '야식러', combo: '윤남노 누룽지라면', text: '라면 국물 부은 누룽지에 고추참치 올리니까 해장 그 자체였어요.', likes: 45, comments: 7, ageMin: 1700 },
+    { id: 's10', nick: '달달이', combo: '초코바나나우유', text: '허쉬랑 바나나우유 반반 섞었는데 진짜 초코바나나 아이스크림 맛이에요.', likes: 33, comments: 5, ageMin: 2900 }
+  ];
+  const AVATARS = ['🍜', '🍙', '🧀', '🥤', '🌶️', '🍢', '☕', '🍰'];
+
+  function relTime(min) {
+    if (min < 2) return '방금';
+    if (min < 60) return Math.floor(min) + '분 전';
+    if (min < 1440) return Math.floor(min / 60) + '시간 전';
+    return Math.floor(min / 1440) + '일 전';
+  }
+
+  function hash(str) {
+    let x = 0;
+    for (let i = 0; i < str.length; i++) x = (x * 31 + str.charCodeAt(i)) >>> 0;
+    return x;
+  }
+
+  function allPosts() {
+    const now = Date.now();
+    const mine = lsGet(KEY_POSTS, []).map((p) => Object.assign({}, p, { mine: true, ageMin: (now - p.ts) / 60000, likes: 0, comments: 0 }));
+    const sample = SAMPLE_POSTS.map((p) => Object.assign({}, p, { sample: true }));
+    const list = mine.concat(sample);
+    return state.feedSort === 'hot'
+      ? list.sort((a, b) => b.likes - a.likes)
+      : list.sort((a, b) => a.ageMin - b.ageMin);
+  }
+
+  function comboByName(name) {
+    return COMBOS.find((c) => c.name === name) || null;
+  }
+
+  function toggleLike(id) {
+    const liked = lsGet(KEY_LIKES, []);
+    const i = liked.indexOf(id);
+    if (i === -1) liked.push(id); else liked.splice(i, 1);
+    lsSet(KEY_LIKES, liked);
+    render(true);
+  }
+
+  function deletePost(id) {
+    if (state.confirmDel !== id) { state.confirmDel = id; render(true); return; }
+    lsSet(KEY_POSTS, lsGet(KEY_POSTS, []).filter((p) => p.id !== id));
+    state.confirmDel = null;
+    render(true);
+  }
+
+  function submitPost() {
+    const d = state.postDraft;
+    const text = d.text.trim();
+    if (!text) { d.err = '한마디를 적어 주세요.'; render(true); return; }
+    const list = lsGet(KEY_POSTS, []);
+    const ts = Date.now();
+    list.push({ id: 'p-' + ts, nick: '나', text: text.slice(0, 100), combo: d.combo, ts: ts });
+    lsSet(KEY_POSTS, list);
+    state.postDraft = { text: '', combo: '', err: '' };
+    state.feedSort = 'new';
+    render(true);
+  }
+
+  function postCard(p) {
+    const liked = lsGet(KEY_LIKES, []).indexOf(p.id) !== -1;
+    const c = p.combo ? comboByName(p.combo) : null;
+    const hue = hash(p.nick) % 360;
+    const avatar = h('span', { class: 'avatar', style: 'background:hsl(' + hue + ' 85% 92%)', 'aria-hidden': 'true' }, AVATARS[hash(p.nick) % AVATARS.length]);
+    return h('article', { class: 'post' },
+      h('header', { class: 'post-head' },
+        avatar,
+        h('span', { class: 'post-who' },
+          h('b', {}, p.nick),
+          h('span', { class: 'post-time' }, relTime(p.ageMin))),
+        p.sample ? h('span', { class: 'opt-cat' }, '예시') : null,
+        p.mine ? h('span', { class: 'opt-cat mine-tag' }, '내 글') : null,
+        p.mine ? h('button', { class: 'post-del', type: 'button', onclick: () => deletePost(p.id) }, state.confirmDel === p.id ? '한 번 더 누르면 삭제' : '삭제') : null),
+      h('p', { class: 'post-text' }, p.text),
+      c ? h('button', { class: 'post-combo', type: 'button', onclick: () => openCombo(c) },
+        itemIcons(c, 3, 'post-icons'), h('span', { class: 'post-combo-name' }, c.name), h('span', { class: 'more-arrow', 'aria-hidden': 'true' }, '›')) : null,
+      h('footer', { class: 'post-foot' },
+        h('button', { class: 'like' + (liked ? ' on' : ''), type: 'button', 'aria-pressed': liked ? 'true' : 'false', onclick: () => toggleLike(p.id) },
+          h('span', { 'aria-hidden': 'true' }, liked ? '♥' : '♡'), ' ' + (p.likes + (liked ? 1 : 0))),
+        h('span', { class: 'cmt' }, '💬 ' + p.comments)));
+  }
+
+  function feedView() {
+    const d = state.postDraft;
+    const names = [];
+    COMBOS.forEach((c) => { if (names.indexOf(c.name) === -1) names.push(c.name); });
+    names.sort((a, b) => a.localeCompare(b, 'ko'));
+    return h('section', { class: 'feed' },
+      h('h1', { class: 'step-title' }, '커뮤니티'),
+      h('p', { class: 'step-hint' }, '다른 사람들이 먹은 조합 이야기를 모아 봐요.'),
+      h('p', { class: 'feed-note' }, '서버에 연결하기 전 미리보기예요. "예시" 표시가 있는 글은 모양을 보여 주려고 만든 샘플이고, 내가 쓴 글은 이 브라우저에만 저장돼요.'),
+      h('div', { class: 'composer' },
+        h('textarea', {
+          id: 'post-text', class: 'field', rows: '2', maxlength: '100', placeholder: '오늘 먹은 조합은 어땠나요?', 'aria-label': '한마디 쓰기',
+          oninput: (e) => { d.text = e.target.value; }
+        }, d.text),
+        h('div', { class: 'row-add' },
+          h('select', {
+            id: 'post-combo', class: 'field', 'aria-label': '조합 고르기',
+            onchange: (e) => { d.combo = e.target.value; }
+          }, [h('option', { value: '' }, '조합 선택 안 함')].concat(names.map((n) => {
+            const o = h('option', { value: n }, n);
+            if (d.combo === n) o.selected = true;
+            return o;
+          }))),
+          h('button', { class: 'btn primary', type: 'button', onclick: submitPost }, '올리기')),
+        h('p', { class: 'err', role: 'alert' }, d.err || '')),
+      h('div', { class: 'edit-chips', style: 'margin:14px 0 6px' },
+        [['new', '최신순'], ['hot', '인기순']].map((s) => h('button', {
+          class: 'edit-chip' + (state.feedSort === s[0] ? ' sel' : ''), type: 'button',
+          'aria-pressed': state.feedSort === s[0] ? 'true' : 'false',
+          onclick: () => { state.feedSort = s[0]; render(true); }
+        }, s[1]))),
+      h('div', { class: 'posts' }, allPosts().map(postCard)));
+  }
+
   /* ---------- 그리기 ---------- */
   function render(keepScroll) {
     // 같은 화면을 다시 그릴 때(먹어봤어요 등)는 등장 애니메이션을 다시 재생하지 않아요.
@@ -2239,6 +2396,7 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
     else if (v === 'list') body = listView();
     else if (v === 'my') body = myView();
     else if (v === 'more') body = moreView();
+    else if (v === 'feed') body = feedView();
     else if (v === 'pick') body = pickView();
     else body = homeView();
     app.replaceChildren(...[

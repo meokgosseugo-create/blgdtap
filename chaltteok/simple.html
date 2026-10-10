@@ -413,6 +413,8 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
 .submit-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; padding: 12px 14px; border-radius: 16px; background: var(--fill, var(--bg)); }
 .submit-row .btn { flex: none; }
 .btn.on { box-shadow: inset 0 0 0 1.5px var(--accent, var(--brand)); background: var(--accent-soft, var(--card)); }
+.cand-main { background: none; border: 0; padding: 0; text-align: left; color: inherit; }
+.cand-main:focus-visible { outline: 2px solid var(--accent, var(--brand)); outline-offset: 3px; border-radius: 10px; }
 </style>
 </head>
 <body>
@@ -1439,7 +1441,7 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
   const KEY_MINE = 'chaltteok:mine';
   const KEY_RATING = 'chaltteok:rating:';
 
-  const state = { chosen: [], combo: null, auto: false, query: '', expanded: false, cat: '컵라면', view: 'home', feedSort: 'new', postDraft: { text: '', combo: '', err: '', img: '' }, cdraft: null, voteTab: 'week', voteMsg: '', fromList: '', listQuery: '', draft: null, confirmDel: null };
+  const state = { chosen: [], combo: null, auto: false, query: '', expanded: false, cat: '컵라면', view: 'home', feedSort: 'new', postDraft: { text: '', combo: '', err: '', img: '' }, cdraft: null, voteTab: 'week', voteMsg: '', candId: null, fromList: '', listQuery: '', draft: null, confirmDel: null };
   const CUSTOM_ICON = {};  // 내 조합에서 새로 만든 재료의 아이콘
   const app = document.getElementById('app');
 
@@ -2074,17 +2076,23 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
     const c = state.combo;
     const rate = L.pickRate(COMBOS, c);
     const isTried = lsGet(KEY_TRIED, []).indexOf(c.id) !== -1;
+    const cr = state.fromList === 'vote' && state.candId ? weekCandidates().find((x) => x.id === state.candId) : null;
+    const voteBtn = cr ? h('button', {
+      class: 'btn' + (cr.voted ? ' on' : ''), type: 'button', 'aria-pressed': cr.voted ? 'true' : 'false',
+      onclick: () => toggleVote(cr.id)
+    }, (cr.voted ? '♥ 투표함 ' : '♡ 투표하기 ') + cr.total) : null;
 
     return h('section', {},
       h('article', { class: 'result' },
-        h('p', { class: 'kicker' }, c.mine ? '내 조합' : '조합 완성!'),
+        h('p', { class: 'kicker' }, c.cand ? '투표 후보 · 예시' : (c.mine ? '내 조합' : '조합 완성!')),
         h('h2', {}, c.name),
         c.tagline ? h('p', { class: 'tagline' }, c.tagline) : null,
         h('div', { class: 'chips' },
           c.tags.map((t) => h('span', { class: 'chip' }, '#' + t)),
           c.minutes ? h('span', { class: 'chip time' }, '약 ' + c.minutes + '분') : null,
-          c.mine ? h('span', { class: 'chip time' }, '내가 만든 조합') : null),
-        c.mine ? null : h('div', { class: 'stats' },
+          c.mine ? h('span', { class: 'chip time' }, '내가 만든 조합') : null,
+          c.cand ? h('span', { class: 'chip time' }, '예시 후보') : null),
+        (c.mine || c.cand) ? null : h('div', { class: 'stats' },
           statRow('같은 메인 재료 중 이 조합 비율', rate),
           statRow('맛 점수', c.score, '※ 숫자는 임시 샘플 값이에요.')),
         h('h3', { class: 'section-title' }, '만드는 법'),
@@ -2099,7 +2107,9 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
         h('button', { class: 'btn', type: 'button', onclick: back }, '← 뒤로'),
         h('button', { class: 'btn primary', type: 'button', onclick: reset }, '다른 조합 찾기'),
         c.mine ? h('button', { class: 'btn', type: 'button', onclick: () => delMine(c) },
-          state.confirmDel === c.id ? '한 번 더 누르면 삭제' : '삭제') : null),
+          state.confirmDel === c.id ? '한 번 더 누르면 삭제' : '삭제') : null,
+        voteBtn),
+      (cr && state.voteMsg) ? h('p', { class: 'err', role: 'alert' }, state.voteMsg) : null,
       photosSection(c),
       ratingSection(c),
       commentsSection(c));
@@ -2542,9 +2552,9 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
     { id: 'v8', name: '치즈 오뎅 짬뽕', nick: '얼큰파', cat: '컵라면', items: ['진짬뽕', '오뎅한그릇', '치즈'], votes: 44 }
   ];
   const SAMPLE_WINNERS = [
-    { medal: '🥇', name: '불닭 라면볶이 치즈', nick: '라면연구소', cat: '컵라면', items: ['불닭볶음면', '콕콕콕 라면볶이', '스트링치즈'], votes: 342 },
-    { medal: '🥈', name: '우유 짜장 라면', nick: '달콤이', cat: '컵라면', items: ['공화춘 짜장', '우유', '치즈'], votes: 301 },
-    { medal: '🥉', name: '참치 김치 비빔면', nick: '시원한면', cat: '컵라면', items: ['누들면', '참치', '김치'], votes: 276 }
+    { id: 'w1', medal: '🥇', name: '불닭 라면볶이 치즈', nick: '라면연구소', cat: '컵라면', items: ['불닭볶음면', '콕콕콕 라면볶이', '스트링치즈'], votes: 342 },
+    { id: 'w2', medal: '🥈', name: '우유 짜장 라면', nick: '달콤이', cat: '컵라면', items: ['공화춘 짜장', '우유', '치즈'], votes: 301 },
+    { id: 'w3', medal: '🥉', name: '참치 김치 비빔면', nick: '시원한면', cat: '컵라면', items: ['누들면', '참치', '김치'], votes: 276 }
   ];
 
   function untilNextMonday() {
@@ -2585,8 +2595,37 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
     render(true);
   }
 
+  // 예시 후보의 만드는 법도 모양을 보여 주기 위한 예시예요.
+  const CAND_STEPS = {
+    v1: ['까르보불닭볶음면을 조리해요.', '즉석밥을 넣고 섞어요.', '치즈를 올려 전자레인지에 1분 돌려요.'],
+    v2: ['공화춘을 조리하고 물을 조금 남겨요.', '우유를 넣고 졸여요.', '치즈를 올려 녹여요.'],
+    v3: ['컵누들에 물을 부어요.', '참치를 올려요.', '치즈를 올려 전자레인지에 30초 돌려요.'],
+    v4: ['컵 떡볶이를 조리해요.', '김치를 올려요.', '체다치즈를 올려 전자레인지에 돌려요.'],
+    v5: ['얼음컵에 파워에이드를 부어요.', '사이다를 채우고 가볍게 섞어요.'],
+    v6: ['불닭볶음면을 조리해요.', '만두를 전자레인지로 익혀요.', '쌈무에 불닭볶음면과 만두를 올려 싸 먹어요.'],
+    v7: ['그릭 요거트를 그릇에 담아요.', '바나나우유를 조금 부어요.', '빠다코코낫을 부숴 올려요.'],
+    v8: ['진짬뽕에 오뎅 국물을 넣고 물을 맞춰요.', '치즈를 올려요.', '전자레인지에 2분 돌려요.'],
+    w1: ['불닭볶음면과 라면볶이를 각각 조리해요.', '한 그릇에 섞어요.', '스트링치즈를 올려 전자레인지에 30초 돌려요.'],
+    w2: ['공화춘을 조리하고 물을 조금 남겨요.', '우유를 넣고 졸여요.', '치즈를 올려 녹여요.'],
+    w3: ['누들면을 삶아 얼음물에 헹궈요.', '참치와 김치를 올려요.', '비빔장을 넣고 비벼요.']
+  };
+
+  // 후보를 누르면 만드는 법 화면을 열어요. (내 후보는 내가 만든 조합 그대로, 예시 후보는 예시 레시피)
+  function openCand(c) {
+    state.candId = c.id;
+    let combo = c.comboId ? COMBOS.find((x) => x.id === c.comboId) : null;
+    if (!combo) {
+      combo = {
+        id: 'cand-' + c.id, main: c.items[0], cat: c.cat, cand: true, name: c.name, items: c.items,
+        tagline: 'by ' + c.nick, tags: [], minutes: null, steps: CAND_STEPS[c.id] || ['예시 후보라서 만드는 법이 없어요.'],
+        tip: '예시 후보라서 이 만드는 법도 예시예요.', votes: 1, score: null
+      };
+    }
+    openCombo(combo);
+  }
+
   function candRow(c, rank) {
-    const left = h('div', { class: 'cand-main' },
+    const left = h('button', { class: 'cand-main', type: 'button', 'aria-label': c.name + ' 자세히 보기', onclick: () => openCand(c) },
       itemIcons({ items: c.items, cat: c.cat }, 4, 'mini-icons'),
       h('b', { class: 'cand-name' }, c.name,
         c.sample ? h('span', { class: 'opt-cat mine-tag' }, '예시') : null,
@@ -2626,7 +2665,7 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
       h('p', { class: 'form-hint', style: 'margin:0 0 10px' }, '지난주 투표 상위 3개가 공식 조합으로 들어왔어요. (예시)'),
       h('div', { class: 'cands' }, SAMPLE_WINNERS.map((w) => h('article', { class: 'cand in' },
         h('span', { class: 'medal', 'aria-hidden': 'true' }, w.medal),
-        h('div', { class: 'cand-main' },
+        h('button', { class: 'cand-main', type: 'button', 'aria-label': w.name + ' 자세히 보기', onclick: () => openCand(w) },
           itemIcons(w, 4, 'mini-icons'),
           h('b', { class: 'cand-name' }, w.name, h('span', { class: 'opt-cat mine-tag' }, '예시')),
           h('span', { class: 'cand-by' }, 'by ' + w.nick + ' · ' + w.items.join(' + '))),

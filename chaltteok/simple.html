@@ -313,6 +313,32 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
 .about { margin-top: 16px; padding: 16px 18px; border-radius: 18px; background: var(--fill, var(--bg)); font-size: 13px; line-height: 1.6; color: var(--muted); }
 .edit-chip.sel { border-color: var(--accent, var(--brand)); background: var(--accent-soft, var(--bg)); }
 .back-link { margin-bottom: 4px; }
+
+/* 레퍼런스 느낌의 홈: 주황 배너 + 아이콘 분류 칸 */
+.home-banner { margin: -20px -16px 0; padding: 22px 20px 46px; border-radius: 0 0 32px 32px; background: linear-gradient(135deg, #ff9a45, #ff5a2e); color: #fff; }
+.banner-top { display: flex; align-items: baseline; justify-content: space-between; }
+.banner-logo { font-size: 26px; font-weight: 900; letter-spacing: -0.04em; }
+.banner-date { font-size: 13px; font-weight: 700; opacity: .95; }
+.banner-title { margin: 14px 0 16px; font-size: 25px; font-weight: 900; letter-spacing: -0.03em; line-height: 1.25; }
+.banner-search { display: flex; align-items: center; gap: 8px; width: 100%; padding: 13px 16px; border: 0; border-radius: 999px; background: #fff; color: #8a8a8e; font-size: 14px; font-weight: 600; text-align: left; }
+.banner-search svg { width: 18px; height: 18px; flex: none; }
+.quick-card { position: relative; margin: -28px 0 0; padding: 18px 6px 14px; border-radius: 24px; background: var(--card); box-shadow: 0 10px 30px rgba(40, 30, 60, .12), 0 0 0 1px var(--line); }
+.quick-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px 2px; }
+.quick-item { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 0; background: none; border: 0; font-size: 12px; font-weight: 700; color: var(--ink); }
+.quick-ico { width: 58px; height: 58px; display: flex; align-items: center; justify-content: center; border-radius: 19px; background: var(--fill, #f3f3f5); font-size: 30px; line-height: 1; transition: transform .1s ease; }
+.quick-ico .ico svg { width: 1.3em; height: 1.3em; display: block; }
+.quick-item:active .quick-ico { transform: scale(.94); }
+.quick-item:focus-visible { outline: 2px solid var(--accent, var(--brand)); outline-offset: 2px; border-radius: 14px; }
+
+/* 하단 바: 가운데 조합 만들기 버튼, 아래쪽이 살짝 회색 */
+.navbar { border-top: 0; border-radius: 26px 26px 0 0; background: linear-gradient(180deg, #ffffff 55%, #eeeef1 100%); box-shadow: 0 -8px 28px rgba(20, 20, 30, .10); }
+.navbar-in { grid-template-columns: repeat(5, 1fr); align-items: end; }
+.nav-fab-wrap { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 0 2px 9px; background: none; border: 0; color: var(--muted); font-size: 11px; font-weight: 700; }
+.nav-fab-wrap.on { color: var(--ink); }
+.nav-fab { width: 58px; height: 58px; margin-top: -30px; display: flex; align-items: center; justify-content: center; border-radius: 50%; border: 5px solid #fff; background: linear-gradient(135deg, #ffb02e, #ff5a2e); color: #fff; box-shadow: 0 8px 18px rgba(255, 90, 46, .38); transition: transform .1s ease; }
+.nav-fab svg { width: 26px; height: 26px; stroke-width: 2.4; }
+.nav-fab-wrap:active .nav-fab { transform: scale(.94); }
+.nav-fab-wrap:focus-visible { outline: 2px solid var(--accent, var(--brand)); outline-offset: -2px; border-radius: 16px; }
 </style>
 </head>
 <body>
@@ -1438,7 +1464,7 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
   }
 
   // 전체 조합 화면 열기 / 목록에서 조합 열기
-  function openList() {
+  function openList(focusSearch) {
     state.chosen = [];
     state.combo = null;
     state.auto = false;
@@ -1448,6 +1474,10 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
     state.fromList = '';
     state.view = 'list';
     render();
+    if (focusSearch === true) {
+      const el = document.querySelector('.search');
+      if (el) el.focus();
+    }
   }
 
   function openCombo(c) {
@@ -1692,7 +1722,6 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
     }
 
     const view = h('section', {},
-      h('button', { class: 'btn back-link', type: 'button', onclick: () => goTab('more') }, '← 더보기'),
       h('h1', { class: 'step-title' }, '전체 조합'),
       h('p', { class: 'step-hint' }, '지금까지 등록된 ' + COMBOS.length + '개 조합이에요. 눌러서 만드는 법을 볼 수 있어요.'),
       h('input', {
@@ -2005,9 +2034,10 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
   const NAV_SVG = (inner) => '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + inner + '</svg>';
   const NAV = [
     { key: 'home', label: '홈', views: ['home', 'pick'], icon: NAV_SVG('<path d="M3.5 10.5 12 3l8.5 7.5"/><path d="M5.5 9.5V20h13V9.5"/><path d="M10 20v-5.5h4V20"/>') },
+    { key: 'list', label: '조합', views: ['list'], icon: NAV_SVG('<rect x="4" y="4" width="6.5" height="6.5" rx="1.6"/><rect x="13.5" y="4" width="6.5" height="6.5" rx="1.6"/><rect x="4" y="13.5" width="6.5" height="6.5" rx="1.6"/><rect x="13.5" y="13.5" width="6.5" height="6.5" rx="1.6"/>') },
+    { key: 'make', label: '조합 만들기', views: ['add'], fab: true, icon: NAV_SVG('<path d="M12 5v14M5 12h14"/>') },
     { key: 'my', label: '마이', views: ['my'], icon: NAV_SVG('<circle cx="12" cy="8" r="3.6"/><path d="M4.5 20c.8-4 3.8-6 7.5-6s6.7 2 7.5 6"/>') },
-    { key: 'make', label: '조합 만들기', views: ['add'], icon: NAV_SVG('<circle cx="12" cy="12" r="8.5"/><path d="M12 8v8M8 12h8"/>') },
-    { key: 'more', label: '더보기', views: ['more', 'list'], icon: NAV_SVG('<path d="M4 7h16M4 12h16M4 17h16"/>') }
+    { key: 'more', label: '더보기', views: ['more'], icon: NAV_SVG('<path d="M4 7h16M4 12h16M4 17h16"/>') }
   ];
 
   // 탭을 바꿀 때는 고르던 것과 열려 있던 결과를 모두 정리하고 그 탭의 첫 화면으로 가요.
@@ -2022,6 +2052,7 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
     state.confirmDel = null;
     state.draft = null;
     if (key === 'make') { openAdd(); return; }
+    if (key === 'list') { openList(); return; }
     state.view = key;
     render();
   }
@@ -2030,7 +2061,13 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
     return h('nav', { class: 'navbar', 'aria-label': '메뉴' },
       h('div', { class: 'navbar-in' }, NAV.map((n) => {
         const on = n.views.indexOf(state.view) !== -1;
-        const btn = h('button', { class: 'nav-item' + (on ? ' on' : ''), type: 'button', 'aria-current': on ? 'page' : null, onclick: () => goTab(n.key) });
+        const attrs = { type: 'button', 'aria-current': on ? 'page' : null, onclick: () => goTab(n.key) };
+        if (n.fab) {
+          const btn = h('button', Object.assign({ class: 'nav-fab-wrap' + (on ? ' on' : '') }, attrs));
+          btn.innerHTML = '<span class="nav-fab">' + n.icon + '</span><span class="nav-label">' + n.label + '</span>';
+          return btn;
+        }
+        const btn = h('button', Object.assign({ class: 'nav-item' + (on ? ' on' : '') }, attrs));
         btn.innerHTML = n.icon + '<span class="nav-label">' + n.label + '</span>';
         return btn;
       })));
@@ -2103,26 +2140,34 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
     const mains = L.nextOptions(COMBOS, [], 0);
     const tried = COMBOS.filter((c) => lsGet(KEY_TRIED, []).indexOf(c.id) !== -1).length;
     const pct = COMBOS.length ? Math.round((tried / COMBOS.length) * 100) : 0;
+    const quick = CATEGORIES.map((c) => ({ label: c, icon: CAT_ICON[c] || '🍴', go: () => { state.cat = c; reset(); } }))
+      .concat([{ label: '전체', icon: '📋', go: () => goTab('list') }]);
+    const searchIcon = document.createElement('span');
+    searchIcon.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4 4"/></svg>';
     return h('section', { class: 'home' },
-      h('p', { class: 'home-date' }, (d.getMonth() + 1) + '월 ' + d.getDate() + '일 ' + week + '요일'),
-      h('h1', { class: 'home-title' }, '오늘은 이 조합 어때요?'),
-      hero ? heroCard(hero) : null,
+      h('div', { class: 'home-banner' },
+        h('div', { class: 'banner-top' },
+          h('span', { class: 'banner-logo' }, '찰떡'),
+          h('span', { class: 'banner-date' }, (d.getMonth() + 1) + '월 ' + d.getDate() + '일 ' + week + '요일')),
+        h('h1', { class: 'banner-title' }, '오늘은 이 조합 어때요?'),
+        h('button', { class: 'banner-search', type: 'button', onclick: () => openList(true) },
+          searchIcon.firstChild, h('span', {}, '조합·재료 검색'))),
+      h('div', { class: 'quick-card' },
+        h('div', { class: 'quick-grid' }, quick.map((q) => {
+          const ico = document.createElement('span');
+          ico.className = 'ico';
+          fillIcon(ico, q.icon);
+          return h('button', { class: 'quick-item', type: 'button', onclick: q.go },
+            h('span', { class: 'quick-ico' }, ico), h('span', { class: 'quick-label' }, q.label));
+        }))),
       h('div', { class: 'section-head' },
         h('h2', { class: 'section-title' }, '오늘의 추천 조합'),
-        h('span', { class: 'group-count' }, rest.length + '개')),
-      h('div', { class: 'rail' }, rest.map(miniCard)),
+        h('span', { class: 'group-count' }, (rest.length + 1) + '개')),
+      hero ? heroCard(hero) : null,
+      h('div', { class: 'rail', style: 'margin-top:12px' }, rest.map(miniCard)),
       h('button', { class: 'find-cta', type: 'button', onclick: reset },
         h('span', {}, h('b', {}, '재료로 조합 찾기'), h('span', {}, '메인 재료부터 하나씩 골라 봐요')),
         h('span', { class: 'go', 'aria-hidden': 'true' }, '→')),
-      h('div', { class: 'section-head' },
-        h('h2', { class: 'section-title' }, '분류별로 보기')),
-      h('div', { class: 'cat-grid' }, CATEGORIES.map((c) => {
-        const icon = document.createElement('span');
-        icon.className = 'ico';
-        fillIcon(icon, CAT_ICON[c] || '🍴');
-        return h('button', { class: 'cat-tile', type: 'button', onclick: () => { state.cat = c; reset(); } },
-          icon, c, h('small', {}, mains.filter((o) => o.cat === c).length + '개 메인'));
-      })),
       h('button', { class: 'progress-card', type: 'button', onclick: () => goTab('my') },
         h('b', {}, '먹어본 조합 ' + tried + '/' + COMBOS.length),
         h('span', { class: 'bar' }, h('span', { class: 'fill', style: 'width:' + pct + '%' }))));
@@ -2197,7 +2242,7 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
     else if (v === 'pick') body = pickView();
     else body = homeView();
     app.replaceChildren(...[
-      header(),
+      (state.view === 'home' && !state.combo) ? null : header(),
       atStart ? catBar() : null,
       (inPick || state.combo) ? tray() : null,
       body,

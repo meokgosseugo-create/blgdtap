@@ -1420,7 +1420,7 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
   const KEY_MINE = 'chaltteok:mine';
   const KEY_RATING = 'chaltteok:rating:';
 
-  const state = { chosen: [], combo: null, auto: false, query: '', expanded: false, cat: '컵라면', view: 'home', feedSort: 'new', postDraft: { text: '', combo: '', err: '', img: '' }, fromList: '', listQuery: '', draft: null, confirmDel: null };
+  const state = { chosen: [], combo: null, auto: false, query: '', expanded: false, cat: '컵라면', view: 'home', feedSort: 'new', postDraft: { text: '', combo: '', err: '', img: '' }, cdraft: null, fromList: '', listQuery: '', draft: null, confirmDel: null };
   const CUSTOM_ICON = {};  // 내 조합에서 새로 만든 재료의 아이콘
   const app = document.getElementById('app');
 
@@ -2010,45 +2010,45 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
   }
 
   function commentsSection(combo) {
-    const key = KEY_COMMENTS + combo.id;
-    const listEl = h('ul', { class: 'comment-list' });
-    const input = h('input', {
-      type: 'text', maxlength: '100', placeholder: '한 줄 코멘트를 남겨보세요',
-      'aria-label': '코멘트 입력'
-    });
-
-    function fillList() {
-      listEl.replaceChildren();
-      const items = lsGet(key, []).slice().reverse();
-      if (items.length === 0) {
-        listEl.append(h('li', { class: 'empty' }, '아직 코멘트가 없어요. 첫 코멘트를 남겨보세요!'));
-        return;
-      }
-      items.forEach((c) => {
-        listEl.append(h('li', {},
-          c.text,
-          h('time', {}, new Date(c.ts).toLocaleDateString('ko-KR'))));
-      });
-    }
-
-    function submit(e) {
-      e.preventDefault();
-      const text = input.value.trim();
-      if (!text) return;
-      const items = lsGet(key, []);
-      items.push({ text: text.slice(0, 100), ts: Date.now() });
-      lsSet(key, items);
-      input.value = '';
-      fillList();
-    }
-
-    fillList();
+    if (!state.cdraft || state.cdraft.id !== combo.id) state.cdraft = { id: combo.id, text: '', img: '', err: '' };
+    const d = state.cdraft;
+    const list = collectPosts().filter((p) => p.combo === combo.name).sort((a, b) => a.ageMin - b.ageMin);
     return h('section', { class: 'comments' },
-      h('h3', { class: 'section-title' }, '코멘트'),
-      h('form', { class: 'comment-form', onsubmit: submit },
-        input,
-        h('button', { class: 'btn primary', type: 'submit' }, '남기기')),
-      listEl);
+      h('h3', { class: 'section-title' }, '후기 · 사진'),
+      h('p', { class: 'form-hint', style: 'margin:0 0 8px' }, '남긴 글은 커뮤니티에도 바로 올라가요.'),
+      h('div', { class: 'composer' },
+        h('textarea', {
+          id: 'cm-text', class: 'field', rows: '2', maxlength: '100', placeholder: '이 조합 먹어봤다면 한마디 남겨 주세요', 'aria-label': '후기 쓰기',
+          oninput: (e) => { d.text = e.target.value; }
+        }, d.text),
+        d.img ? h('div', { class: 'photo-prev' },
+          h('img', { src: d.img, alt: '첨부한 사진 미리보기' }),
+          h('button', { type: 'button', 'aria-label': '사진 빼기', onclick: () => { d.img = ''; render(true); } }, '×')) : null,
+        h('input', {
+          id: 'cm-photo', type: 'file', accept: 'image/*', hidden: true, 'aria-label': '사진 고르기',
+          onchange: (e) => {
+            const file = e.target.files && e.target.files[0];
+            if (!file) return;
+            readPhoto(file, (url) => {
+              if (!url) d.err = '이 사진은 불러올 수 없어요. 다른 사진으로 해 보세요.';
+              else { d.img = url; d.err = ''; }
+              render(true);
+            });
+          }
+        }),
+        h('div', { class: 'composer-actions' },
+          h('button', { class: 'btn', type: 'button', onclick: () => document.getElementById('cm-photo').click() }, d.img ? '📷 사진 바꾸기' : '📷 사진 추가'),
+          h('button', {
+            class: 'btn primary', type: 'button',
+            onclick: () => {
+              if (savePost(d, combo.name)) state.cdraft = null;
+              render(true);
+            }
+          }, '남기기')),
+        h('p', { class: 'err', role: 'alert' }, d.err || '')),
+      h('div', { class: 'posts' }, list.length
+        ? list.map((p) => postCard(p, true))
+        : h('p', { class: 'my-empty' }, '아직 후기가 없어요. 첫 후기를 남겨 보세요!')));
   }
 
   function resultView() {
@@ -2354,11 +2354,45 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
     return x;
   }
 
-  function allPosts() {
+  // 후기(코멘트)와 커뮤니티 글은 같은 곳에 저장해서, 한 번 남기면 양쪽에 모두 보여요.
+  function savePost(d, comboName) {
+    const text = d.text.trim();
+    if (!text) { d.err = '한마디를 적어 주세요.'; return false; }
+    const list = lsGet(KEY_POSTS, []);
+    const ts = Date.now();
+    list.push({ id: 'p-' + ts, nick: '나', text: text.slice(0, 100), combo: comboName, ts: ts, img: d.img || '' });
+    if (!lsSet(KEY_POSTS, list)) {
+      d.err = '저장 공간이 부족해요. 사진을 빼거나 예전 글을 지운 뒤 다시 올려 주세요.';
+      return false;
+    }
+    d.err = '';
+    return true;
+  }
+
+  // 예전 방식으로 남긴 코멘트를 새 글 저장소로 한 번 옮겨요.
+  function migrateComments() {
+    const posts = lsGet(KEY_POSTS, []);
+    let moved = false;
+    COMBOS.forEach((c) => {
+      const old = lsGet(KEY_COMMENTS + c.id, []);
+      if (Array.isArray(old) && old.length) {
+        old.forEach((o) => posts.push({ id: 'p-' + (o.ts || 0) + '-' + c.id, nick: '나', text: String(o.text || '').slice(0, 100), combo: c.name, ts: o.ts || Date.now(), img: '' }));
+        try { localStorage.removeItem(KEY_COMMENTS + c.id); } catch (e) { /* 지우지 못해도 괜찮아요 */ }
+        moved = true;
+      }
+    });
+    if (moved) lsSet(KEY_POSTS, posts);
+  }
+
+  function collectPosts() {
     const now = Date.now();
     const mine = lsGet(KEY_POSTS, []).map((p) => Object.assign({}, p, { mine: true, ageMin: (now - p.ts) / 60000, likes: 0, comments: 0 }));
     const sample = SAMPLE_POSTS.map((p) => Object.assign({}, p, { sample: true }));
-    const list = mine.concat(sample);
+    return mine.concat(sample);
+  }
+
+  function allPosts() {
+    const list = collectPosts();
     return state.feedSort === 'hot'
       ? list.sort((a, b) => b.likes - a.likes)
       : list.sort((a, b) => a.ageMin - b.ageMin);
@@ -2385,22 +2419,13 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
 
   function submitPost() {
     const d = state.postDraft;
-    const text = d.text.trim();
-    if (!text) { d.err = '한마디를 적어 주세요.'; render(true); return; }
-    const list = lsGet(KEY_POSTS, []);
-    const ts = Date.now();
-    list.push({ id: 'p-' + ts, nick: '나', text: text.slice(0, 100), combo: d.combo, ts: ts, img: d.img || '' });
-    if (!lsSet(KEY_POSTS, list)) {
-      d.err = '저장 공간이 부족해요. 사진을 빼거나 예전 글을 지운 뒤 다시 올려 주세요.';
-      render(true);
-      return;
-    }
+    if (!savePost(d, d.combo)) { render(true); return; }
     state.postDraft = { text: '', combo: '', err: '', img: '' };
     state.feedSort = 'new';
     render(true);
   }
 
-  function postCard(p) {
+  function postCard(p, hideCombo) {
     const liked = lsGet(KEY_LIKES, []).indexOf(p.id) !== -1;
     const c = p.combo ? comboByName(p.combo) : null;
     const hue = hash(p.nick) % 360;
@@ -2417,7 +2442,7 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
       h('p', { class: 'post-text' }, p.text),
       p.img ? h('img', { class: 'post-img', src: p.img, alt: '올린 사진', loading: 'lazy' }) : null,
       (p.photo && c) ? h('div', { class: 'sample-photo', 'aria-hidden': 'true' }, itemIcons(c, 3, 'mini-icons'), h('span', { class: 'opt-cat' }, '예시 사진')) : null,
-      c ? h('button', { class: 'post-combo', type: 'button', onclick: () => openCombo(c) },
+      (c && !hideCombo) ? h('button', { class: 'post-combo', type: 'button', onclick: () => openCombo(c) },
         itemIcons(c, 3, 'post-icons'), h('span', { class: 'post-combo-name' }, c.name), h('span', { class: 'more-arrow', 'aria-hidden': 'true' }, '›')) : null,
       h('footer', { class: 'post-foot' },
         h('button', { class: 'like' + (liked ? ' on' : ''), type: 'button', 'aria-pressed': liked ? 'true' : 'false', onclick: () => toggleLike(p.id) },
@@ -2472,7 +2497,7 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
           'aria-pressed': state.feedSort === s[0] ? 'true' : 'false',
           onclick: () => { state.feedSort = s[0]; render(true); }
         }, s[1]))),
-      h('div', { class: 'posts' }, allPosts().map(postCard)));
+      h('div', { class: 'posts' }, allPosts().map((p) => postCard(p))));
   }
 
   /* ---------- 그리기 ---------- */
@@ -2502,6 +2527,7 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
   }
 
   loadMine();
+  migrateComments();
   render(true);
 })();
 </script>

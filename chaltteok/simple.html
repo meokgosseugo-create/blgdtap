@@ -975,14 +975,14 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
       tip: '영상에서 만두 위에 무언가를 으깨서 올리는 단계가 있었는데 자막으로 확인하지 못했어요.', votes: 120, score: 87
     },
     {
-      id: 'chichi-myeon', main: '누들면', cat: '컵라면', src: 'user',
+      id: 'chichi-myeon', main: '컵누들', cat: '컵라면', src: 'user',
       name: '치치면',
-      items: ['누들면', '참치', '김치', '비빔장'],
+      items: ['컵누들', '참치', '김치', '비빔장'],
       tagline: '면만 익혀 얼음물에 씻고 참치와 김치를 올려 비벼 먹는 시원 매콤한 조합',
       tags: ['시원', '매콤'],
       minutes: 8,
       steps: [
-        '누들면을 면만 익혀요.',
+        '컵누들을 면만 익혀요.',
         '얼음 넣은 찬물에 씻어요.',
         '참치와 김치를 올려요.',
         '비빔장을 쭉 뿌려 잘 섞으면 완성!'
@@ -1749,7 +1749,7 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
   SVG_ICONS['핫바'] = SVG_ICONS['소시지'];
   SVG_ICONS['치즈소시지'] = SVG_ICONS['소시지'];
   SVG_ICONS['비엔나소시지'] = SVG_ICONS['소시지'];
-  const EMOJI_KEYWORDS = [['라면', '🍜'], ['볶음면', '🍜'], ['짜장', '🍜'], ['게티', '🍜'], ['곰탕', '🍜'], ['당면', '🍜'], ['누들', '🍜'], ['우동', '🍜'], ['사발면', '🍜'], ['탕면', '🍜'], ['짜왕', '🍜'], ['찌개', '🍜'], ['누들면', '🍜'], ['칼국수', '🍜'], ['짬뽕', '🍜'], ['구리', '🍜'], ['삼각김밥', '🍙'], ['치즈', '🧀'], ['커피', '☕']];
+  const EMOJI_KEYWORDS = [['라면', '🍜'], ['볶음면', '🍜'], ['짜장', '🍜'], ['게티', '🍜'], ['곰탕', '🍜'], ['당면', '🍜'], ['누들', '🍜'], ['우동', '🍜'], ['사발면', '🍜'], ['탕면', '🍜'], ['짜왕', '🍜'], ['찌개', '🍜'], ['칼국수', '🍜'], ['짬뽕', '🍜'], ['구리', '🍜'], ['삼각김밥', '🍙'], ['치즈', '🧀'], ['커피', '☕']];
   function emojiFor(name) {
     if (EMOJI[name]) return EMOJI[name];
     const hit = EMOJI_KEYWORDS.find((k) => name.includes(k[0]));
@@ -2731,7 +2731,7 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
   const SAMPLE_WINNERS = [
     { id: 'w1', medal: '🥇', name: '불닭 라면볶이 치즈', nick: '라면연구소', cat: '컵라면', items: ['불닭볶음면', '콕콕콕 라면볶이', '스트링치즈'], votes: 342 },
     { id: 'w2', medal: '🥈', name: '우유 짜장 라면', nick: '달콤이', cat: '컵라면', items: ['공화춘 짜장', '우유', '치즈'], votes: 301 },
-    { id: 'w3', medal: '🥉', name: '참치 김치 비빔면', nick: '시원한면', cat: '컵라면', items: ['누들면', '참치', '김치'], votes: 276 }
+    { id: 'w3', medal: '🥉', name: '참치 김치 비빔면', nick: '시원한면', cat: '컵라면', items: ['컵누들', '참치', '김치'], votes: 276 }
   ];
 
   function untilNextMonday() {
@@ -2784,7 +2784,7 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
     v8: ['진짬뽕에 오뎅 국물을 넣고 물을 맞춰요.', '치즈를 올려요.', '전자레인지에 2분 돌려요.'],
     w1: ['불닭볶음면과 라면볶이를 각각 조리해요.', '한 그릇에 섞어요.', '스트링치즈를 올려 전자레인지에 30초 돌려요.'],
     w2: ['공화춘을 조리하고 물을 조금 남겨요.', '우유를 넣고 졸여요.', '치즈를 올려 녹여요.'],
-    w3: ['누들면을 삶아 얼음물에 헹궈요.', '참치와 김치를 올려요.', '비빔장을 넣고 비벼요.']
+    w3: ['컵누들을 삶아 얼음물에 헹궈요.', '참치와 김치를 올려요.', '비빔장을 넣고 비벼요.']
   };
 
   // 후보를 누르면 만드는 법 화면을 열어요. (내 후보는 내가 만든 조합 그대로, 예시 후보는 예시 레시피)

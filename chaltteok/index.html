@@ -676,8 +676,8 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
     {
       id: 'nuguri-curry', main: '너구리', cat: '라면', src: 'user',
       name: '카구리',
-      items: ['너구리', '카레라면'],
-      tagline: '너구리와 카레라면을 섞은 독특한 조합',
+      items: ['너구리', '오뚜기카레면'],
+      tagline: '너구리와 오뚜기카레면을 섞은 독특한 조합',
       tags: ['얼큰', '카레'],
       minutes: 8,
       steps: [
@@ -1763,7 +1763,7 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
   SVG_ICONS['핫바'] = SVG_ICONS['소시지'];
   SVG_ICONS['치즈소시지'] = SVG_ICONS['소시지'];
   SVG_ICONS['비엔나소시지'] = SVG_ICONS['소시지'];
-  const EMOJI_KEYWORDS = [['라면', '🍜'], ['볶음면', '🍜'], ['짜장', '🍜'], ['게티', '🍜'], ['곰탕', '🍜'], ['당면', '🍜'], ['누들', '🍜'], ['우동', '🍜'], ['사발면', '🍜'], ['탕면', '🍜'], ['짜왕', '🍜'], ['찌개', '🍜'], ['칼국수', '🍜'], ['짬뽕', '🍜'], ['구리', '🍜'], ['삼각김밥', '🍙'], ['치즈', '🧀'], ['커피', '☕']];
+  const EMOJI_KEYWORDS = [['라면', '🍜'], ['볶음면', '🍜'], ['짜장', '🍜'], ['게티', '🍜'], ['곰탕', '🍜'], ['당면', '🍜'], ['누들', '🍜'], ['우동', '🍜'], ['사발면', '🍜'], ['카레면', '🍜'], ['탕면', '🍜'], ['짜왕', '🍜'], ['찌개', '🍜'], ['칼국수', '🍜'], ['짬뽕', '🍜'], ['구리', '🍜'], ['삼각김밥', '🍙'], ['치즈', '🧀'], ['커피', '☕']];
   function emojiFor(name) {
     if (EMOJI[name]) return EMOJI[name];
     const hit = EMOJI_KEYWORDS.find((k) => name.includes(k[0]));

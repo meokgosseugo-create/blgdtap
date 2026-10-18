@@ -130,7 +130,13 @@ def friendly_error(url, e):
     low = msg.lower()
     if isinstance(e, (ValueError, RuntimeError)):
         return msg
-    if "operation not permitted" in low and "cookies" in low:
+    if "could not find" in low and "cookies database" in low:
+        return (
+            "선택한 브라우저가 이 맥에 설치되어 있지 않거나, 한 번도 열어 본 적이 없는 것 같아요.\n"
+            "실제로 쓰는 브라우저를 위쪽에서 고르고, 그 브라우저에서 인스타에 로그인해 주세요.\n"
+            "(사파리를 고르면 시스템 설정 → 개인정보 보호 및 보안 → 전체 디스크 접근 권한에서 '대본 추출기'를 켜야 해요.)\n\n" + msg
+        )
+    if "operation not permitted" and "cookies" in low:
         return (
             "맥이 사파리의 로그인 정보를 읽는 걸 막았어요.\n"
             "방법 1) 위쪽 '브라우저' 선택을 크롬으로 바꾸고, 크롬에서 인스타에 로그인해 두세요. (가장 쉬워요)\n"

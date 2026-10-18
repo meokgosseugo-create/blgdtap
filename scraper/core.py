@@ -130,6 +130,12 @@ def friendly_error(url, e):
     low = msg.lower()
     if isinstance(e, (ValueError, RuntimeError)):
         return msg
+    if "operation not permitted" in low and "cookies" in low:
+        return (
+            "맥이 사파리의 로그인 정보를 읽는 걸 막았어요.\n"
+            "방법 1) 위쪽 '브라우저' 선택을 크롬으로 바꾸고, 크롬에서 인스타에 로그인해 두세요. (가장 쉬워요)\n"
+            "방법 2) 시스템 설정 → 개인정보 보호 및 보안 → 전체 디스크 접근 권한에서 '대본 추출기'를 켜고 앱을 다시 열어 주세요.\n\n" + msg
+        )
     if "instagram" in url and any(k in low for k in ("login", "cookie", "keychain", "rate-limit", "restricted")):
         return "인스타 로그인 정보를 읽지 못했어요. 선택한 브라우저에 인스타그램이 로그인되어 있는지 확인하고, 키체인 접근 창이 뜨면 '허용'을 눌러 주세요.\n\n" + msg
     if "sign in to confirm" in low or "not a bot" in low:

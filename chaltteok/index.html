@@ -1001,7 +1001,7 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
     },
     {
       id: 'carbo-risotto-milk', main: '까르보불닭볶음면', cat: '컵라면', src: 'user',
-      name: '까르보리조또',
+      name: '미나미 까르보조합',
       items: ['까르보불닭볶음면', '햇반', '우유', '치즈'],
       tagline: '면을 부수고 밥과 우유를 넣어 돌린 크리미한 리조또',
       tags: ['크리미', '든든'],
@@ -2878,6 +2878,9 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
     };
   }
 
+  // 연예인·유명인 이름이 붙은 조합은 홈에 먼저 보여줘요.
+  const STAR_IDS = ['cup-jinse', 'nurungji-yoon', 'mark-jeongsik', 'bulbokkeum-tang-cheese', 'minami-bul', 'carbo-risotto-milk'];
+
   function todayPicks(n) {
     const d = new Date();
     const rnd = seededRandom(d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate());
@@ -2891,10 +2894,17 @@ textarea.field { resize: vertical; min-height: 120px; line-height: 1.5; border-r
       const j = Math.floor(rnd() * (i + 1));
       const t = pool[i]; pool[i] = pool[j]; pool[j] = t;
     }
+    const stars = pool.filter((c) => STAR_IDS.indexOf(c.id) !== -1);
+    if (stars.length) {
+      const rest = pool.filter((c) => STAR_IDS.indexOf(c.id) === -1);
+      pool.length = 0;
+      stars.concat(rest).forEach((c) => pool.push(c));
+    }
     const picked = [];
     const per = {};
+    const perMax = stars.length ? 99 : 2;
     pool.forEach((c) => {
-      if (picked.length < n && (per[c.cat] || 0) < 2) { picked.push(c); per[c.cat] = (per[c.cat] || 0) + 1; }
+      if (picked.length < n && (per[c.cat] || 0) < perMax) { picked.push(c); per[c.cat] = (per[c.cat] || 0) + 1; }
     });
     pool.forEach((c) => { if (picked.length < n && picked.indexOf(c) === -1) picked.push(c); });
     return picked;
